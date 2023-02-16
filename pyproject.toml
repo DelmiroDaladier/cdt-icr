@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.10.6"
 asgiref = "^3.5.2"
 Django = "^3.2.12"
 pytz = "^2022.6"
@@ -23,7 +23,6 @@ beautifulsoup4 = "4.11.1"
 gunicorn = "^20.1.0"
 whitenoise = {extras = ["brotli"], version = "^6.3.0"}
 python-dateutil = "^2.8.2"
-spacy = "^3.5.0"
 
 
 [build-system]
