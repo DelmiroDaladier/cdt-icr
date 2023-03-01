@@ -16,7 +16,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Conference
 from .forms import PostForm, AuthorForm, VenueForm, CategoryForm, ArxivForm, NewUserForm, ConferenceForm
-from .utils import generate_qmd_header, generate_page_content, create_push_request, generate_qmd_header_for_arxiv, scrap_data_from_arxiv, get_conference_information, generate_headers_for_conference_calendar, generate_content_for_conference_calendar
+from .utils import generate_qmd_header, generate_page_content, create_push_request, generate_qmd_header_for_arxiv, scrap_data_from_arxiv, get_conference_information, save_new_conference_data
 
 
 @login_required
@@ -204,7 +204,8 @@ def arxiv_post(request):
             generate_page_content(content, file_path)
 
             try:
-                create_push_request(file_path, folder_name)
+                repo='icr'
+                create_push_request(file_path, folder_name, repo=repo)
             except Exception as ex:
                 messages.error(
                     request,
@@ -294,14 +295,12 @@ def submit_conference(request):
 
             current_path = os.getcwd()
             
-            filepath = current_path + f'/conference_calendar/index.qmd'
+            filepath = current_path + f'/conference_calendar/input.csv'
 
-            generate_headers_for_conference_calendar(filepath=filepath)
-
-            generate_content_for_conference_calendar(conference_objects=conferences, filepath=filepath)
+            save_new_conference_data(conferences, filepath)
 
             repo = 'conference_calendar'
-
+            print('Ready to make a push request')
             create_push_request(file_path=filepath, folder_name='', repo=repo)
 
     form = ConferenceForm()

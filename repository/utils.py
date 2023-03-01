@@ -9,6 +9,7 @@ from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 
 import spacy
+import pandas as pd
 import en_core_web_sm
 from spacy import displacy
 from bs4 import BeautifulSoup
@@ -61,37 +62,14 @@ def generate_qmd_header(content: dict, form_data: dict):
 
     return content
 
-def generate_headers_for_conference_calendar(filepath):
-
+def save_new_conference_data(conference_objects, filepath: str):
+    
     os.remove(filepath)
 
-    content = {
-        'title': 'Conference clendar',
-        'page-layout': 'full',
-        'title-block-banner': True,
-        'comments': False
-    }
+    df = pd.DataFrame(list(conference_objects.values()))
+    print(df)
+    df.to_csv(filepath)
 
-    with open(filepath, 'w+') as fp:
-        fp.write('---\n')
-        yaml.dump(content, fp)
-        fp.write('\n---')
-
-def generate_content_for_conference_calendar(conference_objects, filepath: str):
-    
-    with open(filepath, 'a') as fp:
-        fp.write('\n<hr>\n')
-        for object in conference_objects:
-            fp.write('\n<p style="text-align: center;"> \n')
-            fp.write(f"<strong> {object.name} </strong>")
-            fp.write(f"\n<br>")
-            fp.write(f"\nStart date:{object.start_date}")
-            fp.write(f"\n<br>")
-            fp.write(f"\nEnd date:{object.end_date}")
-            fp.write(f"\n<br>")
-            fp.write(f"\n<a href={object.end_date}>Link</a>")
-            fp.write('\n<hr>')
-            fp.write('\n</p> \n')
 
 def generate_page_content(content, filepath: str):
 
@@ -144,13 +122,12 @@ def create_push_request(file_path: str, folder_name: str, repo: str):
 
     sha_last_commit_url = f'https://api.github.com/repos/{user}/{repo}/branches/main'
     response = requests.get(sha_last_commit_url, headers=header)
-    
+   
     sha_last_commit = response.json()['commit']['sha']
 
     url = f'https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}'
     response = requests.get(url, headers=header)
-    print(response)
-    print(response.json())
+
     sha_base_tree = response.json()['sha']
 
     with open(file_path, 'r') as fp:
