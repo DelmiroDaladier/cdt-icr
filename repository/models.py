@@ -62,6 +62,7 @@ class Post(models.Model):
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
 
+
 class Conference(models.Model):
     conference_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=250, unique=True)

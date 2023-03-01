@@ -37,8 +37,9 @@ def homepage(request):
             folder_name = slugify(content.get('title', ''))
 
             current_path = os.getcwd()
-            
-            current_path = current_path + f'/icr_frontend/content/{folder_name}/'
+
+            current_path = current_path + \
+                f'/icr_frontend/content/{folder_name}/'
 
             file_path = f'{current_path}index.qmd'
 
@@ -158,7 +159,7 @@ def update_post(request, slug):
         return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(request, form.errors.as_data().title)
-    
+
 
 def arxiv_post(request):
 
@@ -171,7 +172,7 @@ def arxiv_post(request):
         filled_form = ArxivForm(request.POST)
 
         if filled_form.is_valid():
-            #filled_form.save()
+            # filled_form.save()
             form_data = filled_form.cleaned_data
 
             url = form_data.get('link', '')
@@ -190,7 +191,8 @@ def arxiv_post(request):
 
             current_path = os.getcwd()
 
-            current_path = current_path + f'/icr_frontend/content/{folder_name}/'
+            current_path = current_path + \
+                f'/icr_frontend/content/{folder_name}/'
             file_path = f'{current_path}index.qmd'
 
             if not os.path.exists(current_path):
@@ -204,7 +206,7 @@ def arxiv_post(request):
             generate_page_content(content, file_path)
 
             try:
-                repo='icr'
+                repo = 'icr'
                 create_push_request(file_path, folder_name, repo=repo)
             except Exception as ex:
                 messages.error(
@@ -217,8 +219,11 @@ def arxiv_post(request):
                 'form': filled_form
             }
 
-            return render(request, 'repository/submission.html', context=context)
-        
+            return render(
+                request,
+                'repository/submission.html',
+                context=context)
+
         messages.error(request, filled_form.errors.as_data().title)
 
     form = ArxivForm()
@@ -267,16 +272,17 @@ def register_request(request):
         context={
             "register_form": form})
 
+
 @login_required
 def submit_conference(request):
 
     if request.method == 'POST':
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':    
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             url = request.body.decode('UTF-8')
             if url != '':
                 response = get_conference_information(url)
 
-                return JsonResponse(response, status=200, safe=False)  
+                return JsonResponse(response, status=200, safe=False)
             else:
                 response = {
                     'title': '',
@@ -285,16 +291,16 @@ def submit_conference(request):
 
                 }
                 return JsonResponse(response, status=200, safe=False)
-        
+
         form = ConferenceForm(request.POST)
 
         if form.is_valid():
             form.save()
-            
+
             conferences = Conference.objects.order_by('start_date')
 
             current_path = os.getcwd()
-            
+
             filepath = current_path + f'/conference_calendar/input.csv'
 
             save_new_conference_data(conferences, filepath)
@@ -306,11 +312,11 @@ def submit_conference(request):
     form = ConferenceForm()
 
     context = {
-            "form": form
-        }
+        "form": form
+    }
 
     return render(
-            request,
-            'repository/submit_conference.html',
-            context=context
-        )
+        request,
+        'repository/submit_conference.html',
+        context=context
+    )

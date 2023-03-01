@@ -62,8 +62,9 @@ def generate_qmd_header(content: dict, form_data: dict):
 
     return content
 
+
 def save_new_conference_data(conference_objects, filepath: str):
-    
+
     os.remove(filepath)
 
     df = pd.DataFrame(list(conference_objects.values()))
@@ -108,7 +109,6 @@ def generate_page_content(content, filepath: str):
 
 def create_push_request(file_path: str, folder_name: str, repo: str):
 
-    
     load_dotenv(override=True)
 
     user = os.getenv('GH_USER')
@@ -118,11 +118,9 @@ def create_push_request(file_path: str, folder_name: str, repo: str):
         'Authorization': 'Bearer ' + auth_token
     }
 
-    
-
     sha_last_commit_url = f'https://api.github.com/repos/{user}/{repo}/branches/main'
     response = requests.get(sha_last_commit_url, headers=header)
-   
+
     sha_last_commit = response.json()['commit']['sha']
 
     url = f'https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}'
@@ -260,6 +258,7 @@ def scrap_data_from_arxiv(url: str):
 
     return data
 
+
 def is_date(string, fuzzy=False):
     """
     Return whether the string can be interpreted as a date.
@@ -267,20 +266,29 @@ def is_date(string, fuzzy=False):
     :param string: str, string to check for date
     :param fuzzy: bool, ignore unknown tokens in string if True
     """
-    try: 
+    try:
         parse(string, fuzzy=fuzzy)
         return True
 
     except ValueError:
         return False
 
+
 def remove_years_strings(dates):
     return [date for date in dates if not re.fullmatch('[0-9]+', date[0])]
 
+
 def text_preprocess(text: str, nlp):
-    
-    sentences = [sentence.replace('\xa0', '').replace('\u200b', '').replace('\n', ' ') for sentence in text.split('\n') if sentence != '']
-    processed_sentences =[]
+
+    sentences = [
+        sentence.replace(
+            '\xa0',
+            '').replace(
+            '\u200b',
+            '').replace(
+                '\n',
+            ' ') for sentence in text.split('\n') if sentence != '']
+    processed_sentences = []
     for sentence in sentences:
         doc = nlp(sentence)
         processed_sentences.append([(X.text, X.label_) for X in doc.ents])
@@ -288,33 +296,50 @@ def text_preprocess(text: str, nlp):
     sentences = sum(processed_sentences, [])
     return sentences
 
+
 def fetch_data(url: str):
     soup = BeautifulSoup(requests.get(url).content, "html.parser")
     return soup.text, soup.title.text
 
+
 def get_days(date: str):
     candidates = re.findall('[0-9]+', date)
-    candidates = [candidate for candidate in candidates if not re.fullmatch('\d\d\d\d', candidate)]
-    
-    return candidates 
+    candidates = [
+        candidate for candidate in candidates if not re.fullmatch(
+            '\\d\\d\\d\\d', candidate)]
+
+    return candidates
+
 
 def get_years(date: str):
     candidates = re.findall('[0-9]+', date)
-    candidates = [candidate for candidate in candidates if re.fullmatch('\d\d\d\d', candidate)]
+    candidates = [
+        candidate for candidate in candidates if re.fullmatch(
+            '\\d\\d\\d\\d', candidate)]
 
     return candidates
+
 
 def get_month(date: str):
     candidates = re.findall('[A-Za-z]+', date)
 
-    return [candidate for candidate in candidates if candidate not in ('st', 'nd', 'rd', 'th')]
+    return [
+        candidate for candidate in candidates if candidate not in (
+            'st',
+            'nd',
+            'rd',
+            'th')]
+
 
 def get_dates_from_text(sentences: list):
-    dates = [(X[0], X[1]) for X in sentences if X[1]=='DATE']
+    dates = [(X[0], X[1]) for X in sentences if X[1] == 'DATE']
     dates = remove_years_strings(dates)
     dates = [date[0] for date in dates]
-    
-    dates = [date for date in dates if re.fullmatch('(\w+\s)*\d+(st|nd|rd|th)*\s(-|to|—|–|through)\s(\w+\s)*\d+(st|nd|rd|th)*(\s\w+)*(,\s\d\d\d\d)*', date)]
+
+    dates = [
+        date for date in dates if re.fullmatch(
+            '(\\w+\\s)*\\d+(st|nd|rd|th)*\\s(-|to|—|–|through)\\s(\\w+\\s)*\\d+(st|nd|rd|th)*(\\s\\w+)*(,\\s\\d\\d\\d\\d)*',
+            date)]
 
     year = [get_years(date) for date in dates]
     year = [list(set(item)) for item in year]
@@ -328,16 +353,21 @@ def get_dates_from_text(sentences: list):
 
     dates = []
     for candidate_day, candidate_month in zip(days, months):
-        dates.append([f"{day} {month} {year}" for day in candidate_day for month in candidate_month if month not in ('to', 'of', 'through')])
+        dates.append(
+            [
+                f"{day} {month} {year}" for day in candidate_day for month in candidate_month if month not in (
+                    'to',
+                    'of',
+                    'through')])
 
     dates = [sorted(date, key=lambda x: parse(x)) for date in dates]
 
     return dates
 
-def get_places_from_text(sentences: list):
-    places = [X[0] for X in sentences if X[1]=='GPE']    
-    return places
 
+def get_places_from_text(sentences: list):
+    places = [X[0] for X in sentences if X[1] == 'GPE']
+    return places
 
 
 def get_conference_information(url: str):
@@ -352,7 +382,7 @@ def get_conference_information(url: str):
     context = {
         'dates': dates,
         'places': places,
-        'title': title 
+        'title': title
     }
 
     return context

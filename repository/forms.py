@@ -136,6 +136,7 @@ class NewUserForm(UserCreationForm):
             user.save()
         return user
 
+
 class ConferenceForm(forms.ModelForm):
 
     date_formats = [
