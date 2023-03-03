@@ -65,11 +65,13 @@ def generate_qmd_header(content: dict, form_data: dict):
 
 def save_new_conference_data(conference_objects, filepath: str):
 
-    os.remove(filepath)
+    if os.path.exists(filepath):
+        os.remove(filepath)
 
     df = pd.DataFrame(list(conference_objects.values()))
-    print(df)
-    df.to_csv(filepath)
+    df.drop('conference_id', axis=1)
+
+    df.to_csv(filepath, index=False)
 
 
 def generate_page_content(content, filepath: str):
@@ -120,7 +122,7 @@ def create_push_request(file_path: str, folder_name: str, repo: str):
 
     sha_last_commit_url = f'https://api.github.com/repos/{user}/{repo}/branches/main'
     response = requests.get(sha_last_commit_url, headers=header)
-
+    print(response)
     sha_last_commit = response.json()['commit']['sha']
 
     url = f'https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}'

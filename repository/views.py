@@ -26,6 +26,7 @@ def homepage(request):
 
     if request.method == 'POST':
         filled_form = PostForm(request.POST)
+        context = {}
 
         if filled_form.is_valid():
             filled_form.save()
@@ -60,19 +61,20 @@ def homepage(request):
             except Exception as ex:
                 messages.error(
                     request,
-                    "We are experiencing some problems when fetching when communication with github. Please Try again later.")
-                return redirect("")
+                    "We are experiencing some problems when communication with github. Please Try again later.")
+                return redirect("/")
 
             context = {
                 'folder_name': folder_name,
                 'form': filled_form
             }
 
-            print(context)
+            return render(request, 'repository/submission.html', context)
         else:
-            messages.error(request, filled_form.errors.as_data().title)
+            print(filled_form.errors.as_data())
+            messages.error(request, 'The form is invalid, please review your submission')
+            return redirect("/")
 
-        return render(request, 'repository/submission.html', context)
     else:
         filled_form = PostForm()
         return render(
@@ -280,7 +282,14 @@ def submit_conference(request):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             url = request.body.decode('UTF-8')
             if url != '':
-                response = get_conference_information(url)
+                try:
+                    response = get_conference_information(url)
+                except Exception as ex:
+                    messages.error(
+                    request,
+                        f"We are experiencing some problems when fetching when communication with {url}. Please Try again later.")
+
+                    return redirect("submit_conference")
 
                 return JsonResponse(response, status=200, safe=False)
             else:
@@ -306,8 +315,18 @@ def submit_conference(request):
             save_new_conference_data(conferences, filepath)
 
             repo = 'conference_calendar'
-            print('Ready to make a push request')
-            create_push_request(file_path=filepath, folder_name='', repo=repo)
+    
+            try:
+                repo = 'icr'
+                create_push_request(file_path=filepath, folder_name='', repo=repo)
+            except Exception as ex:
+                print(ex)
+                messages.error(
+                    request,
+                    "We are experiencing some problems when fetching when communication with github. Please Try again later.")
+                return redirect("submit_conference")
+
+            
 
     form = ConferenceForm()
 
