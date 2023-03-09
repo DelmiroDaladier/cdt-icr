@@ -107,8 +107,8 @@ class AuthorForm(forms.ModelForm):
 class VenueForm(forms.ModelForm):
     class Meta:
         model = Venue
-        fields = ['venue_name', 'year', 'venue_url']
-        labels = ['Name', 'Year', 'URL']
+        fields = ['venue_name', 'venue_url']
+        labels = ['Name', 'URL']
 
 
 class CategoryForm(forms.ModelForm):

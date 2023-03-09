@@ -6,7 +6,8 @@ from embed_video.fields import EmbedVideoField
 
 
 class Author(models.Model):
-    user = models.CharField(max_length=250)
+    user_id = models.AutoField(primary_key=True)
+    user = models.CharField( max_length=250, unique=True)
     user_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
@@ -15,17 +16,16 @@ class Author(models.Model):
 
 class Venue(models.Model):
     id = models.AutoField(primary_key=True)
-    venue_name = models.CharField(max_length=250)
-    year = models.IntegerField()
+    venue_name = models.CharField(max_length=250, unique=True)
     venue_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
-        return self.venue_name + ' ' + str(self.year)
+        return self.venue_name
 
 
 class Category(models.Model):
-
-    title = models.CharField(max_length=250)
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=250, unique=True)
     slug = models.SlugField()
 
     def __str__(self):
@@ -42,7 +42,7 @@ class Post(models.Model):
     slug = models.SlugField(unique=True)
     overview = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    authors = models.ManyToManyField(Author)
+    authors = models.ManyToManyField(Author, default='')
     thumbnail = models.ImageField(blank=True, null=True)
     categories = models.ManyToManyField(Category)
     venue = models.ManyToManyField(Venue, blank=True, default='')

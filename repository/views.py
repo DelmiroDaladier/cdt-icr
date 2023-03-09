@@ -14,69 +14,103 @@ from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Conference
+from .models import Conference, Author, Post
 from .forms import PostForm, AuthorForm, VenueForm, CategoryForm, ArxivForm, NewUserForm, ConferenceForm
 from .utils import generate_qmd_header, generate_page_content, create_push_request, generate_qmd_header_for_arxiv, scrap_data_from_arxiv, get_conference_information, save_new_conference_data
+
+from django.db import IntegrityError
 
 
 @login_required
 def homepage(request):
+    """
+    This function generates a homepage view. It handles the request received through POST method, validates the data entered in the PostForm form, generates a QMD header and content for the post, creates a new folder and file in the repository, and pushes the changes to GitHub. If the request method is GET, it renders a new_post.html page with an empty form.
 
+    Args:
+    request (HttpRequest): A request object representing a HTTP request.
+
+    Returns:
+    If the request method is POST and the form data is valid, it renders a submission.html page with the new post's folder name and the form used to submit the post. If the form data is invalid, it redirects the user to the homepage. If an exception occurs during the process, it displays an error message and redirects the user to the homepage. If the request method is GET, it renders a new_post.html page with an empty form.
+    """
     load_dotenv()
 
     if request.method == 'POST':
         filled_form = PostForm(request.POST)
         context = {}
 
-        if filled_form.is_valid():
-            filled_form.save()
-            form_data = filled_form.cleaned_data
+        try:
+            if filled_form.is_valid():
+                try:
+                    filled_form.save()
+                except Exception as ex:
+                    messages.error(
+                        request, "Oops! Something went wrong. Please check your input and try again.")
 
-            content = {}
-            content = generate_qmd_header(content, form_data)
+                form_data = filled_form.cleaned_data
 
-            folder_name = slugify(content.get('title', ''))
+                content = {}
 
-            current_path = os.getcwd()
+                try:
+                    content = generate_qmd_header(content, form_data)
+                    folder_name = slugify(content.get('title', ''))
 
-            current_path = current_path + \
-                f'/icr_frontend/content/{folder_name}/'
+                    current_path = os.getcwd()
 
-            file_path = f'{current_path}index.qmd'
+                    current_path = current_path + \
+                        f'/icr_frontend/content/{folder_name}/'
 
-            if not os.path.exists(current_path):
-                os.makedirs(current_path)
+                    file_path = f'{current_path}index.qmd'
 
-            with open(file_path, 'w+') as fp:
-                fp.write('---\n')
-                yaml.dump(content, fp)
-                fp.write('\n---')
+                    if not os.path.exists(current_path):
+                        os.makedirs(current_path)
 
-            generate_page_content(content, file_path)
+                    with open(file_path, 'w+') as fp:
+                        fp.write('---\n')
+                        yaml.dump(content, fp)
+                        fp.write('\n---')
+                except Exception as ex:
+                    messages.error(
+                        request,
+                        "We are experiencing problems when creating qmd headers. Please try again later."
+                    )
 
-            repo = 'icr'
+                try:
+                    generate_page_content(content, file_path)
+                except Exception as ex:
+                    messages.error(
+                        request,
+                        "We are experiencing problems when filling qmd files. Please try again later."
+                    )
 
-            try:
-                create_push_request(file_path, folder_name, repo)
-            except Exception as ex:
-                messages.error(
-                    request,
-                    "We are experiencing some problems when communication with github. Please Try again later.")
-                return redirect("/")
+                try:
+                    repo = 'icr'
+                    create_push_request(file_path, folder_name, repo)
+                except Exception as ex:
+                    messages.error(
+                        request,
+                        "We are experiencing some problems when communication with github. Please Try again later.")
+                    return redirect("/")
 
-            context = {
-                'folder_name': folder_name,
-                'form': filled_form
-            }
+                context = {
+                    'folder_name': folder_name,
+                    'form': filled_form
+                }
 
-            return render(request, 'repository/submission.html', context)
-        else:
-            print(filled_form.errors.as_data())
-            messages.error(request, 'The form is invalid, please review your submission')
+                return render(request, 'repository/submission.html', context)
+            messages.error(
+                request, 'The form is invalid, please review your submission.')
+            return redirect("/")
+
+        except Exception as ex:
+            print(ex)
+            filled_form.add_error(None, 'Form validation error.')
+            messages.error(
+                request, 'The form is invalid, please review your submission.')
             return redirect("/")
 
     else:
         filled_form = PostForm()
+
         return render(
             request,
             'repository/new_post.html',
@@ -85,11 +119,38 @@ def homepage(request):
 
 
 def about(request):
+    """
+    Render the about page HTML content.
+
+    Args:
+        request (HttpRequest): An object containing metadata about the current request.
+
+    Returns:
+        HttpResponse: An HTTP response object that renders the 'about_page.html' template.
+    """
     return render(request, 'repository/about_page.html')
 
 
 def author_create(request):
+    """
+    Create a new Author instance and render the create_author HTML page.
 
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: If the request method is GET, returns an HTTP response object
+        that renders the 'create_author.html' template with an empty AuthorForm instance
+        provided to the template context.
+
+        JsonResponse: If the request method is POST and the submitted form data is valid,
+        returns a JSON response object containing the serialized Author instance and an
+        HTTP status code of 200.
+
+        HttpResponse: If the request method is POST and the submitted form data is invalid,
+        returns an HTTP response object that renders the 'create_author.html' template
+        with the invalid form instance and an error message provided to the template context.
+    """
     if request.method == 'GET':
         form = AuthorForm()
         context = {'form': form}
@@ -99,17 +160,47 @@ def author_create(request):
             context=context)
 
     form = AuthorForm(request.POST)
-
     if form.is_valid():
-        author_instance = form.save()
-        instance = serializers.serialize('json', [author_instance, ])
-        return JsonResponse({"instance": instance}, status=200)
+        try:
+            author_instance = form.save()
+            instance = serializers.serialize('json', [author_instance, ])
+            return JsonResponse({"instance": instance}, status=200)
+        except IntegrityError as integrity:
+            messages.error(
+                request,
+                "IntegrityError: Something went wrong with the input data. Please check your input and try again."
+            )
+            return render(
+                request,
+                'repository/create_author.html',
+                context=context)
     else:
-        messages.error(request, form.errors.as_data().title)
+        messages.error(
+            request,
+            'The form data is invalid, please review your submission.')
+        return render(
+            request,
+            'repository/create_author.html',
+            context=context)
 
 
 def add_venue(request):
+    """
+    Add a new venue to the system.
 
+    If the request method is GET, a new VenueForm instance is created and rendered to a template.
+
+    If the request method is POST, the VenueForm is populated with data from the request.POST, validated, and saved
+    to the database if valid. If the form is not valid, an error message is displayed to the user.
+
+    Args:
+        request: HttpRequest object representing the current request.
+
+    Returns:
+        If the request method is GET, returns a rendered template with a new VenueForm instance.
+        If the request method is POST and the VenueForm is valid, returns a JsonResponse with the saved venue instance
+        in JSON format and a status code of 200. If the form is not valid, returns a rendered template with an error message.
+    """
     if request.method == 'GET':
         form = VenueForm()
         context = {'form': form}
@@ -118,19 +209,51 @@ def add_venue(request):
     form = VenueForm(request.POST)
 
     if form.is_valid():
-        venue_instance = form.save()
-        instance = serializers.serialize('json', [venue_instance, ])
-        return JsonResponse({"instance": instance}, status=200)
+        try:
+            venue_instance = form.save()
+            instance = serializers.serialize('json', [venue_instance, ])
+            return JsonResponse({"instance": instance}, status=200)
+        except Exception as ex:
+            messages.error(
+                request,
+                "IntegrityError: Something went wrong with the input data. Please check your input and try again."
+            )
+            return render(
+                request,
+                'repository/add_venue.html',
+                context=context)
     else:
-        messages.error(request, form.errors.as_data().title)
+        messages.error(
+            request,
+            'The venue form is invalid, please review your submission.')
+        return render(request, 'repository/add_venue.html', context=context)
 
 
 def add_category(request):
+    """
+    View function for adding a new category.
 
+    If the request method is GET, the function renders a form for creating a new category.
+
+    If the request method is POST, the function attempts to validate the form data. If the form is valid,
+    a new category instance is created and returned as JSON in a 200 response. If the form is invalid,
+    an error message is displayed and the form is re-rendered.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: A rendered HTML template or JSON response.
+
+    Raises:
+        None
+    """
     if request.method == 'GET':
         form = CategoryForm()
         context = {'form': form}
-        return render(request, 'repository/add_category.html', context=context)
+        return render(request,
+                      'repository/add_category.html',
+                      context=context)
 
     form = CategoryForm(request.POST)
     if form.is_valid():
@@ -138,11 +261,32 @@ def add_category(request):
         instance = serializers.serialize('json', [category_instance, ])
         return JsonResponse({"instance": instance}, status=200)
     else:
-        messages.error(request, form.errors.as_data().title)
+        messages.error(
+            request,
+            'The category is invalid, please review your submission.')
+        return render(request, 'repository/add_category.html', context={})
 
 
 def update_post(request, slug):
+    """
+    Update an existing post in the system.
 
+    If the request method is GET, a PostForm instance is created with the current post's data and rendered to a template.
+
+    If the request method is POST, the PostForm is populated with data from the request.POST, validated, and updated
+    in the database if valid. If the form is not valid, an error message is displayed to the user.
+
+    Args:
+        request: HttpRequest object representing the current request.
+        slug: The slug of the post to be updated.
+
+    Returns:
+        If the request method is GET, returns a rendered template with a PostForm instance populated with the current
+        post's data.
+        If the request method is POST and the PostForm is valid, returns a JsonResponse with the updated post instance
+        in JSON format and a status code of 200. If the form is not valid, returns a JsonResponse with an error message
+        and a status code of 200.
+    """
     context = {}
 
     post = get_object_or_404(Post, slug=slug)
@@ -160,21 +304,38 @@ def update_post(request, slug):
         instance = serializers.serialize('json', [post_instance, ])
         return JsonResponse({"instance": instance}, status=200)
     else:
-        messages.error(request, form.errors.as_data().title)
+        messages.error(
+            request,
+            'The form is invalid, please review your submission.')
+        return JsonResponse({"instance": instance}, status=200)
 
 
 def arxiv_post(request):
+    """
+    Create a post from an Arxiv link.
 
+    If the request method is GET, an ArxivForm instance is created and rendered to a template.
+
+    If the request method is POST, the ArxivForm is populated with data from the request.POST, validated, and a post is
+    created from the data. If the form is not valid, an error message is displayed to the user.
+
+    Args:
+        request: HttpRequest object representing the current request.
+
+    Returns:
+        If the request method is GET, returns a rendered template with an ArxivForm instance.
+        If the request method is POST and the ArxivForm is valid, returns a rendered template with a success message and
+        a folder name for the post. If the form is not valid, returns a rendered template with the form populated with
+        the submitted data and any errors that occurred during validation.
+    """
     load_dotenv()
 
     if request.method == 'POST':
         context = {}
 
-        enviroment_name = os.getenv('ENV_NAME')
         filled_form = ArxivForm(request.POST)
 
         if filled_form.is_valid():
-            # filled_form.save()
             form_data = filled_form.cleaned_data
 
             url = form_data.get('link', '')
@@ -186,6 +347,38 @@ def arxiv_post(request):
                     request,
                     "We are experiencing some problems when fetching information from Arxiv. Please Try again later.")
                 return redirect("arxiv_post")
+
+            authors = []
+            for author in data['citation_author']:
+                author = author.split(',')[1].strip(
+                ) + ' ' + author.split(',')[0].strip()
+                try:
+                    author_obj = Author(**{'user': author})
+                    author_obj.save()
+                    authors.append(author_obj)
+                except IntegrityError as integrity:
+                    messages.error(
+                        request,
+                        "IntegrityError: Something went wrong with the input data. Please check your input and try again."
+                    )
+
+            data_dict = {
+                'title': data['citation_title'],
+                'overview': data['citation_abstract'],
+                'pdf': data['citation_pdf'],
+            }
+
+            post_obj = Post(**data_dict)
+            try:
+                post_obj.save()
+            except IntegrityError as integrity:
+                messages.error(
+                    request,
+                    "IntegrityError: Something went wrong with the input data. Please check your input and try again."
+                )
+
+            for author in authors:
+                post_obj.authors.add(author.user_id)
 
             content = generate_qmd_header_for_arxiv(data)
 
@@ -236,13 +429,34 @@ def arxiv_post(request):
 
 
 def email_check(user):
+    """
+    Check if the user's email is from the University of Bristol domain.
+
+    Parameters:
+    user (django.contrib.auth.models.User): A user object.
+
+    Returns:
+    bool: True if the email is from the University of Bristol domain, False otherwise.
+    """
     if user.is_authenticated:
         return user.email.endswith('@bristol.ac.uk')
-    print('Fudeu')
     return False
 
 
 def register_request(request):
+    """
+    A view that allows the registration of new users, only those with a valid email domain
+    (@bristol.ac.uk) can successfully register.
+
+    Args:
+    request (HttpRequest): the request object for this view
+
+    Returns:
+    If request method is GET, returns the registration form. If request method is POST and the form is valid
+    and email domain belongs to @bristol.ac.uk, registers the user and logs them in, then redirects them to the homepage.
+    If email domain does not belong to @bristol.ac.uk, returns an error message with the registration form.
+    If the form is invalid, returns an error message with the registration form.
+    """
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
@@ -277,7 +491,18 @@ def register_request(request):
 
 @login_required
 def submit_conference(request):
+    """
+    Submits conference information to the website and saves it to the database and a file on GitHub.
 
+    Args:
+    request (HttpRequest): The HTTP request object.
+
+    Returns:
+    HttpResponse: The HTTP response object containing the rendered template and/or a JSON response.
+
+    Raises:
+    Exception: An exception is raised if there is an error fetching conference information or communicating with GitHub.
+    """
     if request.method == 'POST':
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             url = request.body.decode('UTF-8')
@@ -286,7 +511,7 @@ def submit_conference(request):
                     response = get_conference_information(url)
                 except Exception as ex:
                     messages.error(
-                    request,
+                        request,
                         f"We are experiencing some problems when fetching when communication with {url}. Please Try again later.")
 
                     return redirect("submit_conference")
@@ -314,19 +539,16 @@ def submit_conference(request):
 
             save_new_conference_data(conferences, filepath)
 
-            repo = 'conference_calendar'
-    
             try:
-                repo = 'icr'
-                create_push_request(file_path=filepath, folder_name='', repo=repo)
+                repo = 'conference_calendar'
+                create_push_request(
+                    file_path=filepath, folder_name='', repo=repo)
             except Exception as ex:
                 print(ex)
                 messages.error(
                     request,
                     "We are experiencing some problems when fetching when communication with github. Please Try again later.")
                 return redirect("submit_conference")
-
-            
 
     form = ConferenceForm()
 
