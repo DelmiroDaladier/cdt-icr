@@ -93,7 +93,8 @@ def homepage(request):
 
                 context = {
                     'folder_name': folder_name,
-                    'form': filled_form
+                    'form': filled_form,
+                    'repo': 'icr'
                 }
 
                 return render(request, 'repository/submission.html', context)
@@ -549,6 +550,13 @@ def submit_conference(request):
                     request,
                     "We are experiencing some problems when fetching when communication with github. Please Try again later.")
                 return redirect("submit_conference")
+
+            context = {
+                    'form': form,
+                    'repo': 'conference_calendar'
+                }
+
+            return render(request, 'repository/submission.html', context)
 
     form = ConferenceForm()
 

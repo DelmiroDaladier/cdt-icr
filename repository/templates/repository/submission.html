@@ -2,9 +2,16 @@
 {% block content %}
 
 <div class="container">
-    <p class="blockquote text-center">
-        Your input has been push to the repository. In few minutes you can check the published version clicking <a href= "https://delmirodaladier.github.io/icr/content/{{ folder_name }}">here</a>.
-    </p>
+    {% if repo == 'icr' %}
+        <p class="blockquote text-center">
+            Your input has been push to the repository. In few minutes you can check the published version clicking <a href= "https://delmirodaladier.github.io/icr/content/{{ folder_name }}">here</a>.
+        </p>
+    {% else %}
+        <p class="blockquote text-center">
+            Your input has been push to the repository. In few minutes you can check the published version clicking <a href= "https://delmirodaladier.github.io/conference_calendar/">here</a>.
+        </p>
+    {% endif %}
+    
 </div>
 
 {% endblock %}
