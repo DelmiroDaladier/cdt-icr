@@ -1,8 +1,5 @@
 from django.template.defaultfilters import slugify
-from django.contrib.auth import get_user_model
 from django.db import models
-
-from embed_video.fields import EmbedVideoField
 
 
 class Author(models.Model):
@@ -53,6 +50,8 @@ class Post(models.Model):
     poster = models.URLField(blank=True, null=True)
     code = models.URLField(blank=True, null=True)
     video = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
@@ -70,6 +69,8 @@ class Conference(models.Model):
     location = models.CharField(max_length=250)
     start_date = models.DateField()
     end_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

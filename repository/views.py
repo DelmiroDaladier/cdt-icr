@@ -84,7 +84,9 @@ def homepage(request):
 
                 try:
                     repo = 'icr'
-                    create_push_request(file_path, folder_name, repo)
+                    path = f'content/{folder_name}/index.qmd'
+
+                    create_push_request(file_path, folder_name, repo, path)
                 except Exception as ex:
                     messages.error(
                         request,
@@ -403,7 +405,8 @@ def arxiv_post(request):
 
             try:
                 repo = 'icr'
-                create_push_request(file_path, folder_name, repo=repo)
+                path = f'content/{folder_name}/index.qmd'
+                create_push_request(file_path, folder_name, repo=repo, path=path)
             except Exception as ex:
                 messages.error(
                     request,
@@ -542,8 +545,9 @@ def submit_conference(request):
 
             try:
                 repo = 'conference_calendar'
+                path = 'input.csv'
                 create_push_request(
-                    file_path=filepath, folder_name='', repo=repo)
+                    file_path=filepath, folder_name='', repo=repo, path=path)
             except Exception as ex:
                 print(ex)
                 messages.error(

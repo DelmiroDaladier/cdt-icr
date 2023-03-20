@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Interactive Content Repository</title>
+
 
     <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -210,6 +210,7 @@
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'homepage' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'blog_homepage' %}">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_conference' %}">Conferences</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'newsletter_subscription' %}">Newsletter</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>
@@ -228,7 +229,7 @@
             <div class="row">
                 <div class=" col-md-8 col-md-10 mx-auto">
                     <div class="site-heading">
-                        <h3 class=" site-heading my-4 mt-3 text-white"> Interactive Content Repository </h3>
+                        <h3 class=" site-heading my-4 mt-3 text-white"> </h3>
                         <p class="text-light">
                         </p>
                     </div>

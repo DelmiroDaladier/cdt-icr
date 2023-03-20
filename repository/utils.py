@@ -185,7 +185,7 @@ def generate_page_content(content, filepath: str):
                 '[![](https://img.shields.io/badge/code-blueviolet?style=flat)]({{< meta params.code_url >}})\n')
 
 
-def create_push_request(file_path: str, folder_name: str, repo: str):
+def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
     """
     Creates and pushes a new file with the content of a given file path to the specified GitHub repository.
 
@@ -232,13 +232,6 @@ def create_push_request(file_path: str, folder_name: str, repo: str):
     url = f'https://api.github.com/repos/DelmiroDaladier/{repo}/git/blobs'
     response = requests.post(url, json.dumps(data), headers=header)
     blob_sha = response.json()['sha']
-
-    path = ''
-
-    if folder_name == '':
-        path = 'input.csv'
-    else:
-        path = f'content/{folder_name}/index.qmd'
 
     data = {
         'base_tree': sha_base_tree,
