@@ -22,7 +22,7 @@ urlpatterns = [
     path('register/', register_request, name='register'),
     path('submit_conference/', submit_conference, name='submit_conference'),
     path('newsletter_subscription', newsletter_subscription, name='newsletter_subscription'),
-    path('generate_newsletter', generate_newsletter, name='generate_newsletter'),
+    path('', generate_newsletter, name='generate_newsletter'),
     url(r'^jsi18n/$', django_views.i18n.JavaScriptCatalog.as_view(), name='jsi18n'),
 ]
 

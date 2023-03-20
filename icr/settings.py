@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'blog',
     'cdt_newsletter',
     'crispy_forms',
-    'modal_forms'
+    'modal_forms',
 ]
 
 MIDDLEWARE = [
