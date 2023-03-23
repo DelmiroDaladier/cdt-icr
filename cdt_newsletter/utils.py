@@ -5,6 +5,24 @@ from datetime import datetime
 from .models import Newsletter
 
 def create_qmd_file(filepath: str):
+    """
+    Create a new QuickMark data file at the specified filepath.
+
+    If a file already exists at the filepath, it will be deleted before creating the new file.
+
+    The file will contain a YAML header with metadata about the file, including the title, page
+    layout, title block banner, and comments. The metadata will be formatted according to the
+    QuickMark data file specification.
+
+    Args:
+        filepath (str): The path and filename for the new QuickMark data file.
+
+    Raises:
+        OSError: If an error occurs while deleting the existing file, or while creating the new file.
+
+    Returns:
+        None
+    """
     if os.path.exists(filepath):
         os.remove(filepath)
 
@@ -21,7 +39,20 @@ def create_qmd_file(filepath: str):
         fp.write('\n---')
 
 def generate_page_content(filepath: str, content:dict):
+    """
+    Generate page content for a newsletter and write it to a file at the specified path.
     
+    Args:
+        filepath (str): The path to the file where the page content will be written.
+        content (dict): A dictionary containing the content to be included in the page.
+        
+    Returns:
+        None
+    
+    Raises:
+        TypeError: If filepath is not a string or content is not a dictionary.
+        
+    """
     title = 'CDT Newsletter'
     text = ''
 

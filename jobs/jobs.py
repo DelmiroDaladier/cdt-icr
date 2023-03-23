@@ -12,6 +12,13 @@ from repository.models import Post, Conference
 from cdt_newsletter.models import Newsletter
 
 def schedule_api():
+    """
+    Retrieve the latest newsletter and filter posts and conferences updated since then.
+    Generate a QMD file with the filtered content and create a push request for it.
+
+    Returns:
+        None
+    """
     newsletter_objects = Newsletter.objects.all()
     latest_newsletter = newsletter_objects.latest('modified_at')
 
