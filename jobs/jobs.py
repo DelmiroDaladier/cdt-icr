@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from django.conf import settings
 import requests
@@ -8,12 +9,18 @@ import random
 from cdt_newsletter.utils import generate_page_content, create_qmd_file
 from repository.utils import create_push_request
 from repository.models import Post, Conference
+from cdt_newsletter.models import Newsletter
 
 def schedule_api():
-    posts = Post.objects.all()
+    newsletter_objects = Newsletter.objects.all()
+    latest_newsletter = newsletter_objects.latest('modified_at')
+
+    latest_date = latest_newsletter.modified_at
+
+    posts = Post.objects.filter(updated_at__range=(latest_date, datetime.now()))
     posts = list(posts.values())
 
-    conferences = Conference.objects.all()
+    conferences = Conference.objects.filter(updated_at__range=(latest_date, datetime.now()))
     conferences = list(conferences.values())
 
     content = {

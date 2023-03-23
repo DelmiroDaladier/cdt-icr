@@ -5,7 +5,7 @@ from django.urls import path, include
 from django import views as django_views
 
 from blog.views import blog_homepage
-from cdt_newsletter.views import newsletter_subscription, generate_newsletter
+from cdt_newsletter.views import newsletter_subscription
 from repository.views import homepage, about, author_create, add_category, add_venue, update_post, arxiv_post, register_request, submit_conference
 
 
@@ -22,7 +22,6 @@ urlpatterns = [
     path('register/', register_request, name='register'),
     path('submit_conference/', submit_conference, name='submit_conference'),
     path('newsletter_subscription', newsletter_subscription, name='newsletter_subscription'),
-    path('', generate_newsletter, name='generate_newsletter'),
     url(r'^jsi18n/$', django_views.i18n.JavaScriptCatalog.as_view(), name='jsi18n'),
 ]
 
