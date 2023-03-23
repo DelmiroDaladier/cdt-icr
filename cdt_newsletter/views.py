@@ -8,6 +8,7 @@ from .forms import Subscriptionform, Newsletterform
 from .utils import generate_page_content, create_qmd_file
 from repository.utils import create_push_request
 
+
 def newsletter_subscription(request):
     """
     Handle subscription form submissions and render the subscription page.
@@ -31,9 +32,12 @@ def newsletter_subscription(request):
             form.save()
             messages.success(request, 'Subscription Successful')
             return redirect('newsletter_subscription')
-    
+
     form = Subscriptionform()
     context = {
         'form': form
     }
-    return render(request, 'cdt_newsletter/newsletter_subscription.html', context)
+    return render(
+        request,
+        'cdt_newsletter/newsletter_subscription.html',
+        context)
