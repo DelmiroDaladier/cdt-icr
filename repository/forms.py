@@ -4,12 +4,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
-from .models import Post, Author, Venue, Category, Conference
+from .models import Paper, Author, Venue, ResearchArea, Conference
 
 
-class PostForm(forms.ModelForm):
+class PaperForm(forms.ModelForm):
 
-    title = forms.CharField(
+    name = forms.CharField(
         widget=forms.TextInput(
             attrs={
                 'class': 'form-control'}))
@@ -21,8 +21,8 @@ class PostForm(forms.ModelForm):
         queryset=Author.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
     )
-    categories = forms.ModelMultipleChoiceField(
-        queryset=Category.objects.all(),
+    research_area = forms.ModelMultipleChoiceField(
+        queryset=ResearchArea.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
     )
     venue = forms.ModelMultipleChoiceField(
@@ -67,12 +67,12 @@ class PostForm(forms.ModelForm):
                 'class': 'form-control'}))
 
     class Meta:
-        model = Post
-        fields = ['title',
+        model = Paper
+        fields = ['name',
                   'overview',
                   'authors',
                   'thumbnail',
-                  'categories',
+                  'research_area',
                   'venue',
                   'citation',
                   'pdf',
@@ -82,11 +82,11 @@ class PostForm(forms.ModelForm):
                   'code',
                   'video']
 
-        labels = {'title': 'Title',
+        labels = {'name': 'Title',
                   'overview': 'TLDR',
                   'authors': 'Authors',
                   'thumbnail': 'Image',
-                  'categories': 'Categories',
+                  'research_area': 'Research Area',
                   'venue': 'Venue',
                   'citation': 'Citation',
                   'pdf': 'Pdf Link',
@@ -111,9 +111,9 @@ class VenueForm(forms.ModelForm):
         labels = ['Name', 'URL']
 
 
-class CategoryForm(forms.ModelForm):
+class ResearchAreaForm(forms.ModelForm):
     class Meta:
-        model = Category
+        model = ResearchArea
         fields = ["title"]
         labels = ['Title']
 

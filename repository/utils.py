@@ -59,7 +59,7 @@ def generate_qmd_header(content: dict, form_data: dict):
 
     content = {
         'title': form_data.get(
-            'title',
+            'name',
             ''),
         'description': form_data.get(
             'overview',
@@ -68,7 +68,7 @@ def generate_qmd_header(content: dict, form_data: dict):
             'thumbnail',
             'https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'),
         'categories': [
-            category.title for category in form_data['categories']],
+            category.title for category in form_data['research_area']],
         'format': {
             'html': {
                 'df-print': 'paged',
@@ -124,7 +124,7 @@ def save_new_conference_data(conference_objects, filepath: str):
         os.remove(filepath)
 
     df = pd.DataFrame(list(conference_objects.values()))
-    df.drop('conference_id', axis=1)
+    df.drop('id', axis=1)
 
     df.to_csv(filepath, index=False)
 
@@ -208,12 +208,12 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     sha_last_commit_url = f'https://api.github.com/repos/{user}/{repo}/branches/main'
     response = requests.get(sha_last_commit_url, headers=header)
-    print(response)
+    print(response.json())
     sha_last_commit = response.json()['commit']['sha']
 
     url = f'https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}'
     response = requests.get(url, headers=header)
-
+    print(response.json())
     sha_base_tree = response.json()['sha']
 
     with open(file_path, 'r') as fp:
@@ -231,8 +231,9 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     url = f'https://api.github.com/repos/DelmiroDaladier/{repo}/git/blobs'
     response = requests.post(url, json.dumps(data), headers=header)
+    print(response.json())
     blob_sha = response.json()['sha']
-
+    print(path)
     data = {
         'base_tree': sha_base_tree,
         'tree': [
@@ -247,7 +248,7 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     url = f'https://api.github.com/repos/Delmirodaladier/{repo}/git/trees'
     response = requests.post(url, json.dumps(data), headers=header)
-
+    print(response.json())
     tree_sha = response.json()['sha']
 
     data = {

@@ -8,7 +8,7 @@ import random
 
 from cdt_newsletter.utils import generate_page_content, create_qmd_file
 from repository.utils import create_push_request
-from repository.models import Post, Conference
+from repository.models import Paper, Conference
 from cdt_newsletter.models import Newsletter
 
 
@@ -25,7 +25,7 @@ def schedule_api():
 
     latest_date = latest_newsletter.modified_at
 
-    posts = Post.objects.filter(
+    posts = Paper.objects.filter(
         updated_at__range=(
             latest_date,
             datetime.now()))

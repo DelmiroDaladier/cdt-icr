@@ -1,5 +1,5 @@
 from django import forms
-from .models import BlogPost, Author, Category
+from .models import BlogPost, Author, ResearchArea
 
 
 class BlogPostForm(forms.ModelForm):
@@ -17,7 +17,7 @@ class BlogPostForm(forms.ModelForm):
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
 
     categories = forms.ModelMultipleChoiceField(
-        queryset=Category.objects.all(),
+        queryset=ResearchArea.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
 
     class Meta:

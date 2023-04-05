@@ -4,7 +4,6 @@ import json
 import requests
 import urllib3
 
-from .models import Post
 from dotenv import load_dotenv
 from django.core import serializers
 from django.http import JsonResponse, HttpResponse
@@ -14,8 +13,8 @@ from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Conference, Author, Post
-from .forms import PostForm, AuthorForm, VenueForm, CategoryForm, ArxivForm, NewUserForm, ConferenceForm
+from .models import Conference, Author, Paper
+from .forms import PaperForm, AuthorForm, VenueForm, ResearchAreaForm, ArxivForm, NewUserForm, ConferenceForm
 from .utils import generate_qmd_header, generate_page_content, create_push_request, generate_qmd_header_for_arxiv, scrap_data_from_arxiv, get_conference_information, save_new_conference_data
 
 from django.db import IntegrityError
@@ -35,7 +34,7 @@ def homepage(request):
     load_dotenv()
 
     if request.method == 'POST':
-        filled_form = PostForm(request.POST)
+        filled_form = PaperForm(request.POST)
         context = {}
 
         try:
@@ -69,6 +68,7 @@ def homepage(request):
                         yaml.dump(content, fp)
                         fp.write('\n---')
                 except Exception as ex:
+                    print(ex)
                     messages.error(
                         request,
                         "We are experiencing problems when creating qmd headers. Please try again later."
@@ -88,6 +88,7 @@ def homepage(request):
 
                     create_push_request(file_path, folder_name, repo, path)
                 except Exception as ex:
+                    print(ex)
                     messages.error(
                         request,
                         "We are experiencing some problems when communication with github. Please Try again later.")
@@ -112,7 +113,7 @@ def homepage(request):
             return redirect("/")
 
     else:
-        filled_form = PostForm()
+        filled_form = PaperForm()
 
         return render(
             request,
@@ -252,13 +253,14 @@ def add_category(request):
         None
     """
     if request.method == 'GET':
-        form = CategoryForm()
+        form = ResearchAreaForm()
+
         context = {'form': form}
         return render(request,
                       'repository/add_category.html',
                       context=context)
 
-    form = CategoryForm(request.POST)
+    form = ResearchAreaForm(request.POST)
     if form.is_valid():
         category_instance = form.save()
         instance = serializers.serialize('json', [category_instance, ])
@@ -292,17 +294,17 @@ def update_post(request, slug):
     """
     context = {}
 
-    post = get_object_or_404(Post, slug=slug)
+    post = get_object_or_404(Paper, slug=slug)
 
-    form = PostForm(request.POST or None, instance=post)
+    form = PaperForm(request.POST or None, instance=post)
 
     if request.method == 'GET':
         context = {'form': form}
         return render(request, "repository/update_post.html", context=context)
 
     if form.is_valid():
-        post_instance = Post.objects.get(slug=slug)
-        form = PostForm(request.POST, instance=post)
+        post_instance = Paper.objects.get(slug=slug)
+        form = PaperForm(request.POST, instance=post)
         form.save()
         instance = serializers.serialize('json', [post_instance, ])
         return JsonResponse({"instance": instance}, status=200)
@@ -366,12 +368,12 @@ def arxiv_post(request):
                     )
 
             data_dict = {
-                'title': data['citation_title'],
+                'name': data['citation_title'],
                 'overview': data['citation_abstract'],
                 'pdf': data['citation_pdf'],
             }
 
-            post_obj = Post(**data_dict)
+            post_obj = Paper(**data_dict)
             try:
                 post_obj.save()
             except IntegrityError as integrity:

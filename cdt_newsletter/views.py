@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 
 from .models import Subscription, Newsletter
-from repository.models import Post, Conference
 from .forms import Subscriptionform, Newsletterform
 from .utils import generate_page_content, create_qmd_file
 from repository.utils import create_push_request
