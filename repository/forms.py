@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
-from .models import Paper, Author, Venue, ResearchArea, Conference
+from .models import Publication, Author, Venue, ResearchArea, Conference
 
 
-class PaperForm(forms.ModelForm):
+class PublicationForm(forms.ModelForm):
 
     name = forms.CharField(
         widget=forms.TextInput(
@@ -67,7 +67,7 @@ class PaperForm(forms.ModelForm):
                 'class': 'form-control'}))
 
     class Meta:
-        model = Paper
+        model = Publication
         fields = ['name',
                   'overview',
                   'authors',

@@ -13,8 +13,8 @@ from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Conference, Author, Paper
-from .forms import PaperForm, AuthorForm, VenueForm, ResearchAreaForm, ArxivForm, NewUserForm, ConferenceForm
+from .models import Conference, Author, Publication
+from .forms import PublicationForm, AuthorForm, VenueForm, ResearchAreaForm, ArxivForm, NewUserForm, ConferenceForm
 from .utils import generate_qmd_header, generate_page_content, create_push_request, generate_qmd_header_for_arxiv, scrap_data_from_arxiv, get_conference_information, save_new_conference_data
 
 from django.db import IntegrityError
@@ -34,7 +34,7 @@ def homepage(request):
     load_dotenv()
 
     if request.method == 'POST':
-        filled_form = PaperForm(request.POST)
+        filled_form = PublicationForm(request.POST)
         context = {}
 
         try:
@@ -113,7 +113,7 @@ def homepage(request):
             return redirect("/")
 
     else:
-        filled_form = PaperForm()
+        filled_form = PublicationForm()
 
         return render(
             request,
@@ -294,17 +294,17 @@ def update_post(request, slug):
     """
     context = {}
 
-    post = get_object_or_404(Paper, slug=slug)
+    post = get_object_or_404(Publication, slug=slug)
 
-    form = PaperForm(request.POST or None, instance=post)
+    form = PublicationForm(request.POST or None, instance=post)
 
     if request.method == 'GET':
         context = {'form': form}
         return render(request, "repository/update_post.html", context=context)
 
     if form.is_valid():
-        post_instance = Paper.objects.get(slug=slug)
-        form = PaperForm(request.POST, instance=post)
+        post_instance = Publication.objects.get(slug=slug)
+        form = PublicationForm(request.POST, instance=post)
         form.save()
         instance = serializers.serialize('json', [post_instance, ])
         return JsonResponse({"instance": instance}, status=200)
@@ -373,7 +373,7 @@ def arxiv_post(request):
                 'pdf': data['citation_pdf'],
             }
 
-            post_obj = Paper(**data_dict)
+            post_obj = Publication(**data_dict)
             try:
                 post_obj.save()
             except IntegrityError as integrity:
