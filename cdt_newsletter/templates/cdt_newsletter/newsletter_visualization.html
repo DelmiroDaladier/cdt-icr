@@ -1,0 +1,12 @@
+{% extends 'repository/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <p class="blockquote text-center">{{ newsletter_body | safe }}
+    </p>
+    <br>
+    <a class='btn btn-primary btn-sm' href="{% url 'download_newsletter' %}">Download .doc</a>    
+</div>
+{% endblock content %}

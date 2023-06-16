@@ -3,9 +3,9 @@
 
 {% block content %}
     <div class="container">
-        <h1>New conference</h1>
-        <a href="{% url 'submit_session' %}">Add Session</a>
-        <form action="{% url 'submit_conference' %}" method="POST">
+        <h1>New session</h1>
+        <a href="{% url 'submit_conference' %}">Add Conference</a>
+        <form action="{% url 'submit_session' %}" method="POST">
             {% csrf_token %}
             {{form.as_p}}
             <button type="submit">Submit</button>

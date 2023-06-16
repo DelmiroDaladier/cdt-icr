@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
-from .models import Publication, Author, Venue, ResearchArea, Conference
+from .models import Publication, Author, Venue, ResearchArea, Conference, Session
 
 
 class PublicationForm(forms.ModelForm):
@@ -155,12 +155,12 @@ class ConferenceForm(forms.ModelForm):
         '%d %B'
     ]
 
-    link = forms.CharField(
+    venue_url = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={'class': 'conference_link form-control'})
     )
 
-    name = forms.CharField(
+    venue_name = forms.CharField(
         max_length=200,
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
@@ -184,11 +184,50 @@ class ConferenceForm(forms.ModelForm):
 
     class Meta:
         model = Conference
-        fields = ['link', 'name', 'start_date', 'end_date', 'location']
+        fields = ['venue_url', 'venue_name', 'start_date', 'end_date', 'location']
         labels = {
-            'name': 'Name',
-            'link': 'Conference Link',
+            'venue_name': 'Name',
+            'venue_url': 'Conference Link',
             'location': 'Location',
             'start_date': 'Starting on',
             'end_date': 'To'
         }
+
+class SessionForm(forms.ModelForm):
+
+    SESSION_CHOICES = (
+        ("WORKSHOP", "Workshop"),
+        ("TUTORIAL", "Tutorial")
+    )
+
+    PUBLICATION_CHOICES = (
+        ("PAPER", "Paper"),
+        ("BOOK", "Book"),
+        ("PROCEEDINGS", "Proceedings")
+    )
+
+    start_date = forms.DateField(
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+    end_date = forms.DateField(
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+    type = forms.ChoiceField(
+        required=True,
+        choices=SESSION_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    conference = forms.ModelChoiceField(
+        queryset=Conference.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class':'form-control'})
+    )
+
+    class Meta:
+        model = Session
+        fields = ['start_date', 'end_date', 'type','conference']

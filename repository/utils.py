@@ -7,6 +7,7 @@ from dateutil.parser import parse
 from collections import defaultdict
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+from django.template.defaultfilters import slugify
 
 import spacy
 import pandas as pd
@@ -14,7 +15,6 @@ import en_core_web_sm
 from spacy import displacy
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-
 
 def generate_qmd_header(content: dict, form_data: dict):
     """Generate a Quick Markup Description header based on form data.
@@ -57,6 +57,17 @@ def generate_qmd_header(content: dict, form_data: dict):
     if form_data['thumbnail'] is None:
         form_data['thumbnail'] = 'https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'
 
+    param_keys = [
+        'overview',
+        'citation',
+        'pdf_url',
+        'poster_url',
+        'code_url',
+        'supplement_url',
+        'slides_url',
+        'research_area'
+    ]
+
     content = {
         'title': form_data.get(
             'name',
@@ -72,23 +83,26 @@ def generate_qmd_header(content: dict, form_data: dict):
         'format': {
             'html': {
                 'df-print': 'paged',
-                            'toc': True}}}
+                            'toc': True}},
+        'execute': {
+                'echo': False
+            }                    
+        }
 
-    content['params'] = {
-        'overview': form_data['overview'],
+    print(form_data)
+    content['params'] = {}
 
-        'scholar_url': form_data.get('citation', ''),
+    for param_key in param_keys:
 
-        'pdf_url': form_data.get('pdf', ''),
+        key = form_data.get(param_key, '')
+        print(f'Param key:{param_key}')
+        print(f'key:{type(key)}')
 
-        'poster_url': form_data.get('poster', ''),
-
-        'code_url': form_data.get('code', ''),
-
-        'supplement_url': form_data.get('supplement', ''),
-
-        'slides_url': form_data.get('slides', '')
-    }
+        if key != '':
+            if type(key) == str:
+                content['params'][param_key] = key
+            else:
+                content['params'][param_key] = key[0].title
 
     for idx, author in enumerate(form_data['authors'], 1):
         content['params'][f'author_{idx}'] = {
@@ -98,6 +112,25 @@ def generate_qmd_header(content: dict, form_data: dict):
 
     return content
 
+def save_publication_data(publication_title: str, authors: str, links: str, research_area: str, filepath: str):
+
+    data = {
+        'publication': publication_title,
+        'authors': authors,
+        'publication_url': 'content/' + slugify(publication_title),
+        'authors_link': links,
+        'research_area': research_area
+    }
+
+    if not os.path.exists(filepath):
+        
+        df = pd.DataFrame(columns=["publication", "authors", "publication_url", "authors_link", "research_area"])
+        df.to_csv(filepath, index=False)
+
+    df = pd.read_csv(filepath)
+    df = df.append(data, ignore_index=True)
+    df.drop_duplicates(subset=['publication', 'authors'], inplace=True)
+    df.to_csv(filepath, index=False)
 
 def save_new_conference_data(conference_objects, filepath: str):
     """Save a dictionary of conference objects to a CSV file.
@@ -129,7 +162,7 @@ def save_new_conference_data(conference_objects, filepath: str):
     df.to_csv(filepath, index=False)
 
 
-def generate_page_content(content, filepath: str):
+def generate_page_content(content: dict, filepath: str, arxiv: bool):
     """Generate a markdown file with the content of a conference paper.
 
     This function generates a markdown file with the content of a conference paper based
@@ -152,21 +185,52 @@ def generate_page_content(content, filepath: str):
         None. The function does not return anything, but generates the markdown file at
         the specified file path.
     """
+
     with open(filepath, 'a') as fp:
+        authors = ['\"'+content['params'][param].get('name')+'\"' for param in content['params'] if param.startswith('author')]
+        links = []
+        if content['params']['author_1'].get('link', None):
+            links = ['\"'+content['params'][param].get('link', None)+'\"' for param in content['params'] if param.startswith('author')]
+
+        if arxiv:
+            aux = []
+            for author in authors: 
+                l = author.replace('"','').split(',')
+                aux.append('\"'+' '.join(l[-1:] + l[:-1]).strip()+'\"')
+            authors = aux
+        
+        authors_string = ','.join(authors)
+        links_string = ','.join(links)
+
+        if len(links) == 0:
+            links_string = 'NONE'
+
+        fp.write('\n```{ojs} \n')
+        fp.write(f'\n names = [{authors_string}] \n')
+        fp.write('\n``` \n')
+
         fp.write('\n## Tldr \n')
         overview = content['params']['overview']
         fp.write(f'{overview}\n')
         fp.write('\n## Paper-authors\n')
-        for param in content['params']:
-            if param.startswith('author'):
-                fp.write(
-                    f'- [{{{{< meta params.{param}.name >}}}}]({{{{< meta params.{param}.url >}}}})\n')
+
+        fp.write('\n```{ojs} \n')
+        fp.write("\n html`<ul>${names.map(name => html`<li><a href=\"../../posts_by_author.html?name=${name}\" >${name}</a></li>`)}</ul>` \n")
+        fp.write('\n``` \n')
+
+        fp.write('\n```{ojs} \n')
+        fp.write("\n htl = require(\"htl@0.2\") \n")
+        fp.write('\n``` \n')
+
+        fp.write('\n```{ojs} \n')
+        fp.write("\n html = htl.html \n")
+        fp.write('\n``` \n')
 
         fp.write('\n## More Resources\n')
 
-        if 'scholar_url' in content['params']:
+        if 'citation' in content['params']:
             fp.write(
-                '[![](https://img.shields.io/badge/citation-scholar-9cf?style=flat.svg)]({{< meta params.scholar_url >}})\n')
+                '[![](https://img.shields.io/badge/citation-scholar-9cf?style=flat.svg)]({{< meta params.citation >}})\n')
 
         if 'pdf_url' in content['params'].keys():
             fp.write(
@@ -184,6 +248,16 @@ def generate_page_content(content, filepath: str):
             fp.write(
                 '[![](https://img.shields.io/badge/code-blueviolet?style=flat)]({{< meta params.code_url >}})\n')
 
+        current_path = os.getcwd()
+        
+        filepath = f'{current_path}/icr_frontend/input.csv'
+        authors_string = authors_string.replace('"','')
+        links_string = links_string.replace('"','')
+
+        print(content['params'])
+
+        save_publication_data(content['title'], authors_string, links_string, content['params']['research_area'], filepath)
+        
 
 def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
     """
@@ -208,12 +282,12 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     sha_last_commit_url = f'https://api.github.com/repos/{user}/{repo}/branches/main'
     response = requests.get(sha_last_commit_url, headers=header)
-    print(response.json())
+    
     sha_last_commit = response.json()['commit']['sha']
 
     url = f'https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}'
     response = requests.get(url, headers=header)
-    print(response.json())
+    
     sha_base_tree = response.json()['sha']
 
     with open(file_path, 'r') as fp:
@@ -231,9 +305,9 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     url = f'https://api.github.com/repos/DelmiroDaladier/{repo}/git/blobs'
     response = requests.post(url, json.dumps(data), headers=header)
-    print(response.json())
+    
     blob_sha = response.json()['sha']
-    print(path)
+    
     data = {
         'base_tree': sha_base_tree,
         'tree': [
@@ -248,7 +322,7 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     url = f'https://api.github.com/repos/Delmirodaladier/{repo}/git/trees'
     response = requests.post(url, json.dumps(data), headers=header)
-    print(response.json())
+
     tree_sha = response.json()['sha']
 
     data = {
@@ -291,12 +365,16 @@ def generate_qmd_header_for_arxiv(data: dict):
         'title': data.get('citation_title', ''),
         'description': data.get('citation_abstract', ''),
         'image': 'https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png',
+        'categories': data.get('research_area', ''),
         'format': {
             'html': {
                 'df-print': 'paged',
                 'toc': True
             }
-        }
+        },
+        'execute': {
+                'echo': False
+            }
     }
 
     content['params'] = {
@@ -305,10 +383,14 @@ def generate_qmd_header_for_arxiv(data: dict):
         'pdf_url': data.get('citation_pdf_url', ''),
     }
 
-    for idx, author in enumerate(data['citation_author'], 1):
+    for idx, pair in enumerate(zip(data['citation_author'], data['links']), 1):
         content['params'][f'author_{idx}'] = {
-            'name': author,
+            'name': pair[0],
+            'link': pair[1]
         }
+
+    if data['research_area']:
+        content['params']['research_area'] = data['research_area']
 
     return content
 
@@ -365,6 +447,19 @@ def scrap_data_from_arxiv(url: str):
             data[tag.get('name')].append(tag.get('content'))
         else:
             data[tag.get('name')] = tag.get('content')
+
+    if soup.find_all("div", class_="subheader"):
+        subheader = list(soup.find_all("div", class_="subheader"))
+        data['research_area'] = subheader[-1].h1.text.split('>')[-1].strip().lower()
+
+    else:
+        data['research_area'] = None
+
+    if soup.find("div", {"class":"authors"}):
+        authors = soup.find("div", {"class":"authors"})
+        data['links'] = ['https://arxiv.org'+author['href'] for author in authors.find_all('a')]
+    else:
+        data['links'] = None
 
     return data
 

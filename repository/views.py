@@ -13,8 +13,8 @@ from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Conference, Author, Publication
-from .forms import PublicationForm, AuthorForm, VenueForm, ResearchAreaForm, ArxivForm, NewUserForm, ConferenceForm
+from .models import Conference, Author, Publication, ResearchArea
+from .forms import PublicationForm, AuthorForm, VenueForm, ResearchAreaForm, ArxivForm, NewUserForm, ConferenceForm, SessionForm
 from .utils import generate_qmd_header, generate_page_content, create_push_request, generate_qmd_header_for_arxiv, scrap_data_from_arxiv, get_conference_information, save_new_conference_data
 
 from django.db import IntegrityError
@@ -75,7 +75,7 @@ def homepage(request):
                     )
 
                 try:
-                    generate_page_content(content, file_path)
+                    generate_page_content(content, file_path, arxiv=False)
                 except Exception as ex:
                     messages.error(
                         request,
@@ -114,7 +114,7 @@ def homepage(request):
 
     else:
         filled_form = PublicationForm()
-
+        print(filled_form)
         return render(
             request,
             'repository/new_post.html',
@@ -342,90 +342,125 @@ def arxiv_post(request):
 
         if filled_form.is_valid():
             form_data = filled_form.cleaned_data
-
             url = form_data.get('link', '')
 
             try:
                 data = scrap_data_from_arxiv(url)
+                print('scraped data:')
+                print(data)
+                entry_existis = Publication.objects.filter(name=data['citation_title'])
+
+                if not entry_existis:
+                    
+                    authors = []
+
+                    for author, link in zip(data['citation_author'], data['links']):
+                        author = author.split(',')[1].strip(
+                            ) + ' ' + author.split(',')[0].strip()     
+                        author_obj = Author(**{
+                            'user': author,
+                            'user_url': link
+                        })
+                        try:
+                            author_obj.save()
+                            authors.append(author_obj)
+                        except IntegrityError as integrity:
+                            print(integrity)
+
+                    if data['research_area']:
+                        research_area_obj = ResearchArea(**{
+                            'title': data['research_area'],
+                            })
+                        try:
+                            research_area_obj.save()
+                        except IntegrityError as integrity:
+                            print(integrity)
+
+                        research_Area_id = ResearchArea.objects.filter(title=data['research_area'])[0].id
+
+                    data_dict = {
+                        'name': data['citation_title'],
+                        'overview': data['citation_abstract'],
+                        'pdf': data['citation_pdf'],
+                    }                    
+
+
+                    post_obj = Publication(**data_dict)
+
+                    try:
+                        post_obj.save()
+                    except Exception as integrity:
+                        messages.error(
+                            request,
+                            "IntegrityError: The input data you provided already exists in the database. Please review the existing records and ensure that you are not duplicating data."
+                        )
+                        return redirect("arxiv_post")
+
+                    
+                    for author in authors:
+                        post_obj.authors.add(author.user_id)
+
+
+                    post_obj.research_area.add(research_Area_id)
+
+                    post_obj.save()
+                    
+                    content = generate_qmd_header_for_arxiv(data)
+                    
+                    folder_name = slugify(content.get('title', ''))
+                    
+                    current_path = os.getcwd()
+
+                    current_path = current_path + \
+                        f'/icr_frontend/content/{folder_name}/'
+                    file_path = f'{current_path}index.qmd'
+
+                    if not os.path.exists(current_path):
+                        os.makedirs(current_path)
+                    
+                    with open(file_path, 'w+') as fp:
+                        fp.write('---\n')
+                        yaml.dump(content, fp)
+                        fp.write('\n---')
+                       
+                    generate_page_content(content, file_path, arxiv=True)
+                
+                    try:
+                        repo = 'icr'
+                        path = f'content/{folder_name}/index.qmd'
+                        create_push_request(file_path, folder_name, repo=repo, path=path)
+                    except Exception as ex:
+                        messages.error(
+                            request,
+                            "We are experiencing some problems when fetching when communication with github. Please Try again later.")
+                        return redirect("arxiv_post")
+
+                    context = {
+                        'folder_name': folder_name,
+                        'form': filled_form
+                    }
+
+                    return render(
+                        request,
+                        'repository/submission.html',
+                        context=context)
+
+                else:
+                    messages.error(
+                            request,
+                            "Integrity Error: The input data you provided already exists in the database. Please review the existing records and ensure that you are not duplicating data."
+                        )
+                    return redirect("arxiv_post")
+
             except Exception as ex:
+                print(ex)
                 messages.error(
                     request,
                     "We are experiencing some problems when fetching information from Arxiv. Please Try again later.")
                 return redirect("arxiv_post")
 
-            authors = []
-            for author in data['citation_author']:
-                author = author.split(',')[1].strip(
-                ) + ' ' + author.split(',')[0].strip()
-                try:
-                    author_obj = Author(**{'user': author})
-                    author_obj.save()
-                    authors.append(author_obj)
-                except IntegrityError as integrity:
-                    messages.error(
-                        request,
-                        "IntegrityError: Something went wrong with the input data. Please check your input and try again."
-                    )
-
-            data_dict = {
-                'name': data['citation_title'],
-                'overview': data['citation_abstract'],
-                'pdf': data['citation_pdf'],
-            }
-
-            post_obj = Publication(**data_dict)
-            try:
-                post_obj.save()
-            except IntegrityError as integrity:
-                messages.error(
-                    request,
-                    "IntegrityError: Something went wrong with the input data. Please check your input and try again."
-                )
-
-            for author in authors:
-                post_obj.authors.add(author.user_id)
-
-            content = generate_qmd_header_for_arxiv(data)
-
-            folder_name = slugify(content.get('title', ''))
-
-            current_path = os.getcwd()
-
-            current_path = current_path + \
-                f'/icr_frontend/content/{folder_name}/'
-            file_path = f'{current_path}index.qmd'
-
-            if not os.path.exists(current_path):
-                os.makedirs(current_path)
-
-            with open(file_path, 'w+') as fp:
-                fp.write('---\n')
-                yaml.dump(content, fp)
-                fp.write('\n---')
-
-            generate_page_content(content, file_path)
-
-            try:
-                repo = 'icr'
-                path = f'content/{folder_name}/index.qmd'
-                create_push_request(file_path, folder_name, repo=repo, path=path)
-            except Exception as ex:
-                messages.error(
-                    request,
-                    "We are experiencing some problems when fetching when communication with github. Please Try again later.")
-                return redirect("arxiv_post")
-
-            context = {
-                'folder_name': folder_name,
-                'form': filled_form
-            }
-
-            return render(
-                request,
-                'repository/submission.html',
-                context=context)
-
-        messages.error(request, filled_form.errors.as_data().title)
+        print(filled_form.errors.as_data())
+        messages.error(request, filled_form.errors.as_data())
 
     form = ArxivForm()
     context = {
@@ -575,3 +610,17 @@ def submit_conference(request):
         'repository/submit_conference.html',
         context=context
     )
+
+def submit_session(request):
+
+    if request.method == 'POST':
+        form = SessionForm(request.POST)
+        print(form.errors)
+        if form.is_valid():
+            form.save()
+
+    form = SessionForm()
+    context = {
+        'form': form
+    }
+    return render(request, 'repository/submit_session.html', context=context)

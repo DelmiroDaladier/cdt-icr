@@ -168,7 +168,7 @@
                                 contentType: 'application/json; charset=UTF-8',
                                 success: function (response) {
                                     console.log(response);
-                                    $("#id_name").val(response['title']);
+                                    $("#id_venue_name").val(response['title']);
                                     $("#id_start_date").val(response['dates'][0][0]);
                                     $("#id_end_date").val(response['dates'][0][1]);
                                     $("#id_location").val(response['places'][0]);
@@ -210,6 +210,7 @@
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="{% url 'homepage' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'blog_homepage' %}">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_conference' %}">Conferences</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'submit_session' %}">Sessions</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'newsletter_subscription' %}">Newsletter</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                     {% if user.is_authenticated %}

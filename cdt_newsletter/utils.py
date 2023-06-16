@@ -84,3 +84,26 @@ def generate_page_content(filepath: str, content: dict):
 
     object = Newsletter(**data_dict)
     object.save()
+
+def generate_newsletter_body(form_data: dict):
+
+    newsletter_body = ''
+
+    newsletter_body += f"<h2>{form_data.get('title', '')}</h2><br><br>"
+
+    newsletter_body += f"<p>{form_data.get('tldr', '')}</p><br><br>"
+
+    newsletter_body += f"<p>{form_data.get('text', '')}</p><br><br>"
+
+    print(form_data['announcements'].values())
+
+    form_data['announcements'] = form_data['announcements'].values()
+
+    for announcement in form_data['announcements']:
+        
+        newsletter_body += f"<b>{announcement.get('venue_name', '')}</b><br>"
+        newsletter_body += f"Location: {announcement.get('location', '')}<br>"
+        newsletter_body += f"<a href={announcement.get('venue_url', '')}> Link </a> <br><br>"
+        
+    return newsletter_body
+    

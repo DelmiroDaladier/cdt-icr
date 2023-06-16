@@ -37,6 +37,7 @@ class ResearchArea(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
+        self.title = self.title.lower()
         if not self.slug:
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
@@ -93,7 +94,7 @@ class Conference(Venue):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.venue_name
 
 class Session(AiResource):
     conference = models.ForeignKey(Conference, on_delete=models.CASCADE, default=1)
