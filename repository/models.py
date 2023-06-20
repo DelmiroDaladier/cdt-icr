@@ -102,12 +102,5 @@ class Session(AiResource):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
-
-
-class Announcement(AiResource):
-    text = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
 class Dataset(AiResource):
     link = models.URLField()

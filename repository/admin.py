@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Author, ResearchArea, Publication, Venue, Conference, Session, Announcement, Dataset 
+from .models import Author, ResearchArea, Publication, Venue, Conference, Session, Dataset 
 
 
 
@@ -7,7 +7,6 @@ admin.site.register(Author)
 admin.site.register(Conference)
 admin.site.register(Venue)
 admin.site.register(Session)
-admin.site.register(Announcement)
 admin.site.register(Dataset)
 
 @admin.register(ResearchArea)

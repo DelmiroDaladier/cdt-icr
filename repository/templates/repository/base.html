@@ -181,6 +181,39 @@
                 });
             });
 
+            
+            $(document).ready(function () {
+                let my_modal = $("#reviewNewsletterModal");
+                const url_form = "newsletter_subscription/";
+                $("#reviewNewsletter a").click(function (e) {
+                    e.preventDefault();
+                    console.log(my_modal)
+                    my_modal.load(url_form, function () {
+                        console.log('*')
+                        my_modal.modal("show"); 
+                        $("#confirmNewsletter").submit(function (e) {
+                            e.preventDefault(); 
+                            $.ajax({
+                                method: "POST",
+                                data: $(this).serialize(),
+                                dataType: "json",
+                                url: "create_newsletter/",
+                                success: function (response) {
+                                    console.log('*******')
+                                    my_modal.modal('hide');
+                                    window.location.reload();
+                                },
+                                error: function (response) {
+                                    console.log(response);
+                                    my_modal.modal('hide');
+                                    window.location.reload();
+                                },
+                            });
+                        });
+                    });
+                });
+            });
+
     </script>
 </head>
 
@@ -211,7 +244,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'blog_homepage' %}">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_conference' %}">Conferences</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_session' %}">Sessions</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'newsletter_subscription' %}">Newsletter</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'create_newsletter' %}">Newsletter</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>

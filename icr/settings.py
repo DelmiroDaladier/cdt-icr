@@ -43,14 +43,14 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'repository',
+    'cdt_newsletter',
+    'blog',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'blog',
-    'cdt_newsletter',
     'crispy_forms',
     'modal_forms',
 ]
@@ -67,10 +67,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'icr.urls'
 
+SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(SETTINGS_PATH, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

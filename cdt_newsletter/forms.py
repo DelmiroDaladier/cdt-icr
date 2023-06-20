@@ -1,5 +1,5 @@
 from django import forms
-from .models import Subscription, Newsletter
+from .models import Subscription, Newsletter, Announcement
 from repository.models import Conference
 
 class Subscriptionform(forms.ModelForm):
@@ -42,3 +42,23 @@ class Newsletterform(forms.ModelForm):
     class Meta:
         model = Newsletter
         fields = ['title', 'tldr', 'text']
+
+class AnnouncementForm(forms.ModelForm):
+
+    title = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control'})
+    )
+
+    text = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control'
+            }
+        )
+    )
+
+    class Meta:
+        model = Announcement
+        fields = ['title', 'text']

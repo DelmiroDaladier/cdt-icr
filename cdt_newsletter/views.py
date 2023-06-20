@@ -11,12 +11,12 @@ from django.http import StreamingHttpResponse
 from wsgiref.util import FileWrapper
 
 from .models import Subscription, Newsletter
-from .forms import Subscriptionform, Newsletterform
+from .forms import Newsletterform, AnnouncementForm
 from .utils import generate_page_content, create_qmd_file, generate_newsletter_body
 from repository.utils import create_push_request
 
 
-def newsletter_subscription(request):
+def review_newsletter(request):
     """
     Handle subscription form submissions and render the subscription page.
 
@@ -33,21 +33,13 @@ def newsletter_subscription(request):
     Returns:
         HttpResponse: The HTTP response object with the subscription page.
     """
-    if request.method == 'POST':
-        form = Subscriptionform(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Subscription Successful')
-            return redirect('newsletter_subscription')
+    if request.method == 'GET':
+        context = {}
 
-    form = Subscriptionform()
-    context = {
-        'form': form
-    }
-    return render(
-        request,
-        'cdt_newsletter/newsletter_subscription.html',
-        context)
+        return render(request,
+                      'cdt_newsletter/review_newsletter.html',
+                      context=context)
+
 
 def create_newsletter(request):
 
@@ -102,3 +94,32 @@ def download_newsletter(request):
             response['Content-Disposition'] = "attachment; filename=newsletter.doc"
 
             return response
+
+def create_announcement(request):
+    
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST)
+        context = {
+            'form': form
+        }
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, "Announcement Created!")
+
+                return render(request, 'cdt_newsletter/create_announcement.html', context) 
+            except:
+                messages.error(
+                        request, "Oops! Something went wrong. Please check your input and try again.")
+                
+                return render(request, 'cdt_newsletter/create_announcement.html', context) 
+
+    form = AnnouncementForm()
+    context = {
+        'form': form
+    }
+    return render(
+        request,
+        'cdt_newsletter/create_announcement.html',
+        context
+    )
