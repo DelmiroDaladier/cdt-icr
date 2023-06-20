@@ -245,6 +245,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_conference' %}">Conferences</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_session' %}">Sessions</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'create_newsletter' %}">Newsletter</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'create_announcement' %}">Announcements</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>
