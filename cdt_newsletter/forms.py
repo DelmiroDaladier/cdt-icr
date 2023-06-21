@@ -35,7 +35,7 @@ class Newsletterform(forms.ModelForm):
     )    
 
     announcements = forms.ModelMultipleChoiceField(
-        queryset=Conference.objects.all(),
+        queryset=Announcement.objects.filter(published=False),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
     )
 

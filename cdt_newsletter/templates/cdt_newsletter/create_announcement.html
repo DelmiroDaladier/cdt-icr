@@ -1,10 +1,10 @@
-{% extends "cdt_newsletter/base.html" %}
+{% extends "repository/base.html" %}
 
 {% load crispy_forms_tags %}
 
 {% block content %}
     <div class="container">
-        <h1>Create Newsletter</h1>
+        <h1>Create Announcement</h1>
         <form id="newPostForm" method="post" action="{% url 'create_announcement' %}" >
             {% csrf_token %}
             <div class="form-group row">

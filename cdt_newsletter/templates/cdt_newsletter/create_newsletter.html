@@ -1,4 +1,4 @@
-{% extends "cdt_newsletter/base.html" %}
+{% extends "repository/base.html" %}
 
 {% load crispy_forms_tags %}
 
@@ -32,10 +32,12 @@
             <input type="submit" class='btn btn-primary btn-sm' value="Submit">
         </form>
         <br>
-        <div id="reviewNewsletter" class="form-group" >
-            <a class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#reviewNewsletterModal"> Review Newsletter 
-            </a>
-        </div>
+        <!--
+            <div id="reviewNewsletter" class="form-group" >
+                <a class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#reviewNewsletterModal"> Review Newsletter 
+                </a>
+            </div>
+        -->
     </div>
     {% if form.errors %}
         <div class="alert alert-danger">
