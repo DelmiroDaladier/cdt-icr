@@ -95,8 +95,6 @@ def generate_newsletter_body(form_data: dict):
 
     newsletter_body += f"<p>{form_data.get('text', '')}</p><br><br>"
 
-    print(form_data['announcements'].values())
-
     form_data['announcements'] = form_data['announcements'].values()
 
     for announcement in form_data['announcements']:

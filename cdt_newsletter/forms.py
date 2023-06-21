@@ -43,7 +43,7 @@ class Newsletterform(forms.ModelForm):
         model = Newsletter
         fields = ['title', 'tldr', 'text']
 
-class AnnouncementForm(forms.ModelForm):
+class AnnouncementForm(forms.Form):
 
     title = forms.CharField(
         widget=forms.TextInput(
@@ -59,6 +59,9 @@ class AnnouncementForm(forms.ModelForm):
         )
     )
 
-    class Meta:
-        model = Announcement
-        fields = ['title', 'text']
+    date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+                'class': 'form-control'
+            })
+    )

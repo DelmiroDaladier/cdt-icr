@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.http import StreamingHttpResponse
 from wsgiref.util import FileWrapper
 
-from .models import Subscription, Newsletter
+from .models import Subscription, Newsletter, Announcement, Event
 from .forms import Newsletterform, AnnouncementForm
 from .utils import generate_page_content, create_qmd_file, generate_newsletter_body
 from repository.utils import create_push_request
@@ -48,7 +48,12 @@ def create_newsletter(request):
         if form.is_valid():
             form_data = form.cleaned_data
 
+            for object in form_data['announcements']:
+                object.published = True
+                object.save()
+            
             newsletter_body = generate_newsletter_body(form_data)
+            
             context = {
                 'newsletter_body' : newsletter_body
             }
@@ -67,7 +72,8 @@ def create_newsletter(request):
                         request, "Oops! Something went wrong. Please check your input and try again.")
                 
             return render(request, 'cdt_newsletter/newsletter_visualization.html', context)
-            
+        else:
+            print(form.errors)   
 
     form = Newsletterform()
     context = {
@@ -104,15 +110,24 @@ def create_announcement(request):
         }
         if form.is_valid():
             try:
-                form.save()
+                data = form.cleaned_data
+                if data.get('date'):
+                    Event.objects.create(**data)
+                else:
+                    del data['date']
+                    Announcement.objects.create(**data)
                 messages.success(request, "Announcement Created!")
 
                 return render(request, 'cdt_newsletter/create_announcement.html', context) 
-            except:
+            except Exception as ex:
+                print(ex)    
                 messages.error(
                         request, "Oops! Something went wrong. Please check your input and try again.")
                 
                 return render(request, 'cdt_newsletter/create_announcement.html', context) 
+        else:
+            messages.error(request, form.errors.as_text())   
+
 
     form = AnnouncementForm()
     context = {
