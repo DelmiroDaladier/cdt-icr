@@ -1,9 +1,7 @@
 {% for message in messages %}
 <div class="container-fluid p-0">
   <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-      <span aria-hidden="True">&times;</span>
-    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     {{ message }}
   </div>
 </div>

@@ -34,11 +34,13 @@ def review_newsletter(request):
     Returns:
         HttpResponse: The HTTP response object with the subscription page.
     """
+    print('**********************************')
     if request.method == 'GET':
+        print("request: {request}")
         context = {}
 
         return render(request,
-                      'cdt_newsletter/review_newsletter.html',
+                      'cdt_newsletter/newsletter_visualization.html',
                       context=context)
 
 
@@ -53,17 +55,13 @@ def create_newsletter(request):
                 object.published = True
                 object.save()
             
-            now = datetime.datetime.now()
-            delta = now - datetime.timedelta(days=-30)
-            
-
-
             forthcoming_events = Event.objects.all().order_by('date')
 
             newsletter_body = generate_newsletter_body(form_data, forthcoming_events)
             
             context = {
-                'newsletter_body' : newsletter_body
+                'newsletter_body' : newsletter_body,
+                'form': form
             }
 
             document = Document()
@@ -78,8 +76,8 @@ def create_newsletter(request):
             except Exception as ex:
                 messages.error(
                         request, "Oops! Something went wrong. Please check your input and try again.")
-                
-            return render(request, 'cdt_newsletter/newsletter_visualization.html', context)
+
+            return redirect("review_newsletter")    
         else:
             print(form.errors)   
 
@@ -88,7 +86,7 @@ def create_newsletter(request):
         'text': "Welcome to this week's issue of the newsletter."
     }
 
-    form = Newsletterform(data_dict)
+    form = Newsletterform(initial=data_dict)
     context = {
         'form' : form
     }

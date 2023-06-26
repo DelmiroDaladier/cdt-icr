@@ -346,8 +346,7 @@ def arxiv_post(request):
 
             try:
                 data = scrap_data_from_arxiv(url)
-                print('scraped data:')
-                print(data)
+
                 entry_existis = Publication.objects.filter(name=data['citation_title'])
 
                 if not entry_existis:
