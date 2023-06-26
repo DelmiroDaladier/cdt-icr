@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 # Create your models here.
@@ -16,6 +18,12 @@ class Newsletter(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.title:
+            date = datetime.datetime.now().strftime('%d-%m-%Y')
+            self.title = f'cdt_newsletter_{date}'
+        return super().save(*args, **kwargs)
 
 class Announcement(models.Model):
     id = models.AutoField(primary_key=True)

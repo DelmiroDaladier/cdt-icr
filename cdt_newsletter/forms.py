@@ -13,12 +13,14 @@ class Subscriptionform(forms.ModelForm):
 class Newsletterform(forms.ModelForm):
 
     title = forms.CharField(
+        required=False,
         widget=forms.TextInput(
             attrs={
                 'class': 'form-control'})
     )
 
     tldr = forms.CharField(
+        required=False,
         widget=forms.Textarea(
             attrs={
                 'class': 'form-control'
@@ -27,6 +29,7 @@ class Newsletterform(forms.ModelForm):
     )
 
     text = forms.CharField(
+        required=False,
         widget=forms.Textarea(
             attrs={
                 'class': 'form-control'

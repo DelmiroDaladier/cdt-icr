@@ -1,4 +1,5 @@
 import os
+import datetime
 import mimetypes
 
 from docx import Document
@@ -52,7 +53,16 @@ def create_newsletter(request):
                 object.published = True
                 object.save()
             
-            newsletter_body = generate_newsletter_body(form_data)
+            now = datetime.datetime.now()
+            delta = now - datetime.timedelta(days=-30)
+            
+            now = now.strftime('%Y-%m-%d')
+            delta = delta.strftime('%Y-%m-%d')
+
+
+            forthcoming_events = Event.objects.filter(date__range=[now,delta]).order_by('date')
+
+            newsletter_body = generate_newsletter_body(form_data, forthcoming_events)
             
             context = {
                 'newsletter_body' : newsletter_body
@@ -75,7 +85,12 @@ def create_newsletter(request):
         else:
             print(form.errors)   
 
-    form = Newsletterform()
+    data_dict = {
+        'title': 'CDT Weekly Newsletter',
+        'text': "Welcome to this week's issue of the newsletter."
+    }
+
+    form = Newsletterform(data_dict)
     context = {
         'form' : form
     }

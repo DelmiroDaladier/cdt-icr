@@ -85,23 +85,41 @@ def generate_page_content(filepath: str, content: dict):
     object = Newsletter(**data_dict)
     object.save()
 
-def generate_newsletter_body(form_data: dict):
+def generate_newsletter_body(form_data: dict, forthcoming_events):
+    
+    newsletter_body = ""
+    newsletter_items = [item for item in form_data['announcements']]
+    events = [item for item in forthcoming_events]
 
-    newsletter_body = ''
+    if not form_data.get('title', ''):
+        newsletter_body += "<h2>CDT Weekly Newsletter</h2>"
+    else:
+        newsletter_body = f"<h2>{form_data.get('title')}</h2><br>"
 
-    newsletter_body += f"<h2>{form_data.get('title', '')}</h2><br><br>"
+    newsletter_body += '<ul>'
 
-    newsletter_body += f"<p>{form_data.get('tldr', '')}</p><br><br>"
+    for item in newsletter_items:
 
-    newsletter_body += f"<p>{form_data.get('text', '')}</p><br><br>"
+        newsletter_body += f"<li>{item.title}</li>"
 
-    form_data['announcements'] = form_data['announcements'].values()
+    newsletter_body += '</ul>' 
 
-    for announcement in form_data['announcements']:
+    if not form_data.get('text', ''):
+        newsletter_body += f""
+    else:
+        newsletter_body += f"<p>{form_data.get('text', '')}</p><br><br>"
+
+    
+    for announcement in newsletter_items:
         
-        newsletter_body += f"<b>{announcement.get('venue_name', '')}</b><br>"
-        newsletter_body += f"Location: {announcement.get('location', '')}<br>"
-        newsletter_body += f"<a href={announcement.get('venue_url', '')}> Link </a> <br><br>"
+        newsletter_body += f"<b>{announcement.title}</b><br>"
+        newsletter_body += f"{announcement.text}<br><br>"
+    
+    newsletter_body += '<h2>Forthcoming Calendar of Events<br><br></h2>'
         
+    for event in events:
+        
+        newsletter_body += f"<b>{event.title} - {event.date}</b><br>"
+
     return newsletter_body
     
