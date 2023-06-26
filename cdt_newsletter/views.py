@@ -56,11 +56,9 @@ def create_newsletter(request):
             now = datetime.datetime.now()
             delta = now - datetime.timedelta(days=-30)
             
-            now = now.strftime('%Y-%m-%d')
-            delta = delta.strftime('%Y-%m-%d')
 
 
-            forthcoming_events = Event.objects.filter(date__range=[now,delta]).order_by('date')
+            forthcoming_events = Event.objects.all().order_by('date')
 
             newsletter_body = generate_newsletter_body(form_data, forthcoming_events)
             
