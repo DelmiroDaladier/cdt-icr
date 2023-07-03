@@ -13,9 +13,10 @@ SESSION_CHOICES = (
     ("TUTORIAL", "Tutorial")
 )
 
+
 class Author(models.Model):
     user_id = models.AutoField(primary_key=True)
-    user = models.CharField( max_length=250, unique=True)
+    user = models.CharField(max_length=250, unique=True)
     user_url = models.URLField(blank=True, null=True)
     orcid = models.URLField(blank=True, null=True)
     slug = models.SlugField()
@@ -27,6 +28,7 @@ class Author(models.Model):
         if not self.slug:
             self.slug = slugify(self.user)
         return super().save(*args, **kwargs)
+
 
 class ResearchArea(models.Model):
     id = models.AutoField(primary_key=True)
@@ -56,6 +58,7 @@ class AiResource(models.Model):
     class Meta:
         abstract = True
 
+
 class Venue(models.Model):
     id = models.AutoField(primary_key=True)
     venue_name = models.CharField(max_length=250, unique=True)
@@ -64,9 +67,13 @@ class Venue(models.Model):
     def __str__(self):
         return self.venue_name
 
+
 class Publication(AiResource):
     slug = models.SlugField(unique=True)
-    type = models.CharField(max_length=100, choices=PUBLICATION_CHOICES, default="Paper")
+    type = models.CharField(
+        max_length=100,
+        choices=PUBLICATION_CHOICES,
+        default="Paper")
     thumbnail = models.ImageField(blank=True, null=True)
     venue = models.ManyToManyField(Venue, blank=True, default='')
     citation = models.URLField(blank=True, null=True)
@@ -80,7 +87,7 @@ class Publication(AiResource):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs): 
+    def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
@@ -96,11 +103,17 @@ class Conference(Venue):
     def __str__(self):
         return self.venue_name
 
+
 class Session(AiResource):
-    conference = models.ForeignKey(Conference, on_delete=models.CASCADE, default=1)
-    type = models.CharField(max_length=100, choices=SESSION_CHOICES, default="Tutorial")
+    conference = models.ForeignKey(
+        Conference, on_delete=models.CASCADE, default=1)
+    type = models.CharField(
+        max_length=100,
+        choices=SESSION_CHOICES,
+        default="Tutorial")
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+
 
 class Dataset(AiResource):
     link = models.URLField()

@@ -347,15 +347,16 @@ def arxiv_post(request):
             try:
                 data = scrap_data_from_arxiv(url)
 
-                entry_existis = Publication.objects.filter(name=data['citation_title'])
+                entry_existis = Publication.objects.filter(
+                    name=data['citation_title'])
 
                 if not entry_existis:
-                    
+
                     authors = []
 
                     for author, link in zip(data['citation_author'], data['links']):
                         author = author.split(',')[1].strip(
-                            ) + ' ' + author.split(',')[0].strip()     
+                        ) + ' ' + author.split(',')[0].strip()
                         author_obj = Author(**{
                             'user': author,
                             'user_url': link
@@ -369,20 +370,20 @@ def arxiv_post(request):
                     if data['research_area']:
                         research_area_obj = ResearchArea(**{
                             'title': data['research_area'],
-                            })
+                        })
                         try:
                             research_area_obj.save()
                         except IntegrityError as integrity:
                             print(integrity)
 
-                        research_Area_id = ResearchArea.objects.filter(title=data['research_area'])[0].id
+                        research_Area_id = ResearchArea.objects.filter(
+                            title=data['research_area'])[0].id
 
                     data_dict = {
                         'name': data['citation_title'],
                         'overview': data['citation_abstract'],
                         'pdf': data['citation_pdf'],
-                    }                    
-
+                    }
 
                     post_obj = Publication(**data_dict)
 
@@ -395,19 +396,17 @@ def arxiv_post(request):
                         )
                         return redirect("arxiv_post")
 
-                    
                     for author in authors:
                         post_obj.authors.add(author.user_id)
-
 
                     post_obj.research_area.add(research_Area_id)
 
                     post_obj.save()
-                    
+
                     content = generate_qmd_header_for_arxiv(data)
-                    
+
                     folder_name = slugify(content.get('title', ''))
-                    
+
                     current_path = os.getcwd()
 
                     current_path = current_path + \
@@ -416,18 +415,19 @@ def arxiv_post(request):
 
                     if not os.path.exists(current_path):
                         os.makedirs(current_path)
-                    
+
                     with open(file_path, 'w+') as fp:
                         fp.write('---\n')
                         yaml.dump(content, fp)
                         fp.write('\n---')
-                       
+
                     generate_page_content(content, file_path, arxiv=True)
-                
+
                     try:
                         repo = 'icr'
                         path = f'content/{folder_name}/index.qmd'
-                        create_push_request(file_path, folder_name, repo=repo, path=path)
+                        create_push_request(
+                            file_path, folder_name, repo=repo, path=path)
                     except Exception as ex:
                         messages.error(
                             request,
@@ -446,9 +446,9 @@ def arxiv_post(request):
 
                 else:
                     messages.error(
-                            request,
-                            "Integrity Error: The input data you provided already exists in the database. Please review the existing records and ensure that you are not duplicating data."
-                        )
+                        request,
+                        "Integrity Error: The input data you provided already exists in the database. Please review the existing records and ensure that you are not duplicating data."
+                    )
                     return redirect("arxiv_post")
 
             except Exception as ex:
@@ -592,9 +592,9 @@ def submit_conference(request):
                 return redirect("submit_conference")
 
             context = {
-                    'form': form,
-                    'repo': 'conference_calendar'
-                }
+                'form': form,
+                'repo': 'conference_calendar'
+            }
 
             return render(request, 'repository/submission.html', context)
 
@@ -609,6 +609,7 @@ def submit_conference(request):
         'repository/submit_conference.html',
         context=context
     )
+
 
 def submit_session(request):
 

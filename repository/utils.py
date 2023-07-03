@@ -16,6 +16,7 @@ from spacy import displacy
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
+
 def generate_qmd_header(content: dict, form_data: dict):
     """Generate a Quick Markup Description header based on form data.
 
@@ -86,8 +87,8 @@ def generate_qmd_header(content: dict, form_data: dict):
                             'toc': True}},
         'execute': {
                 'echo': False
-            }                    
         }
+    }
 
     print(form_data)
     content['params'] = {}
@@ -99,7 +100,7 @@ def generate_qmd_header(content: dict, form_data: dict):
         print(f'key:{type(key)}')
 
         if key != '':
-            if type(key) == str:
+            if isinstance(key, str):
                 content['params'][param_key] = key
             else:
                 content['params'][param_key] = key[0].title
@@ -112,7 +113,13 @@ def generate_qmd_header(content: dict, form_data: dict):
 
     return content
 
-def save_publication_data(publication_title: str, authors: str, links: str, research_area: str, filepath: str):
+
+def save_publication_data(
+        publication_title: str,
+        authors: str,
+        links: str,
+        research_area: str,
+        filepath: str):
 
     data = {
         'publication': publication_title,
@@ -123,14 +130,21 @@ def save_publication_data(publication_title: str, authors: str, links: str, rese
     }
 
     if not os.path.exists(filepath):
-        
-        df = pd.DataFrame(columns=["publication", "authors", "publication_url", "authors_link", "research_area"])
+
+        df = pd.DataFrame(
+            columns=[
+                "publication",
+                "authors",
+                "publication_url",
+                "authors_link",
+                "research_area"])
         df.to_csv(filepath, index=False)
 
     df = pd.read_csv(filepath)
     df = df.append(data, ignore_index=True)
     df.drop_duplicates(subset=['publication', 'authors'], inplace=True)
     df.to_csv(filepath, index=False)
+
 
 def save_new_conference_data(conference_objects, filepath: str):
     """Save a dictionary of conference objects to a CSV file.
@@ -187,18 +201,26 @@ def generate_page_content(content: dict, filepath: str, arxiv: bool):
     """
 
     with open(filepath, 'a') as fp:
-        authors = ['\"'+content['params'][param].get('name')+'\"' for param in content['params'] if param.startswith('author')]
+        authors = [
+            '\"' +
+            content['params'][param].get('name') +
+            '\"' for param in content['params'] if param.startswith('author')]
         links = []
         if content['params']['author_1'].get('link', None):
-            links = ['\"'+content['params'][param].get('link', None)+'\"' for param in content['params'] if param.startswith('author')]
+            links = [
+                '\"' +
+                content['params'][param].get(
+                    'link',
+                    None) +
+                '\"' for param in content['params'] if param.startswith('author')]
 
         if arxiv:
             aux = []
-            for author in authors: 
-                l = author.replace('"','').split(',')
-                aux.append('\"'+' '.join(l[-1:] + l[:-1]).strip()+'\"')
+            for author in authors:
+                l = author.replace('"', '').split(',')
+                aux.append('\"' + ' '.join(l[-1:] + l[:-1]).strip() + '\"')
             authors = aux
-        
+
         authors_string = ','.join(authors)
         links_string = ','.join(links)
 
@@ -215,7 +237,8 @@ def generate_page_content(content: dict, filepath: str, arxiv: bool):
         fp.write('\n## Paper-authors\n')
 
         fp.write('\n```{ojs} \n')
-        fp.write("\n html`<ul>${names.map(name => html`<li><a href=\"../../posts_by_author.html?name=${name}\" >${name}</a></li>`)}</ul>` \n")
+        fp.write(
+            "\n html`<ul>${names.map(name => html`<li><a href=\"../../posts_by_author.html?name=${name}\" >${name}</a></li>`)}</ul>` \n")
         fp.write('\n``` \n')
 
         fp.write('\n```{ojs} \n')
@@ -249,17 +272,26 @@ def generate_page_content(content: dict, filepath: str, arxiv: bool):
                 '[![](https://img.shields.io/badge/code-blueviolet?style=flat)]({{< meta params.code_url >}})\n')
 
         current_path = os.getcwd()
-        
+
         filepath = f'{current_path}/icr_frontend/input.csv'
-        authors_string = authors_string.replace('"','')
-        links_string = links_string.replace('"','')
+        authors_string = authors_string.replace('"', '')
+        links_string = links_string.replace('"', '')
 
         print(content['params'])
 
-        save_publication_data(content['title'], authors_string, links_string, content['params']['research_area'], filepath)
-        
+        save_publication_data(
+            content['title'],
+            authors_string,
+            links_string,
+            content['params']['research_area'],
+            filepath)
 
-def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
+
+def create_push_request(
+        file_path: str,
+        folder_name: str,
+        repo: str,
+        path: str):
     """
     Creates and pushes a new file with the content of a given file path to the specified GitHub repository.
 
@@ -282,12 +314,12 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     sha_last_commit_url = f'https://api.github.com/repos/{user}/{repo}/branches/main'
     response = requests.get(sha_last_commit_url, headers=header)
-    
+
     sha_last_commit = response.json()['commit']['sha']
 
     url = f'https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}'
     response = requests.get(url, headers=header)
-    
+
     sha_base_tree = response.json()['sha']
 
     with open(file_path, 'r') as fp:
@@ -305,9 +337,9 @@ def create_push_request(file_path: str, folder_name: str, repo: str, path: str):
 
     url = f'https://api.github.com/repos/DelmiroDaladier/{repo}/git/blobs'
     response = requests.post(url, json.dumps(data), headers=header)
-    
+
     blob_sha = response.json()['sha']
-    
+
     data = {
         'base_tree': sha_base_tree,
         'tree': [
@@ -373,8 +405,8 @@ def generate_qmd_header_for_arxiv(data: dict):
             }
         },
         'execute': {
-                'echo': False
-            }
+            'echo': False
+        }
     }
 
     content['params'] = {
@@ -450,14 +482,16 @@ def scrap_data_from_arxiv(url: str):
 
     if soup.find_all("div", class_="subheader"):
         subheader = list(soup.find_all("div", class_="subheader"))
-        data['research_area'] = subheader[-1].h1.text.split('>')[-1].strip().lower()
+        data['research_area'] = subheader[-1].h1.text.split(
+            '>')[-1].strip().lower()
 
     else:
         data['research_area'] = None
 
-    if soup.find("div", {"class":"authors"}):
-        authors = soup.find("div", {"class":"authors"})
-        data['links'] = ['https://arxiv.org'+author['href'] for author in authors.find_all('a')]
+    if soup.find("div", {"class": "authors"}):
+        authors = soup.find("div", {"class": "authors"})
+        data['links'] = ['https://arxiv.org' + author['href']
+                         for author in authors.find_all('a')]
     else:
         data['links'] = None
 

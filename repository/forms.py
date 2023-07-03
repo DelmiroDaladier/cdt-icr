@@ -184,7 +184,12 @@ class ConferenceForm(forms.ModelForm):
 
     class Meta:
         model = Conference
-        fields = ['venue_url', 'venue_name', 'start_date', 'end_date', 'location']
+        fields = [
+            'venue_url',
+            'venue_name',
+            'start_date',
+            'end_date',
+            'location']
         labels = {
             'venue_name': 'Name',
             'venue_url': 'Conference Link',
@@ -192,6 +197,7 @@ class ConferenceForm(forms.ModelForm):
             'start_date': 'Starting on',
             'end_date': 'To'
         }
+
 
 class SessionForm(forms.ModelForm):
 
@@ -225,9 +231,9 @@ class SessionForm(forms.ModelForm):
     conference = forms.ModelChoiceField(
         queryset=Conference.objects.all(),
         required=False,
-        widget=forms.Select(attrs={'class':'form-control'})
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
 
     class Meta:
         model = Session
-        fields = ['start_date', 'end_date', 'type','conference']
+        fields = ['start_date', 'end_date', 'type', 'conference']

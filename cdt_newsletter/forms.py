@@ -2,6 +2,7 @@ from django import forms
 from .models import Subscription, Newsletter, Announcement
 from repository.models import Conference
 
+
 class Subscriptionform(forms.ModelForm):
     email = forms.EmailField()
 
@@ -9,6 +10,7 @@ class Subscriptionform(forms.ModelForm):
         model = Subscription
         fields = ['email']
         labels = ['Email']
+
 
 class Newsletterform(forms.ModelForm):
 
@@ -35,7 +37,7 @@ class Newsletterform(forms.ModelForm):
                 'class': 'form-control'
             }
         )
-    )    
+    )
 
     announcements = forms.ModelMultipleChoiceField(
         queryset=Announcement.objects.filter(published=False),
@@ -45,6 +47,7 @@ class Newsletterform(forms.ModelForm):
     class Meta:
         model = Newsletter
         fields = ['title', 'tldr', 'text']
+
 
 class AnnouncementForm(forms.ModelForm):
 
@@ -65,8 +68,8 @@ class AnnouncementForm(forms.ModelForm):
     date = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={
-                'class': 'form-control'
-            })
+            'class': 'form-control'
+        })
     )
 
     class Meta:

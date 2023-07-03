@@ -42,6 +42,7 @@ def review_newsletter(request):
                       'cdt_newsletter/newsletter_visualization.html',
                       context=context)
 
+
 def create_newsletter(request):
 
     if request.method == 'POST':
@@ -52,13 +53,14 @@ def create_newsletter(request):
             for object in form_data['announcements']:
                 object.published = True
                 object.save()
-            
+
             forthcoming_events = Event.objects.all().order_by('date')
 
-            newsletter_body = generate_newsletter_body(form_data, forthcoming_events)
-            
+            newsletter_body = generate_newsletter_body(
+                form_data, forthcoming_events)
+
             context = {
-                'newsletter_body' : newsletter_body
+                'newsletter_body': newsletter_body
             }
 
             document = Document()
@@ -67,18 +69,18 @@ def create_newsletter(request):
             new_parser.add_html_to_document(newsletter_body, document)
             document.save('newsletter.doc')
 
-            try: 
+            try:
                 form.save()
                 messages.success(request, "Newsletter Created!")
             except Exception as ex:
                 messages.error(
-                        request, "Oops! Something went wrong. Please check your input and try again.")
+                    request, "Oops! Something went wrong. Please check your input and try again.")
 
             return render(request,
-                      'cdt_newsletter/newsletter_visualization.html',
-                      context=context)   
+                          'cdt_newsletter/newsletter_visualization.html',
+                          context=context)
         else:
-            print(form.errors)   
+            print(form.errors)
 
     data_dict = {
         'title': 'CDT Weekly Newsletter',
@@ -87,7 +89,7 @@ def create_newsletter(request):
 
     form = Newsletterform(initial=data_dict)
     context = {
-        'form' : form
+        'form': form
     }
     return render(
         request,
@@ -95,24 +97,26 @@ def create_newsletter(request):
         context
     )
 
+
 def download_newsletter(request):
 
     if request.method == 'GET':
-            directory = os.getcwd()
-            filepath = directory + '/newsletter.doc'
+        directory = os.getcwd()
+        filepath = directory + '/newsletter.doc'
 
-            path = open(filepath, 'rb')
-            
-            mime_type, _ = mimetypes.guess_type(filepath)
-            
-            response = HttpResponse(path, content_type=mime_type)
-            
-            response['Content-Disposition'] = "attachment; filename=newsletter.doc"
+        path = open(filepath, 'rb')
 
-            return response
+        mime_type, _ = mimetypes.guess_type(filepath)
+
+        response = HttpResponse(path, content_type=mime_type)
+
+        response['Content-Disposition'] = "attachment; filename=newsletter.doc"
+
+        return response
+
 
 def create_announcement(request):
-    
+
     if request.method == 'POST':
         form = AnnouncementForm(request.POST)
         context = {
@@ -128,16 +132,21 @@ def create_announcement(request):
                     Announcement.objects.create(**data)
                 messages.success(request, "Announcement Created!")
 
-                return render(request, 'cdt_newsletter/create_announcement.html', context) 
+                return render(
+                    request,
+                    'cdt_newsletter/create_announcement.html',
+                    context)
             except Exception as ex:
-                print(ex)    
+                print(ex)
                 messages.error(
-                        request, "Oops! Something went wrong. Please check your input and try again.")
-                
-                return render(request, 'cdt_newsletter/create_announcement.html', context) 
-        else:
-            messages.error(request, form.errors.as_text())   
+                    request, "Oops! Something went wrong. Please check your input and try again.")
 
+                return render(
+                    request,
+                    'cdt_newsletter/create_announcement.html',
+                    context)
+        else:
+            messages.error(request, form.errors.as_text())
 
     form = AnnouncementForm()
     context = {
@@ -149,17 +158,18 @@ def create_announcement(request):
         context
     )
 
+
 class NewsletterPreview(FormPreview):
     form_template = "cdt_newsletter/create_newsletter.html"
     preview_template = "cdt_newsletter/newsletter_visualization.html"
 
     def get_context(self, request, form):
         print('get context')
-        
+
         if form.is_valid():
-            
+
             render_data = {
-                'title' :  form.cleaned_data['title'],
+                'title': form.cleaned_data['title'],
                 'text': form.cleaned_data['text'],
                 'announcements': form.cleaned_data['announcements'],
                 'events': Event.objects.all().order_by('date')
@@ -183,15 +193,16 @@ class NewsletterPreview(FormPreview):
 
         forthcoming_events = Event.objects.all().order_by('date')
 
-        newsletter_body = generate_newsletter_body(cleaned_data, forthcoming_events)
+        newsletter_body = generate_newsletter_body(
+            cleaned_data, forthcoming_events)
         parsed_body = parse_html_to_text(newsletter_body)
 
         document = Document()
         new_parser = HtmlToDocx()
 
         newsletter = {
-            'title' : cleaned_data['title'],
-            'text' : parsed_body
+            'title': cleaned_data['title'],
+            'text': parsed_body
         }
 
         new_parser.add_html_to_document(newsletter_body, document)
@@ -200,20 +211,29 @@ class NewsletterPreview(FormPreview):
         Newsletter.objects.create(**newsletter)
         return HttpResponseRedirect("/newsletter_submission_success")
 
+
 def newsletter_submission_success(request):
 
     context = {}
-    return render(request, 'cdt_newsletter/newsletter_submission_success.html', context)
+    return render(
+        request,
+        'cdt_newsletter/newsletter_submission_success.html',
+        context)
+
 
 def announcements(request):
     objects = Announcement.objects.all()
-    
+
     context = {
         'announcements': objects
     }
 
     print(context)
-    return render(request, 'cdt_newsletter/announcements.html', context=context)
+    return render(
+        request,
+        'cdt_newsletter/announcements.html',
+        context=context)
+
 
 def announcement_detail(request, pk):
 
@@ -225,17 +245,18 @@ def announcement_detail(request, pk):
 
     return render(request, 'cdt_newsletter/announcement_detail.html', context)
 
+
 def edit_announcement(request, pk):
 
     data = Announcement.objects.get(id=int(pk))
     form = AnnouncementForm(instance=data)
     if request.method == 'POST':
         form = AnnouncementForm(request.POST, instance=data)
-        
+
         if form.is_valid():
             form.save()
             return redirect('/')
-    
+
     context = {
         'form': form
     }
