@@ -108,20 +108,20 @@
             });
 
             $(document).ready(function () {
-                let my_modal = $("#addVenueModal");
-                const url_form = "/update_post/{{ post.slug }}";
+                let my_modal = $("#updateAnnouncementModal");
+                const url_form = "/edit_announcement/{{ announcement.id }}";
                 data = { 'slug': '{{ post.slug }}' }
-                $("#updatePost a").click(function (e) {
+                $("#updateAnnouncement a").click(function (e) {
                     e.preventDefault();
                     my_modal.load(url_form, function () {
                         my_modal.modal("show"); // Open Modal
-                        $("#updatePostForm").submit(function (e) {
+                        $("#updateAnnouncementForm").submit(function (e) {
                             e.preventDefault(); // Cancel the default action
                             $.ajax({
                                 method: "POST",
                                 data: $(this).serialize(),
                                 dataType: "json",
-                                url: "/update_post/{{ post.slug }}/",
+                                url: "/edit_announcement/{{ announcement.id }}/",
                                 success: function (response) {
                                     my_modal.modal('hide');
                                     window.location.reload();
@@ -178,39 +178,6 @@
                                 },
                     });
 
-                });
-            });
-
-            
-            $(document).ready(function () {
-                let my_modal = $("#reviewNewsletterModal");
-                const url_form = "newsletter_subscription/";
-                $("#reviewNewsletter a").click(function (e) {
-                    e.preventDefault();
-                    console.log(my_modal)
-                    my_modal.load(url_form, function () {
-                        console.log('*')
-                        my_modal.modal("show"); 
-                        $("#confirmNewsletter").submit(function (e) {
-                            e.preventDefault(); 
-                            $.ajax({
-                                method: "POST",
-                                data: $(this).serialize(),
-                                dataType: "json",
-                                url: "create_newsletter/",
-                                success: function (response) {
-                                    console.log('*******')
-                                    my_modal.modal('hide');
-                                    window.location.reload();
-                                },
-                                error: function (response) {
-                                    console.log(response);
-                                    my_modal.modal('hide');
-                                    window.location.reload();
-                                },
-                            });
-                        });
-                    });
                 });
             });
 

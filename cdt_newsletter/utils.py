@@ -4,6 +4,7 @@ from datetime import datetime
 
 from .models import Newsletter
 
+from bs4 import BeautifulSoup
 
 def create_qmd_file(filepath: str):
     """
@@ -123,3 +124,11 @@ def generate_newsletter_body(form_data: dict, forthcoming_events):
 
     return newsletter_body
     
+
+def parse_html_to_text(newsletter_body: str):
+
+    newsletter_body = newsletter_body.replace('<br>','\n')
+
+    soup = BeautifulSoup(newsletter_body, "html.parser")
+
+    return soup.text

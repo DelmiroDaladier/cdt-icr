@@ -6,15 +6,16 @@ from docx import Document
 from htmldocx import HtmlToDocx
 
 from django.contrib import messages
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import StreamingHttpResponse
 from wsgiref.util import FileWrapper
 
-from .models import Subscription, Newsletter, Announcement, Event
-from .forms import Newsletterform, AnnouncementForm
-from .utils import generate_page_content, create_qmd_file, generate_newsletter_body
+from formtools.preview import FormPreview
 from repository.utils import create_push_request
+from .forms import Newsletterform, AnnouncementForm
+from .models import Newsletter, Announcement, Event
+from .utils import generate_newsletter_body, parse_html_to_text
 
 
 def review_newsletter(request):
@@ -34,15 +35,12 @@ def review_newsletter(request):
     Returns:
         HttpResponse: The HTTP response object with the subscription page.
     """
-    print('**********************************')
     if request.method == 'GET':
-        print("request: {request}")
         context = {}
 
         return render(request,
                       'cdt_newsletter/newsletter_visualization.html',
                       context=context)
-
 
 def create_newsletter(request):
 
@@ -60,8 +58,7 @@ def create_newsletter(request):
             newsletter_body = generate_newsletter_body(form_data, forthcoming_events)
             
             context = {
-                'newsletter_body' : newsletter_body,
-                'form': form
+                'newsletter_body' : newsletter_body
             }
 
             document = Document()
@@ -77,7 +74,9 @@ def create_newsletter(request):
                 messages.error(
                         request, "Oops! Something went wrong. Please check your input and try again.")
 
-            return redirect("review_newsletter")    
+            return render(request,
+                      'cdt_newsletter/newsletter_visualization.html',
+                      context=context)   
         else:
             print(form.errors)   
 
@@ -149,3 +148,96 @@ def create_announcement(request):
         'cdt_newsletter/create_announcement.html',
         context
     )
+
+class NewsletterPreview(FormPreview):
+    form_template = "cdt_newsletter/create_newsletter.html"
+    preview_template = "cdt_newsletter/newsletter_visualization.html"
+
+    def get_context(self, request, form):
+        print('get context')
+        
+        if form.is_valid():
+            
+            render_data = {
+                'title' :  form.cleaned_data['title'],
+                'text': form.cleaned_data['text'],
+                'announcements': form.cleaned_data['announcements'],
+                'events': Event.objects.all().order_by('date')
+            }
+            return {
+                'render_data': render_data,
+                'form': form,
+                'stage_field': self.unused_name('stage'),
+                'state': self.state,
+            }
+
+    def process_preview(self, request, form, context):
+        print('process preview')
+        return context
+
+    def done(self, request, cleaned_data):
+        print('Done')
+        for object in cleaned_data['announcements']:
+            object.published = True
+            object.save()
+
+        forthcoming_events = Event.objects.all().order_by('date')
+
+        newsletter_body = generate_newsletter_body(cleaned_data, forthcoming_events)
+        parsed_body = parse_html_to_text(newsletter_body)
+
+        document = Document()
+        new_parser = HtmlToDocx()
+
+        newsletter = {
+            'title' : cleaned_data['title'],
+            'text' : parsed_body
+        }
+
+        new_parser.add_html_to_document(newsletter_body, document)
+        document.save('newsletter.doc')
+
+        Newsletter.objects.create(**newsletter)
+        return HttpResponseRedirect("/newsletter_submission_success")
+
+def newsletter_submission_success(request):
+
+    context = {}
+    return render(request, 'cdt_newsletter/newsletter_submission_success.html', context)
+
+def announcements(request):
+    objects = Announcement.objects.all()
+    
+    context = {
+        'announcements': objects
+    }
+
+    print(context)
+    return render(request, 'cdt_newsletter/announcements.html', context=context)
+
+def announcement_detail(request, pk):
+
+    announcement = Announcement.objects.get(pk=pk)
+
+    context = {
+        'announcement': announcement
+    }
+
+    return render(request, 'cdt_newsletter/announcement_detail.html', context)
+
+def edit_announcement(request, pk):
+
+    data = Announcement.objects.get(id=int(pk))
+    form = AnnouncementForm(instance=data)
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST, instance=data)
+        
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+    
+    context = {
+        'form': form
+    }
+
+    return render(request, 'cdt_newsletter/update_announcement.html', context)

@@ -5,7 +5,7 @@
 {% block content %}
     <div class="container">
         <h1>Create Newsletter</h1>
-        <form id="newPostForm" method="post" action="{% url 'create_newsletter' %}" >
+        <form id="newPostForm" method="post" action="{% url 'newsletter_preview' %}" >
             {% csrf_token %}
             <div class="form-group row">
                 <div class="form-group">
@@ -27,12 +27,6 @@
             <input type="submit" class='btn btn-primary btn-sm' value="Preview">
         </form>
         <br>
-        <!--
-            <div id="reviewNewsletter" class="form-group" >
-                <a class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#reviewNewsletterModal"> Review Newsletter 
-                </a>
-            </div>
-        -->
     </div>
     {% if form.errors %}
         <div class="alert alert-danger">

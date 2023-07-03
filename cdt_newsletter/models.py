@@ -21,7 +21,7 @@ class Newsletter(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.title:
-            date = datetime.datetime.now().strftime('%d-%m-%Y')
+            self.created_at = datetime.datetime.now().strftime('%d-%m-%Y')
             self.title = f'cdt_newsletter_{date}'
         return super().save(*args, **kwargs)
 
