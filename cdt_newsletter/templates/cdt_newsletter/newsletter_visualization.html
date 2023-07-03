@@ -19,11 +19,13 @@
             <br>
     {% endfor %}
 
-    <h2>Forthcoming Calendar of Events</h2><br><br>
+    {% if  render_data.events %} 
+        <h2>Forthcoming Calendar of Events</h2><br><br>
 
-    {% for event in render_data.events %}
-        <b>{{ event.title }} - {{ event.date }}</b><br>
-    {% endfor %}
+        {% for event in render_data.events %}
+            <b>{{ event.title }} - {{ event.date }}</b><br>
+        {% endfor %}
+    {% endif %}
 
     <br><br>
 
