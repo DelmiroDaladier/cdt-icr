@@ -1,0 +1,22 @@
+{% extends "repository/base.html" %}
+
+{% block content %}
+<div class="container">
+    <section class="text-gray-600 body-font">
+        <div class="container px-5 py-24 mx-auto">
+          <div class="flex flex-wrap -m-4">
+           {% for announcement in announcements %}  
+            <div class="xl:w-1/4 md:w-1/2 p-4">
+              <div class="bg-gray-100 p-6 rounded-lg">
+                <img class="h-40 rounded w-full object-cover object-center mb-6" src="" alt="">
+                <a href="{% url 'announcement_detail' announcement.id %}" h2 class="rounded-lg transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-pink-300 duration-300 text-lg text-gray-700 font-medium title-font mb-4">
+                  {{ announcement.title }}</a>
+              </div>
+            </div>
+           {% endfor %}
+         
+          </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

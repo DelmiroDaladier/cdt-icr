@@ -1,0 +1,19 @@
+{% extends 'repository/base.html' %} 
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8  mb-4  mt-3 left  top">
+      <div class="card-body">
+        <h2>{% block title %} {{ announcement.title }} {% endblock title %}</h2>
+        <div id="updateAnnouncement" class="form-group mr-5" style="text-align:left">
+          <a class="btn btn-primary btn-sm pull-right"  data-bs-toggle="modal" data-bs-target="#updateAnnouncementModal" >Edit Announcement</a>
+        </div>
+        <p class="card-text ">{{ announcement.text | safe }}</p>
+        <br>
+        
+  </div>
+</div>
+
+{% endblock content %}
