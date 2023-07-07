@@ -7,8 +7,18 @@
     <div class="col-md-8  mb-4  mt-3 left  top">
       <div class="card-body">
         <h2>{% block title %} {{ announcement.title }} {% endblock title %}</h2>
-        <div id="updateAnnouncement" class="form-group mr-5" style="text-align:left">
-          <a class="btn btn-primary btn-sm pull-right"  data-bs-toggle="modal" data-bs-target="#updateAnnouncementModal" >Edit Announcement</a>
+        <div style="text-align:left">
+          <div id="updateAnnouncement" class="form-group mr-5" >
+            <a class="btn btn-primary btn-sm pull-right"  data-bs-toggle="modal" data-bs-target="#updateAnnouncementModal" >Edit Announcement</a>
+          </div>
+          <div id="deleteAnnouncement" class="form-group mr-5">  
+            <a class="confirm-delete btn btn-danger btn-sm pull-right"  href="{% url 'delete_announcement' announcement.id%}" >Delete Announcement</a>
+            <script>
+              $(document).on('click', '.confirm-delete', function(){
+                return confirm('Are you sure you want to delete this?');
+              })
+            </script>
+          </div>
         </div>
         <p class="card-text ">{{ announcement.text | safe }}</p>
         <br>

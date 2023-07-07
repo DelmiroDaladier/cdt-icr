@@ -107,36 +107,6 @@
                 });
             });
 
-            $(document).ready(function () {
-                let my_modal = $("#updateAnnouncementModal");
-                const url_form = "/edit_announcement/{{ announcement.id }}";
-                data = { 'slug': '{{ post.slug }}' }
-                $("#updateAnnouncement a").click(function (e) {
-                    e.preventDefault();
-                    my_modal.load(url_form, function () {
-                        my_modal.modal("show"); // Open Modal
-                        $("#updateAnnouncementForm").submit(function (e) {
-                            e.preventDefault(); // Cancel the default action
-                            $.ajax({
-                                method: "POST",
-                                data: $(this).serialize(),
-                                dataType: "json",
-                                url: "/edit_announcement/{{ announcement.id }}/",
-                                success: function (response) {
-                                    my_modal.modal('hide');
-                                    window.location.reload();
-                                },
-                                error: function (response) {
-                                    console.log(response);
-                                    my_modal.modal('hide');
-                                    window.location.reload();
-                                },
-                            });
-                        });
-                    });
-                });
-            });
-            
             function getCookie(c_name)
             {
                 if (document.cookie.length > 0)
@@ -152,6 +122,38 @@
                 }
                 return "";
             }
+
+            $(document).ready(function () {
+                let my_modal = $("#updateAnnouncementModal");
+                const url_form = "/edit_announcement/{{ announcement.id }}/";
+                data = { 'id': '{{ announcement.id }}' }
+                $("#updateAnnouncement a").click(function (e) {
+                    e.preventDefault();
+                    my_modal.load(url_form, function () {
+                        my_modal.modal("show"); // Open Modal
+                        $("#updateAnnouncementForm").submit(function (e) {
+                            e.preventDefault(); // Cancel the default action
+                            $.ajax({
+                                method: "POST",
+                                data: $(this).serialize(),
+                                dataType: "json",
+                                url: "/edit_announcement/{{ announcement.id }}/",
+                                success: function (response) {
+                                    console.log('*******')
+                                    my_modal.modal('hide');
+                                    window.location.reload();
+                                },
+                                error: function (response) {
+                                    console.log(response);
+                                    my_modal.modal('hide');
+                                    window.location.reload();
+                                },
+                            });
+                        });
+                    });
+                });
+            });
+            
 
             $(document).ready(function (){
                 $(".conference_link").change(function (e) {
@@ -212,7 +214,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_conference' %}">Conferences</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'submit_session' %}">Sessions</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'create_newsletter' %}">Newsletter</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'create_announcement' %}">Announcements</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'announcements' %}">Announcements</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>

@@ -36,6 +36,7 @@
     <input type="hidden" name="{{ hash_field }}" value="{{ hash_value }}" />
     <p><input class='btn btn-primary btn-sm' type="submit" value="{% translate "Submit" %}" /></p>
     </form>
+    <a class='btn btn-primary btn-sm' type="submit" href="{% url 'download_newsletter' %}">Downlaod .doc File</a>
 
     <h1>{% translate "Or edit it again" %}</h1>
 

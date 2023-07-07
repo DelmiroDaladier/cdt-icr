@@ -132,6 +132,8 @@ def create_announcement(request):
                     Announcement.objects.create(**data)
                 messages.success(request, "Announcement Created!")
 
+                context['form'] = AnnouncementForm()
+
                 return render(
                     request,
                     'cdt_newsletter/create_announcement.html',
@@ -182,11 +184,9 @@ class NewsletterPreview(FormPreview):
             }
 
     def process_preview(self, request, form, context):
-        print('process preview')
         return context
 
     def done(self, request, cleaned_data):
-        print('Done')
         for object in cleaned_data['announcements']:
             object.published = True
             object.save()
@@ -228,7 +228,6 @@ def announcements(request):
         'announcements': objects
     }
 
-    print(context)
     return render(
         request,
         'cdt_newsletter/announcements.html',
@@ -250,15 +249,27 @@ def edit_announcement(request, pk):
 
     data = Announcement.objects.get(id=int(pk))
     form = AnnouncementForm(instance=data)
+
     if request.method == 'POST':
+        print('post request')
         form = AnnouncementForm(request.POST, instance=data)
 
         if form.is_valid():
             form.save()
-            return redirect('/')
+            return redirect(f'/announcements/{pk}/')
 
+    print('DEU GET')
     context = {
         'form': form
     }
 
     return render(request, 'cdt_newsletter/update_announcement.html', context)
+
+def delete_announcement(request, pk):
+    
+    announcement = Announcement.objects.get(id=pk)
+    announcement.delete()
+
+    return redirect('/announcements')
+
+    
