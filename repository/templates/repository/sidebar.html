@@ -1,28 +1,21 @@
 {% block sidebar %}
+    <style>
+            .card{
+                box-shadow: 0 16px 48px #E3E7EB;
+            }
 
-<style>
-        .card{
-            box-shadow: 0 16px 48px #E3E7EB;
-        }
+    </style>
 
-</style>
-
-<div class="col-md-4 float-right ">
-<div class="card my-3">
-        <h5 class="card-header bg-dark text-white" >About Us</h5>
-        <div class="card-body">
-            <p class="card-text"></p>
-            <a href="{% url 'about' %}"
-            class="btn btn-primary">Know more!</a>
-        </div>
-        <br>
-        <h5 class="card-header bg-dark text-white">New content</h5>
-        <div class="card-body">
-            <p class="card-text"></p>
-            <a href="{% url 'new_post' %}"
-            class="btn btn-primary">Create!</a>
-        </div>
-</div>
-</div>
+    <div class="col-md-4 float-right ">
+    <div class="card my-3">
+            <h5 class="card-header bg-dark text-white" >Create Announcement</h5>
+            <div class="card-body">
+                <p class="card-text"></p>
+                <a href="{% url 'create_announcement' %}"
+                class="btn btn-primary">New</a>
+            </div>
+            <br>
+    </div>
+    </div>
 
 {% endblock sidebar %}
