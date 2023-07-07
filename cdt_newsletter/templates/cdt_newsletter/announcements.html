@@ -1,10 +1,12 @@
 {% extends "repository/base.html" %}
 
 {% block content %}
-<div class="container px-5 py-24 mx-auto">  
-    <section class="text-gray-600 body-font">
-          {% include 'repository/sidebar.html' %}  
-          <div class="flex flex-wrap -m-4">
+<div class="container ">  
+    <section class="d-flex flex-row-reverse text-gray-600 body-font">
+          <div class="">
+            {% include 'repository/sidebar.html' %}  
+          </div>
+          <div class="flex flex-wrap -m-4" style="width: 1000px;">
             {% for announcement in announcements %}  
             <div class="xl:w-1/4 md:w-1/2 p-4">
               <div class="bg-gray-100 p-6 rounded-lg">
