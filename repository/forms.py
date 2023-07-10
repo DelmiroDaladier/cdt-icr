@@ -18,14 +18,17 @@ class PublicationForm(forms.ModelForm):
             attrs={
                 'class': 'form-control'}))
     authors = forms.ModelMultipleChoiceField(
+        help_text="Press Ctrl+Click to select the authors of your paper, or add a new one.",
         queryset=Author.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
     )
     research_area = forms.ModelMultipleChoiceField(
+        help_text="Press Ctrl+Click to select the research areas of your paper, or add a new one.",
         queryset=ResearchArea.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
     )
     venue = forms.ModelMultipleChoiceField(
+        help_text="Press Ctrl+Click to select the venue of your paper, or add a new one.",
         required=False,
         queryset=Venue.objects.all(),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
@@ -156,6 +159,7 @@ class ConferenceForm(forms.ModelForm):
     ]
 
     venue_url = forms.CharField(
+        help_text="Conference URL.",
         max_length=200,
         widget=forms.TextInput(attrs={'class': 'conference_link form-control'})
     )

@@ -1,6 +1,7 @@
 from django import forms
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Column, Row, Fieldset
 from .models import Subscription, Newsletter, Announcement
-from repository.models import Conference
 
 
 class Subscriptionform(forms.ModelForm):
@@ -15,6 +16,7 @@ class Subscriptionform(forms.ModelForm):
 class Newsletterform(forms.ModelForm):
 
     title = forms.CharField(
+        help_text="Newsletter title.",
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -31,6 +33,7 @@ class Newsletterform(forms.ModelForm):
     )
 
     text = forms.CharField(
+        help_text="The text that will appear at the top of the newsletter.",
         required=False,
         widget=forms.Textarea(
             attrs={
@@ -40,6 +43,7 @@ class Newsletterform(forms.ModelForm):
     )
 
     announcements = forms.ModelMultipleChoiceField(
+        help_text="Press Ctrl+Click to select the announcements for the newsletter.",
         queryset=Announcement.objects.filter(published=False),
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
     )
@@ -66,6 +70,7 @@ class AnnouncementForm(forms.ModelForm):
     )
 
     date = forms.DateField(
+        help_text="Add a date to turn this announcement into an event",
         required=False,
         widget=forms.DateInput(attrs={
             'class': 'form-control'
