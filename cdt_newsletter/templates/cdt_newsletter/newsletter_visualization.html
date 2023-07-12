@@ -9,7 +9,7 @@
 
     <ul>
         {% for announcement in render_data.announcements %}
-            <li>{{ announcement }}</li>
+            <li><a href="{% url 'announcement_detail' announcement.id  %}">{{ announcement }}</a></li>
         {% endfor %}
     </ul>
 

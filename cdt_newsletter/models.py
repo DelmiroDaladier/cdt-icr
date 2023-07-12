@@ -25,13 +25,13 @@ class Newsletter(models.Model):
     def save(self, *args, **kwargs):
         if not self.title:
             self.created_at = datetime.datetime.now().strftime('%d-%m-%Y')
-            self.title = f'cdt_newsletter_{date}'
+            self.title = f'cdt_newsletter_{self.created_at}'
         return super().save(*args, **kwargs)
 
 
 class Announcement(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=100, null=True)
+    title = models.CharField(max_length=250, null=True)
     text = models.TextField(max_length=500)
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)

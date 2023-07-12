@@ -169,7 +169,7 @@ class NewsletterPreview(FormPreview):
         print('get context')
 
         if form.is_valid():
-
+            print(form.cleaned_data['announcements'][0].id)
             render_data = {
                 'title': form.cleaned_data['title'],
                 'text': form.cleaned_data['text'],
