@@ -52,6 +52,8 @@ class Newsletterform(forms.ModelForm):
         model = Newsletter
         fields = ['title', 'tldr', 'text']
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 class AnnouncementForm(forms.ModelForm):
 
@@ -69,14 +71,9 @@ class AnnouncementForm(forms.ModelForm):
         )
     )
 
-    date = forms.DateField(
-        help_text="Add a date to turn this announcement into an event",
-        required=False,
-        widget=forms.DateInput(attrs={
-            'class': 'form-control'
-        })
-    )
+    date = forms.DateField(widget=DateInput)
 
     class Meta:
         model = Announcement
         fields = ['title', 'text']
+        
