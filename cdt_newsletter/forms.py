@@ -15,6 +15,7 @@ class Subscriptionform(forms.ModelForm):
 
 class Newsletterform(forms.ModelForm):
 
+
     title = forms.CharField(
         help_text="Newsletter title.",
         required=False,
@@ -43,9 +44,14 @@ class Newsletterform(forms.ModelForm):
     )
 
     announcements = forms.ModelMultipleChoiceField(
-        help_text="Press Ctrl+Click to select the announcements for the newsletter.",
+        help_text="Click in the box to access the Announcement List.",
         queryset=Announcement.objects.filter(published=False),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+        widget=forms.SelectMultiple(attrs={
+                                        'class': 'form-control',
+                                        'id':"announcements-multi-select",
+                                        'multiple':'multiple'
+                                        }
+                                    )
     )
 
     class Meta:

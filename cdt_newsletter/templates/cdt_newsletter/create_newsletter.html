@@ -21,6 +21,11 @@
                 <div class="form-group">
                     {{ form.announcements|as_crispy_field }}
                 </div>
+                <script>
+                    $(document).ready(function() {
+                        $('#announcements-multi-select').select2();
+                    });
+                </script>
             </div>
             <br>
             <br>
