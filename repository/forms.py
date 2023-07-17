@@ -7,6 +7,9 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Publication, Author, Venue, ResearchArea, Conference, Session
 
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
 class PublicationForm(forms.ModelForm):
 
     name = forms.CharField(
@@ -18,20 +21,20 @@ class PublicationForm(forms.ModelForm):
             attrs={
                 'class': 'form-control'}))
     authors = forms.ModelMultipleChoiceField(
-        help_text="Press Ctrl+Click to select the authors of your paper, or add a new one.",
+        help_text="Click in the box to access the Authors List, or add a new one.",
         queryset=Author.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+        widget=forms.SelectMultiple(attrs={'class': 'multi-select-form form-control'})
     )
     research_area = forms.ModelMultipleChoiceField(
-        help_text="Press Ctrl+Click to select the research areas of your paper, or add a new one.",
+        help_text="Click in the box to access the Reasearh Area List, or add a new one.",
         queryset=ResearchArea.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+        widget=forms.SelectMultiple(attrs={'class': 'multi-select-form form-control'})
     )
     venue = forms.ModelMultipleChoiceField(
-        help_text="Press Ctrl+Click to select the venue of your paper, or add a new one.",
+        help_text="Click in the box to access the Venue List, or add a new one.",
         required=False,
         queryset=Venue.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+        widget=forms.SelectMultiple(attrs={'class': 'multi-select-form form-control'})
     )
     citation = forms.URLField(
         required=False,
@@ -173,12 +176,12 @@ class ConferenceForm(forms.ModelForm):
     start_date = forms.DateField(
         required=False,
         input_formats=date_formats,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=DateInput(attrs={'class': 'form-control'})
     )
     end_date = forms.DateField(
         required=False,
         input_formats=date_formats,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=DateInput(attrs={'class': 'form-control'})
     )
     location = forms.CharField(
         max_length=200,
@@ -218,12 +221,12 @@ class SessionForm(forms.ModelForm):
 
     start_date = forms.DateField(
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=DateInput(attrs={'class': 'form-control'})
     )
 
     end_date = forms.DateField(
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+        widget=DateInput(attrs={'class': 'form-control'})
     )
 
     type = forms.ChoiceField(
