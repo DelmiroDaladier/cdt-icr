@@ -9,12 +9,12 @@
 
     <ul>
         {% for announcement in render_data.announcements %}
-            <li><a href="{% url 'announcement_detail' announcement.id  %}">{{ announcement }}</a></li>
+            <li><a href="#announcement_{{ announcement.id }}">{{ announcement }}</a></li>
         {% endfor %}
     </ul>
 
     {% for announcement in render_data.announcements %}
-            <h3>{{ announcement.title }}</h3>
+            <h3 id="announcement_{{ announcement.id }}">{{ announcement.title }}</h3>
             <p>{{ announcement.text }}</p>
             <br>
     {% endfor %}

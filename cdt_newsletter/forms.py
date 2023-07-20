@@ -77,7 +77,10 @@ class AnnouncementForm(forms.ModelForm):
         )
     )
 
-    date = forms.DateField(widget=DateInput(attrs={'class': 'form-control'}))
+    date = forms.DateField(
+        required=False,
+        widget=DateInput(attrs={'class': 'form-control'})
+    )
 
     class Meta:
         model = Announcement

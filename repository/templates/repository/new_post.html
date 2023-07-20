@@ -4,7 +4,10 @@
 {% block content %}
     <div class="container">
         <h1>New Post</h1>
-        <p><a href="{% url 'arxiv_post' %}">Post using Arxiv link</a></p>
+        <p>Welcome to our platform! We've made it easier than ever for you to share your research.
+            Our user-friendly form allows you to effortlessly submit your research papers by simply filling in the required information below.  
+            <a href="{% url 'arxiv_post' %}">Or post using Arxiv link</a>
+        </p>
         <form id="newPostForm" method="post" action="{% url 'homepage' %}" >
             {% csrf_token %}
             <div class="form-group row">

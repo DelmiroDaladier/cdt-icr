@@ -114,7 +114,6 @@ def homepage(request):
 
     else:
         filled_form = PublicationForm()
-        print(filled_form)
         return render(
             request,
             'repository/new_post.html',
@@ -134,7 +133,7 @@ def about(request):
     """
     return render(request, 'repository/about_page.html')
 
-
+@login_required
 def author_create(request):
     """
     Create a new Author instance and render the create_author HTML page.
@@ -187,7 +186,7 @@ def author_create(request):
             'repository/create_author.html',
             context=context)
 
-
+@login_required
 def add_venue(request):
     """
     Add a new venue to the system.
@@ -232,7 +231,7 @@ def add_venue(request):
             'The venue form is invalid, please review your submission.')
         return render(request, 'repository/add_venue.html', context=context)
 
-
+@login_required
 def add_category(request):
     """
     View function for adding a new category.
@@ -271,7 +270,7 @@ def add_category(request):
             'The category is invalid, please review your submission.')
         return render(request, 'repository/add_category.html', context={})
 
-
+@login_required
 def update_post(request, slug):
     """
     Update an existing post in the system.
@@ -314,7 +313,7 @@ def update_post(request, slug):
             'The form is invalid, please review your submission.')
         return JsonResponse({"instance": instance}, status=200)
 
-
+@login_required
 def arxiv_post(request):
     """
     Create a post from an Arxiv link.
@@ -624,3 +623,7 @@ def submit_session(request):
         'form': form
     }
     return render(request, 'repository/submit_session.html', context=context)
+
+def help_page(request):
+    context = {}
+    return render(request, 'repository/help.html', context=context)

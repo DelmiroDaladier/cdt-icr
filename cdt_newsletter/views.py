@@ -6,6 +6,7 @@ from docx import Document
 from htmldocx import HtmlToDocx
 
 from django.contrib import messages
+from django.utils.safestring import mark_safe
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import StreamingHttpResponse
@@ -129,8 +130,9 @@ def create_announcement(request):
                     Event.objects.create(**data)
                 else:
                     del data['date']
-                    Announcement.objects.create(**data)
-                messages.success(request, "Announcement Created!")
+                    announcement_object = Announcement.objects.create(**data)
+                    announcement_object.save()
+                messages.success(request, mark_safe(f"Announcement Created! Check the created announcement <a href=/announcement/{announcement_object.id} >here</a>"))
 
                 context['form'] = AnnouncementForm()
 
@@ -166,10 +168,8 @@ class NewsletterPreview(FormPreview):
     preview_template = "cdt_newsletter/newsletter_visualization.html"
 
     def get_context(self, request, form):
-        print('get context')
-
         if form.is_valid():
-            print(form.cleaned_data['announcements'][0].id)
+
             render_data = {
                 'title': form.cleaned_data['title'],
                 'text': form.cleaned_data['text'],
@@ -184,6 +184,21 @@ class NewsletterPreview(FormPreview):
             }
 
     def process_preview(self, request, form, context):
+        
+        forthcoming_events = Event.objects.all().order_by('date')
+
+        if form.is_valid():
+            
+            cleaned_data = form.cleaned_data
+
+            newsletter_body = generate_newsletter_body(
+                cleaned_data, forthcoming_events)
+        
+            document = Document()
+            new_parser = HtmlToDocx()
+
+            new_parser.add_html_to_document(newsletter_body, document)
+            document.save('newsletter.doc')
         return context
 
     def done(self, request, cleaned_data):
@@ -191,22 +206,15 @@ class NewsletterPreview(FormPreview):
             object.published = True
             object.save()
 
-        forthcoming_events = Event.objects.all().order_by('date')
-
         newsletter_body = generate_newsletter_body(
             cleaned_data, forthcoming_events)
         parsed_body = parse_html_to_text(newsletter_body)
 
-        document = Document()
-        new_parser = HtmlToDocx()
-
+        
         newsletter = {
             'title': cleaned_data['title'],
             'text': parsed_body
         }
-
-        new_parser.add_html_to_document(newsletter_body, document)
-        document.save('newsletter.doc')
 
         Newsletter.objects.create(**newsletter)
         return HttpResponseRedirect("/newsletter_submission_success")
