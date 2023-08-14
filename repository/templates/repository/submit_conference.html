@@ -4,7 +4,8 @@
 {% block content %}
     <div class="container">
         <h1>New conference</h1>
-        <a href="{% url 'submit_session' %}">Add Session</a>
+        <p>In this section users can add relevant information about conferences. Just paste the conference link in the Venue Url field and press TAB to get more information.</p>
+        <a href="{% url 'submit_session' %}">Or add Session information</a>
         <form action="{% url 'submit_conference' %}" method="POST">
             {% csrf_token %}
             {{form.as_p}}

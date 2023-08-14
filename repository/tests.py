@@ -1,10 +1,47 @@
-from datetime import datetime
-from django.test import TestCase
+import unittest
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
-from .forms import AuthorForm, ArxivForm, PublicationForm, VenueForm
+from datetime import datetime
+from django.urls import reverse
+from django.test import TestCase, Client
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.auth import (
+    SESSION_KEY, BACKEND_SESSION_KEY, HASH_SESSION_KEY
+)
+
+from .views import homepage, about, author_create, add_category, add_venue, arxiv_post, submit_conference, submit_session
 from .models import ResearchArea, Author, Venue, Publication, Conference, Session
+from .forms import AuthorForm, PublicationForm, VenueForm, ResearchAreaForm, ConferenceForm
 
 # Create your tests here.
+def create_session_cookie(username, password):
+
+    # First, create a new test user
+    user = User.objects.create_user(username=username, password=password)
+
+    # Then create the authenticated session using the new user credentials
+    session = SessionStore()
+    session[SESSION_KEY] = user.pk
+    session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
+    session[HASH_SESSION_KEY] = user.get_session_auth_hash()
+    session.save()
+
+    # Finally, create the cookie dictionary
+    cookie = {
+        'name': settings.SESSION_COOKIE_NAME,
+        'value': session.session_key,
+        'secure': False,
+        'path': '/',
+    }
+    return cookie
+
 
 class RepositoryTest(TestCase):
 
@@ -100,3 +137,195 @@ class RepositoryTest(TestCase):
         }
         form = VenueForm(data=data)
         self.assertFalse(form.is_valid())
+
+    def test_research_area_is_valid(self):
+        data = {
+            'title': 'Research Area Title'
+        }
+        form = ResearchAreaForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_research_area_is_not_valid(self):
+        data = {
+            'title': ''
+        }
+        form = ResearchAreaForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_publication_form_is_valid(self):
+        author = self.create_author()
+        research_area = self.create_research_area()
+        venue = self.create_venue()
+
+        data = {
+            'name' : 'publication title',
+            'overview': 'overview text',
+            'authors': [author],
+            'research_area': [research_area],
+            'venue': [venue],
+
+        }
+        form = PublicationForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_publication_form_is_not_valid(self):
+        research_area = self.create_research_area()
+        venue = self.create_venue()
+
+        data = {
+            'name' : 'publication title',
+            'overview': 'overview text',
+            'authors': [],
+            'research_area': [research_area],
+            'venue': [venue],
+
+        }
+        form = PublicationForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_conference_form_is_valid(self):
+        data = {
+            'venue_url': 'http://genericurl.com', 
+            'venue_name': 'Venue Name',
+            'start_date': '07/22/23',
+            'end_date': '07/25/23',
+            'location': 'Here'
+
+        }
+        form = ConferenceForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_conference_form_is_not_valid(self):
+        data = {
+            'venue_url': 'genericurl.com', 
+            'venue_name': 'Venue Name',
+            'start_date': '07/22/23',
+            'end_date': '07/25/23',
+            'location': 'Here'
+
+        }
+        form = ConferenceForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_authentication_required(self):
+        url = reverse(homepage)
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/accounts/login/?next=/')
+
+    def test_homepage_view(self):
+        url = reverse(homepage)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_about_view(self):
+        url = reverse(about)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_author_create_view(self):
+        url = reverse(author_create)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_research_area_view(self):
+        url = reverse(add_category)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_venue_view(self):
+        url = reverse(add_venue)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_arxiv_post_view(self):
+        url = reverse(arxiv_post)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+    
+    def test_submit_conference_view(self):
+        url = reverse(submit_conference)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_submit_session_view(self):
+        url = reverse(submit_session)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+class TestSingup(StaticLiveServerTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        username = 'temporary_user'
+        password= 'temporary_password'
+        cls.username = username
+        cls.password = password
+        cls.client = Client()
+        cls.user = User.objects.create_user(username=username, password=password)
+        cls.client.login(username=username, password=password)
+
+        options = webdriver.ChromeOptions()
+        options.add_argument("--start-maximized")
+        options.add_argument("user-data-dir=selenium") 
+        service = Service(f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver")
+        cls.driver = webdriver.Chrome(service=service, options=options)
+        cls.driver.implicitly_wait(10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        super().tearDownClass()
+
+    def login(self):
+        username = 'temporary_user'
+        password= 'temporary_password'
+
+        self.driver.find_element(By.ID, 'id_username').send_keys(username)
+        self.driver.find_element(By.ID, 'id_password').send_keys(password)
+        self.driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]').click()
+
+
+
+    def test_signup_fire(self):
+        self.driver.get("http://localhost:8000/")
+        self.login()
+
+        self.assertIn("http://localhost:8000/accounts/login/", self.driver.current_url)
+        
+    def test_user_login(self):
+        self.driver.get("http://localhost:8000/")
+        self.login()
+
+        self.assertIn("http://localhost:8000/", self.driver.current_url)
+
+    def test_home(self):
+        session_cookie = create_session_cookie(
+            username='test@email.com', password='top_secret'
+        )
+
+        # visit some url in your domain to setup Selenium.
+        # (404 pages load the quickest)
+        self.driver.get('your-url' + '/404-non-existent/')
+
+        # add the newly created session cookie to selenium webdriver.
+        self.driver.add_cookie(session_cookie)
+
+        # refresh to exchange cookies with the server.
+        self.driver.refresh()
+
+
+        self.driver.get("http://localhost:8000")
+        wait = WebDriverWait(self.driver, 30)
+        wait.until(EC.element_to_be_clickable((By.ID, "id_name"))).send_keys("Publication name")

@@ -457,7 +457,6 @@ def arxiv_post(request):
                     "We are experiencing some problems when fetching information from Arxiv. Please Try again later.")
                 return redirect("arxiv_post")
 
-        print(filled_form.errors.as_data())
         messages.error(request, filled_form.errors.as_data())
 
     form = ArxivForm()

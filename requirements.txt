@@ -21,3 +21,4 @@ django-formtools==2.4.1
 django-apscheduler==0.6.2
 htmldocx==0.0.6
 python-docx==0.8.11
+selenium==4.11.2
