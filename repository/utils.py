@@ -90,7 +90,6 @@ def generate_qmd_header(content: dict, form_data: dict):
         }
     }
 
-    print(form_data)
     content['params'] = {}
 
     for param_key in param_keys:

@@ -133,6 +133,7 @@ def about(request):
     """
     return render(request, 'repository/about_page.html')
 
+
 @login_required
 def author_create(request):
     """
@@ -186,6 +187,7 @@ def author_create(request):
             'repository/create_author.html',
             context=context)
 
+
 @login_required
 def add_venue(request):
     """
@@ -231,6 +233,7 @@ def add_venue(request):
             'The venue form is invalid, please review your submission.')
         return render(request, 'repository/add_venue.html', context=context)
 
+
 @login_required
 def add_category(request):
     """
@@ -269,6 +272,7 @@ def add_category(request):
             request,
             'The category is invalid, please review your submission.')
         return render(request, 'repository/add_category.html', context={})
+
 
 @login_required
 def update_post(request, slug):
@@ -312,6 +316,7 @@ def update_post(request, slug):
             request,
             'The form is invalid, please review your submission.')
         return JsonResponse({"instance": instance}, status=200)
+
 
 @login_required
 def arxiv_post(request):
@@ -622,6 +627,7 @@ def submit_session(request):
         'form': form
     }
     return render(request, 'repository/submit_session.html', context=context)
+
 
 def help_page(request):
     context = {}
