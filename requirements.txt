@@ -22,3 +22,4 @@ django-apscheduler==0.6.2
 htmldocx==0.0.6
 python-docx==0.8.11
 selenium==4.11.2
+pycodestyle==2.11.0
