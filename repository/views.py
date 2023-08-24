@@ -618,7 +618,6 @@ def submit_session(request):
 
     if request.method == 'POST':
         form = SessionForm(request.POST)
-        print(form.errors)
         if form.is_valid():
             form.save()
 
