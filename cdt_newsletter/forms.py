@@ -9,80 +9,61 @@ class Subscriptionform(forms.ModelForm):
 
     class Meta:
         model = Subscription
-        fields = ['email']
-        labels = ['Email']
+        fields = ["email"]
+        labels = ["Email"]
 
 
 class Newsletterform(forms.ModelForm):
-
-
     title = forms.CharField(
         help_text="Newsletter title.",
         required=False,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control'})
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     tldr = forms.CharField(
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'class': 'form-control'
-            }
-        )
+        required=False, widget=forms.Textarea(attrs={"class": "form-control"})
     )
 
     text = forms.CharField(
         help_text="The text that will appear at the top of the newsletter.",
         required=False,
-        widget=forms.Textarea(
-            attrs={
-                'class': 'form-control'
-            }
-        )
+        widget=forms.Textarea(attrs={"class": "form-control"}),
     )
 
     announcements = forms.ModelMultipleChoiceField(
         help_text="Click in the box to access the Announcement List.",
         queryset=Announcement.objects.filter(published=False),
-        widget=forms.SelectMultiple(attrs={
-                                        'class': 'form-control',
-                                        'id':"announcements-multi-select",
-                                        'multiple':'multiple'
-                                        }
-                                    )
+        widget=forms.SelectMultiple(
+            attrs={
+                "class": "form-control",
+                "id": "announcements-multi-select",
+                "multiple": "multiple",
+            }
+        ),
     )
 
     class Meta:
         model = Newsletter
-        fields = ['title', 'tldr', 'text']
+        fields = ["title", "tldr", "text"]
+
 
 class DateInput(forms.DateInput):
-    input_type = 'date'
+    input_type = "date"
+
 
 class AnnouncementForm(forms.ModelForm):
-
     title = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control'})
+        widget=forms.TextInput(attrs={"class": "form-control"})
     )
 
     text = forms.CharField(
-        widget=forms.Textarea(
-            attrs={
-                'class': 'form-control'
-            }
-        )
+        widget=forms.Textarea(attrs={"class": "form-control"})
     )
 
     date = forms.DateField(
-        required=False,
-        widget=DateInput(attrs={'class': 'form-control'})
+        required=False, widget=DateInput(attrs={"class": "form-control"})
     )
 
     class Meta:
         model = Announcement
-        fields = ['title', 'text']
-        
+        fields = ["title", "text"]

@@ -4,16 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cdt_newsletter', '0001_initial'),
+        ("cdt_newsletter", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='newsletter',
-            name='tldr',
-            field=models.TextField(default=' ', max_length=200),
+            model_name="newsletter",
+            name="tldr",
+            field=models.TextField(default=" ", max_length=200),
             preserve_default=False,
         ),
     ]
