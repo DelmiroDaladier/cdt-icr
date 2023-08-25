@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('blog', '0005_auto_20230404_1453'),
+        ("blog", "0005_auto_20230404_1453"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='blogpost',
-            name='overview',
-            field=models.TextField(default=''),
+            model_name="blogpost",
+            name="overview",
+            field=models.TextField(default=""),
         ),
         migrations.AddField(
-            model_name='blogpost',
-            name='resource_url',
+            model_name="blogpost",
+            name="resource_url",
             field=models.URLField(blank=True, null=True),
         ),
     ]

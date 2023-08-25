@@ -1,6 +1,7 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 from repository.models import AiResource, Author, ResearchArea
+
 # Create your models here.
 
 

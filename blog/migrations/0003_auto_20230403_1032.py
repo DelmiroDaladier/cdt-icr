@@ -4,31 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('blog', '0002_auto_20230403_1032'),
-        ('repository', '0002_auto_20230403_1032'),
+        ("blog", "0002_auto_20230403_1032"),
+        ("repository", "0002_auto_20230403_1032"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='blogpost',
-            name='research_area',
-            field=models.ManyToManyField(default='', to='repository.ResearchArea'),
+            model_name="blogpost",
+            name="research_area",
+            field=models.ManyToManyField(
+                default="", to="repository.ResearchArea"
+            ),
         ),
         migrations.AddField(
-            model_name='blogpost',
-            name='updated_at',
+            model_name="blogpost",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AlterField(
-            model_name='blogpost',
-            name='authors',
-            field=models.ManyToManyField(default='', to='repository.Author'),
+            model_name="blogpost",
+            name="authors",
+            field=models.ManyToManyField(default="", to="repository.Author"),
         ),
         migrations.AlterField(
-            model_name='blogpost',
-            name='id',
+            model_name="blogpost",
+            name="id",
             field=models.AutoField(primary_key=True, serialize=False),
         ),
     ]

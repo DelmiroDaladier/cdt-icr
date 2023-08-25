@@ -5,16 +5,17 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('blog', '0003_auto_20230403_1032'),
+        ("blog", "0003_auto_20230403_1032"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='blogpost',
-            name='name',
-            field=models.CharField(default=django.utils.timezone.now, max_length=250, unique=True),
+            model_name="blogpost",
+            name="name",
+            field=models.CharField(
+                default=django.utils.timezone.now, max_length=250, unique=True
+            ),
             preserve_default=False,
         ),
     ]
