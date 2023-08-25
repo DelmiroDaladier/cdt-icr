@@ -4,14 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0004_remove_post_title'),
+        (
+            "repository",
+            "0004_remove_post_title",
+        ),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Post',
-            new_name='Paper',
+            old_name="Post",
+            new_name="Paper",
         ),
     ]
