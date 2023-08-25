@@ -4,14 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0006_announcement_dataset_session'),
+        (
+            "repository",
+            "0006_announcement_dataset_session",
+        ),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='paper',
-            name='timestamp',
+            model_name="paper",
+            name="timestamp",
         ),
     ]

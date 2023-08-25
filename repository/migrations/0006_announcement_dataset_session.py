@@ -5,53 +5,151 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0005_rename_post_paper'),
+        (
+            "repository",
+            "0005_rename_post_paper",
+        ),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Session',
+            name="Session",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=250, unique=True)),
-                ('start_date', models.DateTimeField()),
-                ('end_date', models.DateTimeField()),
-                ('authors', models.ManyToManyField(default='', to='repository.Author')),
-                ('conference', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='repository.conference')),
-                ('research_area', models.ManyToManyField(default='', to='repository.ResearchArea')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "start_date",
+                    models.DateTimeField(),
+                ),
+                (
+                    "end_date",
+                    models.DateTimeField(),
+                ),
+                (
+                    "authors",
+                    models.ManyToManyField(
+                        default="",
+                        to="repository.Author",
+                    ),
+                ),
+                (
+                    "conference",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="repository.conference",
+                    ),
+                ),
+                (
+                    "research_area",
+                    models.ManyToManyField(
+                        default="",
+                        to="repository.ResearchArea",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Dataset',
+            name="Dataset",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=250, unique=True)),
-                ('link', models.URLField()),
-                ('authors', models.ManyToManyField(default='', to='repository.Author')),
-                ('research_area', models.ManyToManyField(default='', to='repository.ResearchArea')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "link",
+                    models.URLField(),
+                ),
+                (
+                    "authors",
+                    models.ManyToManyField(
+                        default="",
+                        to="repository.Author",
+                    ),
+                ),
+                (
+                    "research_area",
+                    models.ManyToManyField(
+                        default="",
+                        to="repository.ResearchArea",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Announcement',
+            name="Announcement",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=250, unique=True)),
-                ('text', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('authors', models.ManyToManyField(default='', to='repository.Author')),
-                ('research_area', models.ManyToManyField(default='', to='repository.ResearchArea')),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "text",
+                    models.TextField(),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True),
+                ),
+                (
+                    "authors",
+                    models.ManyToManyField(
+                        default="",
+                        to="repository.Author",
+                    ),
+                ),
+                (
+                    "research_area",
+                    models.ManyToManyField(
+                        default="",
+                        to="repository.ResearchArea",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

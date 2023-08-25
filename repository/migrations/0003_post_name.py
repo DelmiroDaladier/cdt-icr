@@ -4,16 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0002_auto_20230403_1032'),
+        (
+            "repository",
+            "0002_auto_20230403_1032",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='name',
-            field=models.CharField(default='', max_length=250, unique=True),
+            model_name="post",
+            name="name",
+            field=models.CharField(
+                default="",
+                max_length=250,
+                unique=True,
+            ),
             preserve_default=False,
         ),
     ]

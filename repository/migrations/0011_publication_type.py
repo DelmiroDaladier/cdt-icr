@@ -4,15 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0010_rename_paper_publication'),
+        (
+            "repository",
+            "0010_rename_paper_publication",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='publication',
-            name='type',
-            field=models.CharField(choices=[('PAPER', 'Paper'), ('BOOK', 'Book'), ('PROCEEDINGS', 'Proceedings')], default='Paper', max_length=100),
+            model_name="publication",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("PAPER", "Paper"),
+                    ("BOOK", "Book"),
+                    (
+                        "PROCEEDINGS",
+                        "Proceedings",
+                    ),
+                ],
+                default="Paper",
+                max_length=100,
+            ),
         ),
     ]

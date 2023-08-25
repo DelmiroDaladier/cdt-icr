@@ -5,20 +5,39 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0013_auto_20230405_1239'),
+        (
+            "repository",
+            "0013_auto_20230405_1239",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='session',
-            name='conference',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='repository.conference'),
+            model_name="session",
+            name="conference",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="repository.conference",
+            ),
         ),
         migrations.AddField(
-            model_name='session',
-            name='type',
-            field=models.CharField(choices=[('WORKSHOP', 'Workshop'), ('TUTORIAL', 'Tutorial')], default='Tutorial', max_length=100),
+            model_name="session",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    (
+                        "WORKSHOP",
+                        "Workshop",
+                    ),
+                    (
+                        "TUTORIAL",
+                        "Tutorial",
+                    ),
+                ],
+                default="Tutorial",
+                max_length=100,
+            ),
         ),
     ]

@@ -1,16 +1,20 @@
 from django.db import models
-from django.template.defaultfilters import slugify
-from django.contrib.contenttypes.models import ContentType
+from django.template.defaultfilters import (
+    slugify,
+)
+from django.contrib.contenttypes.models import (
+    ContentType,
+)
 
 PUBLICATION_CHOICES = (
     ("PAPER", "Paper"),
     ("BOOK", "Book"),
-    ("PROCEEDINGS", "Proceedings")
+    ("PROCEEDINGS", "Proceedings"),
 )
 
 SESSION_CHOICES = (
     ("WORKSHOP", "Workshop"),
-    ("TUTORIAL", "Tutorial")
+    ("TUTORIAL", "Tutorial"),
 )
 
 
@@ -47,10 +51,10 @@ class ResearchArea(models.Model):
 
 class AiResource(models.Model):
     id = models.AutoField(primary_key=True)
-    overview = models.TextField(default='')
-    authors = models.ManyToManyField(Author, default='')
+    overview = models.TextField(default="")
+    authors = models.ManyToManyField(Author, default="")
     name = models.CharField(max_length=250, unique=True)
-    research_area = models.ManyToManyField(ResearchArea, default='')
+    research_area = models.ManyToManyField(ResearchArea, default="")
     resource_url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -73,9 +77,10 @@ class Publication(AiResource):
     type = models.CharField(
         max_length=100,
         choices=PUBLICATION_CHOICES,
-        default="Paper")
+        default="Paper",
+    )
     thumbnail = models.ImageField(blank=True, null=True)
-    venue = models.ManyToManyField(Venue, blank=True, default='')
+    venue = models.ManyToManyField(Venue, blank=True, default="")
     citation = models.URLField(blank=True, null=True)
     pdf = models.URLField(blank=True, null=True)
     supplement = models.URLField(blank=True, null=True)
@@ -106,11 +111,15 @@ class Conference(Venue):
 
 class Session(AiResource):
     conference = models.ForeignKey(
-        Conference, on_delete=models.CASCADE, default=1)
+        Conference,
+        on_delete=models.CASCADE,
+        default=1,
+    )
     type = models.CharField(
         max_length=100,
         choices=SESSION_CHOICES,
-        default="Tutorial")
+        default="Tutorial",
+    )
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 

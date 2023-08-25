@@ -4,21 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0008_auto_20230405_1021'),
+        (
+            "repository",
+            "0008_auto_20230405_1021",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='author',
-            name='orcid',
+            model_name="author",
+            name="orcid",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='author',
-            name='slug',
-            field=models.SlugField(default=' '),
+            model_name="author",
+            name="slug",
+            field=models.SlugField(default=" "),
             preserve_default=False,
         ),
     ]

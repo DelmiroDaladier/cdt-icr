@@ -14,8 +14,25 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Conference, Author, Publication, ResearchArea
-from .forms import PublicationForm, AuthorForm, VenueForm, ResearchAreaForm, ArxivForm, NewUserForm, ConferenceForm, SessionForm
-from .utils import generate_qmd_header, generate_page_content, create_push_request, generate_qmd_header_for_arxiv, scrap_data_from_arxiv, get_conference_information, save_new_conference_data
+from .forms import (
+    PublicationForm,
+    AuthorForm,
+    VenueForm,
+    ResearchAreaForm,
+    ArxivForm,
+    NewUserForm,
+    ConferenceForm,
+    SessionForm,
+)
+from .utils import (
+    generate_qmd_header,
+    generate_page_content,
+    create_push_request,
+    generate_qmd_header_for_arxiv,
+    scrap_data_from_arxiv,
+    get_conference_information,
+    save_new_conference_data,
+)
 
 from django.db import IntegrityError
 
@@ -30,10 +47,11 @@ def homepage(request):
 
     Returns:
     If the request method is POST and the form data is valid, it renders a submission.html page with the new post's folder name and the form used to submit the post. If the form data is invalid, it redirects the user to the homepage. If an exception occurs during the process, it displays an error message and redirects the user to the homepage. If the request method is GET, it renders a new_post.html page with an empty form.
+    # noqa
     """
     load_dotenv()
 
-    if request.method == 'POST':
+    if request.method == "POST":
         filled_form = PublicationForm(request.POST)
         context = {}
 
@@ -43,7 +61,10 @@ def homepage(request):
                     filled_form.save()
                 except Exception as ex:
                     messages.error(
-                        request, "Oops! Something went wrong. Please check your input and try again.")
+                        request,
+                        "Oops! Something went wrong."
+                        " Please check your input and try again.",
+                    )
 
                 form_data = filled_form.cleaned_data
 
@@ -51,27 +72,29 @@ def homepage(request):
 
                 try:
                     content = generate_qmd_header(content, form_data)
-                    folder_name = slugify(content.get('title', ''))
+                    folder_name = slugify(content.get("title", ""))
 
                     current_path = os.getcwd()
 
-                    current_path = current_path + \
-                        f'/icr_frontend/content/{folder_name}/'
+                    current_path = (
+                        current_path + f"/icr_frontend/content/{folder_name}/"
+                    )
 
-                    file_path = f'{current_path}index.qmd'
+                    file_path = f"{current_path}index.qmd"
 
                     if not os.path.exists(current_path):
                         os.makedirs(current_path)
 
-                    with open(file_path, 'w+') as fp:
-                        fp.write('---\n')
+                    with open(file_path, "w+") as fp:
+                        fp.write("---\n")
                         yaml.dump(content, fp)
-                        fp.write('\n---')
+                        fp.write("\n---")
                 except Exception as ex:
                     print(ex)
                     messages.error(
                         request,
-                        "We are experiencing problems when creating qmd headers. Please try again later."
+                        "We are experiencing problems when creating qmd"
+                        " headers. Please try again later.",
                     )
 
                 try:
@@ -79,46 +102,50 @@ def homepage(request):
                 except Exception as ex:
                     messages.error(
                         request,
-                        "We are experiencing problems when filling qmd files. Please try again later."
+                        "We are experiencing problems when filling qmd"
+                        " files. Please try again later.",
                     )
 
                 try:
-                    repo = 'icr'
-                    path = f'content/{folder_name}/index.qmd'
+                    repo = "icr"
+                    path = f"content/{folder_name}/index.qmd"
 
                     create_push_request(file_path, folder_name, repo, path)
                 except Exception as ex:
                     print(ex)
                     messages.error(
                         request,
-                        "We are experiencing some problems when communication with github. Please Try again later.")
+                        "We are experiencing some problems when"
+                        "  communication with github."
+                        " Please Try again later.",
+                    )
                     return redirect("/")
 
                 context = {
-                    'folder_name': folder_name,
-                    'form': filled_form,
-                    'repo': 'icr'
+                    "folder_name": folder_name,
+                    "form": filled_form,
+                    "repo": "icr",
                 }
 
-                return render(request, 'repository/submission.html', context)
+                return render(request, "repository/submission.html", context)
             messages.error(
-                request, 'The form is invalid, please review your submission.')
+                request, "The form is invalid, please review your submission."
+            )
             return redirect("/")
 
         except Exception as ex:
             print(ex)
-            filled_form.add_error(None, 'Form validation error.')
+            filled_form.add_error(None, "Form validation error.")
             messages.error(
-                request, 'The form is invalid, please review your submission.')
+                request, "The form is invalid, please review your submission."
+            )
             return redirect("/")
 
     else:
         filled_form = PublicationForm()
         return render(
-            request,
-            'repository/new_post.html',
-            context={
-                'form': filled_form})
+            request, "repository/new_post.html", context={"form": filled_form}
+        )
 
 
 def about(request):
@@ -130,8 +157,9 @@ def about(request):
 
     Returns:
         HttpResponse: An HTTP response object that renders the 'about_page.html' template.
+    # noqa
     """
-    return render(request, 'repository/about_page.html')
+    return render(request, "repository/about_page.html")
 
 
 @login_required
@@ -154,38 +182,42 @@ def author_create(request):
         HttpResponse: If the request method is POST and the submitted form data is invalid,
         returns an HTTP response object that renders the 'create_author.html' template
         with the invalid form instance and an error message provided to the template context.
+    # noqa
     """
-    if request.method == 'GET':
+    if request.method == "GET":
         form = AuthorForm()
-        context = {'form': form}
+        context = {"form": form}
         return render(
-            request,
-            'repository/create_author.html',
-            context=context)
+            request, "repository/create_author.html", context=context
+        )
 
     form = AuthorForm(request.POST)
     if form.is_valid():
         try:
             author_instance = form.save()
-            instance = serializers.serialize('json', [author_instance, ])
+            instance = serializers.serialize(
+                "json",
+                [
+                    author_instance,
+                ],
+            )
             return JsonResponse({"instance": instance}, status=200)
         except IntegrityError as integrity:
             messages.error(
                 request,
-                "IntegrityError: Something went wrong with the input data. Please check your input and try again."
+                "IntegrityError: Something went wrong with"
+                " the input data. Please check your input and try again.",
             )
             return render(
-                request,
-                'repository/create_author.html',
-                context=context)
+                request, "repository/create_author.html", context=context
+            )
     else:
         messages.error(
-            request,
-            'The form data is invalid, please review your submission.')
+            request, "The form data is invalid, please review your submission."
+        )
         return render(
-            request,
-            'repository/create_author.html',
-            context=context)
+            request, "repository/create_author.html", context=context
+        )
 
 
 @login_required
@@ -205,33 +237,40 @@ def add_venue(request):
         If the request method is GET, returns a rendered template with a new VenueForm instance.
         If the request method is POST and the VenueForm is valid, returns a JsonResponse with the saved venue instance
         in JSON format and a status code of 200. If the form is not valid, returns a rendered template with an error message.
+    # noqa
     """
-    if request.method == 'GET':
+    if request.method == "GET":
         form = VenueForm()
-        context = {'form': form}
-        return render(request, 'repository/add_venue.html', context=context)
+        context = {"form": form}
+        return render(request, "repository/add_venue.html", context=context)
 
     form = VenueForm(request.POST)
 
     if form.is_valid():
         try:
             venue_instance = form.save()
-            instance = serializers.serialize('json', [venue_instance, ])
+            instance = serializers.serialize(
+                "json",
+                [
+                    venue_instance,
+                ],
+            )
             return JsonResponse({"instance": instance}, status=200)
         except Exception as ex:
             messages.error(
                 request,
-                "IntegrityError: Something went wrong with the input data. Please check your input and try again."
+                "IntegrityError: Something went wrong with the input"
+                " data. Please check your input and try again.",
             )
             return render(
-                request,
-                'repository/add_venue.html',
-                context=context)
+                request, "repository/add_venue.html", context=context
+            )
     else:
         messages.error(
             request,
-            'The venue form is invalid, please review your submission.')
-        return render(request, 'repository/add_venue.html', context=context)
+            "The venue form is invalid, please review your submission.",
+        )
+        return render(request, "repository/add_venue.html", context=context)
 
 
 @login_required
@@ -253,25 +292,29 @@ def add_category(request):
 
     Raises:
         None
+    # noqa
     """
-    if request.method == 'GET':
+    if request.method == "GET":
         form = ResearchAreaForm()
 
-        context = {'form': form}
-        return render(request,
-                      'repository/add_category.html',
-                      context=context)
+        context = {"form": form}
+        return render(request, "repository/add_category.html", context=context)
 
     form = ResearchAreaForm(request.POST)
     if form.is_valid():
         category_instance = form.save()
-        instance = serializers.serialize('json', [category_instance, ])
+        instance = serializers.serialize(
+            "json",
+            [
+                category_instance,
+            ],
+        )
         return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(
-            request,
-            'The category is invalid, please review your submission.')
-        return render(request, 'repository/add_category.html', context={})
+            request, "The category is invalid, please review your submission."
+        )
+        return render(request, "repository/add_category.html", context={})
 
 
 @login_required
@@ -294,6 +337,7 @@ def update_post(request, slug):
         If the request method is POST and the PostForm is valid, returns a JsonResponse with the updated post instance
         in JSON format and a status code of 200. If the form is not valid, returns a JsonResponse with an error message
         and a status code of 200.
+    # noqa
     """
     context = {}
 
@@ -301,20 +345,25 @@ def update_post(request, slug):
 
     form = PublicationForm(request.POST or None, instance=post)
 
-    if request.method == 'GET':
-        context = {'form': form}
+    if request.method == "GET":
+        context = {"form": form}
         return render(request, "repository/update_post.html", context=context)
 
     if form.is_valid():
         post_instance = Publication.objects.get(slug=slug)
         form = PublicationForm(request.POST, instance=post)
         form.save()
-        instance = serializers.serialize('json', [post_instance, ])
+        instance = serializers.serialize(
+            "json",
+            [
+                post_instance,
+            ],
+        )
         return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(
-            request,
-            'The form is invalid, please review your submission.')
+            request, "The form is invalid, please review your submission."
+        )
         return JsonResponse({"instance": instance}, status=200)
 
 
@@ -336,57 +385,65 @@ def arxiv_post(request):
         If the request method is POST and the ArxivForm is valid, returns a rendered template with a success message and
         a folder name for the post. If the form is not valid, returns a rendered template with the form populated with
         the submitted data and any errors that occurred during validation.
+    # noqa
     """
     load_dotenv()
 
-    if request.method == 'POST':
+    if request.method == "POST":
         context = {}
 
         filled_form = ArxivForm(request.POST)
 
         if filled_form.is_valid():
             form_data = filled_form.cleaned_data
-            url = form_data.get('link', '')
+            url = form_data.get("link", "")
 
             try:
                 data = scrap_data_from_arxiv(url)
 
                 entry_existis = Publication.objects.filter(
-                    name=data['citation_title'])
+                    name=data["citation_title"]
+                )
 
                 if not entry_existis:
-
                     authors = []
 
-                    for author, link in zip(data['citation_author'], data['links']):
-                        author = author.split(',')[1].strip(
-                        ) + ' ' + author.split(',')[0].strip()
-                        author_obj = Author(**{
-                            'user': author,
-                            'user_url': link
-                        })
+                    for author, link in zip(
+                        data["citation_author"], data["links"]
+                    ):
+                        author = (
+                            author.split(",")[1].strip()
+                            + " "
+                            + author.split(",")[0].strip()
+                        )
+                        author_obj = Author(
+                            **{"user": author, "user_url": link}
+                        )
                         try:
                             author_obj.save()
                             authors.append(author_obj)
                         except IntegrityError as integrity:
                             print(integrity)
 
-                    if data['research_area']:
-                        research_area_obj = ResearchArea(**{
-                            'title': data['research_area'],
-                        })
+                    if data["research_area"]:
+                        research_area_obj = ResearchArea(
+                            **{
+                                "title": data["research_area"],
+                            }
+                        )
                         try:
                             research_area_obj.save()
                         except IntegrityError as integrity:
                             print(integrity)
 
                         research_Area_id = ResearchArea.objects.filter(
-                            title=data['research_area'])[0].id
+                            title=data["research_area"]
+                        )[0].id
 
                     data_dict = {
-                        'name': data['citation_title'],
-                        'overview': data['citation_abstract'],
-                        'pdf': data['citation_pdf'],
+                        "name": data["citation_title"],
+                        "overview": data["citation_abstract"],
+                        "pdf": data["citation_pdf"],
                     }
 
                     post_obj = Publication(**data_dict)
@@ -396,7 +453,10 @@ def arxiv_post(request):
                     except Exception as integrity:
                         messages.error(
                             request,
-                            "IntegrityError: The input data you provided already exists in the database. Please review the existing records and ensure that you are not duplicating data."
+                            "IntegrityError: The input data you provided"
+                            " already exists in the database. Please"
+                            " review the existing records and ensure"
+                            " that you are not duplicating data.",
                         )
                         return redirect("arxiv_post")
 
@@ -409,49 +469,53 @@ def arxiv_post(request):
 
                     content = generate_qmd_header_for_arxiv(data)
 
-                    folder_name = slugify(content.get('title', ''))
+                    folder_name = slugify(content.get("title", ""))
 
                     current_path = os.getcwd()
 
-                    current_path = current_path + \
-                        f'/icr_frontend/content/{folder_name}/'
-                    file_path = f'{current_path}index.qmd'
+                    current_path = (
+                        current_path + f"/icr_frontend/content/{folder_name}/"
+                    )
+                    file_path = f"{current_path}index.qmd"
 
                     if not os.path.exists(current_path):
                         os.makedirs(current_path)
 
-                    with open(file_path, 'w+') as fp:
-                        fp.write('---\n')
+                    with open(file_path, "w+") as fp:
+                        fp.write("---\n")
                         yaml.dump(content, fp)
-                        fp.write('\n---')
+                        fp.write("\n---")
 
                     generate_page_content(content, file_path, arxiv=True)
 
                     try:
-                        repo = 'icr'
-                        path = f'content/{folder_name}/index.qmd'
+                        repo = "icr"
+                        path = f"content/{folder_name}/index.qmd"
                         create_push_request(
-                            file_path, folder_name, repo=repo, path=path)
+                            file_path, folder_name, repo=repo, path=path
+                        )
                     except Exception as ex:
                         messages.error(
                             request,
-                            "We are experiencing some problems when fetching when communication with github. Please Try again later.")
+                            "We are experiencing some problems when fetching "
+                            "when communication with github."
+                            " Please Try again later.",
+                        )
                         return redirect("arxiv_post")
 
-                    context = {
-                        'folder_name': folder_name,
-                        'form': filled_form
-                    }
+                    context = {"folder_name": folder_name, "form": filled_form}
 
                     return render(
-                        request,
-                        'repository/submission.html',
-                        context=context)
+                        request, "repository/submission.html", context=context
+                    )
 
                 else:
                     messages.error(
                         request,
-                        "Integrity Error: The input data you provided already exists in the database. Please review the existing records and ensure that you are not duplicating data."
+                        "Integrity Error: The input data you provided"
+                        " already exists in the database. "
+                        "Please review the existing records and ensure"
+                        " that you are not duplicating data.",
                     )
                     return redirect("arxiv_post")
 
@@ -459,16 +523,16 @@ def arxiv_post(request):
                 print(ex)
                 messages.error(
                     request,
-                    "We are experiencing some problems when fetching information from Arxiv. Please Try again later.")
+                    "We are experiencing some problems when fetching"
+                    "information from Arxiv. Please Try again later.",
+                )
                 return redirect("arxiv_post")
 
         messages.error(request, filled_form.errors.as_data())
 
     form = ArxivForm()
-    context = {
-        'form': form
-    }
-    return render(request, 'repository/arxiv_post.html', context=context)
+    context = {"form": form}
+    return render(request, "repository/arxiv_post.html", context=context)
 
 
 def email_check(user):
@@ -480,9 +544,10 @@ def email_check(user):
 
     Returns:
     bool: True if the email is from the University of Bristol domain, False otherwise.
+    # noqa
     """
     if user.is_authenticated:
-        return user.email.endswith('@bristol.ac.uk')
+        return user.email.endswith("@bristol.ac.uk")
     return False
 
 
@@ -499,37 +564,39 @@ def register_request(request):
     and email domain belongs to @bristol.ac.uk, registers the user and logs them in, then redirects them to the homepage.
     If email domain does not belong to @bristol.ac.uk, returns an error message with the registration form.
     If the form is invalid, returns an error message with the registration form.
+    # noqa
     """
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
             form_data = form.cleaned_data
-            email = form_data['email']
+            email = form_data["email"]
 
-            if email.endswith('@bristol.ac.uk'):
+            if email.endswith("@bristol.ac.uk"):
                 user = form.save()
                 login(request, user)
                 messages.success(request, "Registration successfull.")
                 return redirect("homepage")
             messages.error(
-                request, "Email should belong to @bristol.ac.uk domain.")
+                request, "Email should belong to @bristol.ac.uk domain."
+            )
             return render(
                 request,
-                'registration/register.html',
+                "registration/register.html",
                 context={
                     "register_form": form,
-                    "message": "Email should belong to @bristol.ac.uk domain."})
+                    "message": "Email should belong to @bristol.ac.uk domain.",
+                },
+            )
 
         messages.error(
-            request,
-            "Uncessfull registration. Invalid information.")
+            request, "Uncessfull registration. Invalid information."
+        )
 
     form = NewUserForm()
     return render(
-        request,
-        'registration/register.html',
-        context={
-            "register_form": form})
+        request, "registration/register.html", context={"register_form": form}
+    )
 
 
 @login_required
@@ -545,27 +612,30 @@ def submit_conference(request):
 
     Raises:
     Exception: An exception is raised if there is an error fetching conference information or communicating with GitHub.
+    # noqa
     """
-    if request.method == 'POST':
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            url = request.body.decode('UTF-8')
-            if url != '':
+    if request.method == "POST":
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            url = request.body.decode("UTF-8")
+            if url != "":
                 try:
                     response = get_conference_information(url)
                 except Exception as ex:
                     messages.error(
                         request,
-                        f"We are experiencing some problems when fetching when communication with {url}. Please Try again later.")
+                        f"We are experiencing some problems when fetching"
+                        f"when communication with {url}. "
+                        "Please Try again later.",
+                    )
 
                     return redirect("submit_conference")
 
                 return JsonResponse(response, status=200, safe=False)
             else:
                 response = {
-                    'title': '',
-                    'dates': [['', '']],
-                    'places': '',
-
+                    "title": "",
+                    "dates": [["", ""]],
+                    "places": "",
                 }
                 return JsonResponse(response, status=200, safe=False)
 
@@ -574,60 +644,53 @@ def submit_conference(request):
         if form.is_valid():
             form.save()
 
-            conferences = Conference.objects.order_by('start_date')
+            conferences = Conference.objects.order_by("start_date")
 
             current_path = os.getcwd()
 
-            filepath = current_path + f'/conference_calendar/input.csv'
+            filepath = current_path + f"/conference_calendar/input.csv"
 
             save_new_conference_data(conferences, filepath)
 
             try:
-                repo = 'conference_calendar'
-                path = 'input.csv'
+                repo = "conference_calendar"
+                path = "input.csv"
                 create_push_request(
-                    file_path=filepath, folder_name='', repo=repo, path=path)
+                    file_path=filepath, folder_name="", repo=repo, path=path
+                )
             except Exception as ex:
                 print(ex)
                 messages.error(
                     request,
-                    "We are experiencing some problems when fetching when communication with github. Please Try again later.")
+                    "We are experiencing some problems when fetching when "
+                    "communication with github. Please Try again later.",
+                )
                 return redirect("submit_conference")
 
-            context = {
-                'form': form,
-                'repo': 'conference_calendar'
-            }
+            context = {"form": form, "repo": "conference_calendar"}
 
-            return render(request, 'repository/submission.html', context)
+            return render(request, "repository/submission.html", context)
 
     form = ConferenceForm()
 
-    context = {
-        "form": form
-    }
+    context = {"form": form}
 
     return render(
-        request,
-        'repository/submit_conference.html',
-        context=context
+        request, "repository/submit_conference.html", context=context
     )
 
 
 def submit_session(request):
-
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SessionForm(request.POST)
         if form.is_valid():
             form.save()
 
     form = SessionForm()
-    context = {
-        'form': form
-    }
-    return render(request, 'repository/submit_session.html', context=context)
+    context = {"form": form}
+    return render(request, "repository/submit_session.html", context=context)
 
 
 def help_page(request):
     context = {}
-    return render(request, 'repository/help.html', context=context)
+    return render(request, "repository/help.html", context=context)

@@ -4,66 +4,223 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Author',
+            name="Author",
             fields=[
-                ('user', models.CharField(max_length=250, primary_key=True, serialize=False, unique=True)),
-                ('user_url', models.URLField(blank=True, null=True)),
+                (
+                    "user",
+                    models.CharField(
+                        max_length=250,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "user_url",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('title', models.CharField(max_length=250, unique=True)),
-                ('slug', models.SlugField()),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Conference',
+            name="Conference",
             fields=[
-                ('conference_id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=250, unique=True)),
-                ('link', models.URLField(max_length=5000)),
-                ('location', models.CharField(max_length=250)),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField()),
+                (
+                    "conference_id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "link",
+                    models.URLField(max_length=5000),
+                ),
+                (
+                    "location",
+                    models.CharField(max_length=250),
+                ),
+                (
+                    "start_date",
+                    models.DateField(),
+                ),
+                (
+                    "end_date",
+                    models.DateField(),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Venue',
+            name="Venue",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('venue_name', models.CharField(max_length=250, unique=True)),
-                ('venue_url', models.URLField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "venue_name",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "venue_url",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=250, unique=True)),
-                ('slug', models.SlugField(unique=True)),
-                ('overview', models.TextField()),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('thumbnail', models.ImageField(blank=True, null=True, upload_to='')),
-                ('citation', models.URLField(blank=True, null=True)),
-                ('pdf', models.URLField(blank=True, null=True)),
-                ('supplement', models.URLField(blank=True, null=True)),
-                ('slides', models.URLField(blank=True, null=True)),
-                ('poster', models.URLField(blank=True, null=True)),
-                ('code', models.URLField(blank=True, null=True)),
-                ('video', models.URLField(blank=True, null=True)),
-                ('authors', models.ManyToManyField(default='', to='repository.Author')),
-                ('categories', models.ManyToManyField(to='repository.Category')),
-                ('venue', models.ManyToManyField(blank=True, default='', to='repository.Venue')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(unique=True),
+                ),
+                (
+                    "overview",
+                    models.TextField(),
+                ),
+                (
+                    "timestamp",
+                    models.DateTimeField(auto_now_add=True),
+                ),
+                (
+                    "thumbnail",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="",
+                    ),
+                ),
+                (
+                    "citation",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "pdf",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "supplement",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "slides",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "poster",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "code",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "video",
+                    models.URLField(
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "authors",
+                    models.ManyToManyField(
+                        default="",
+                        to="repository.Author",
+                    ),
+                ),
+                (
+                    "categories",
+                    models.ManyToManyField(to="repository.Category"),
+                ),
+                (
+                    "venue",
+                    models.ManyToManyField(
+                        blank=True,
+                        default="",
+                        to="repository.Venue",
+                    ),
+                ),
             ],
         ),
     ]

@@ -4,13 +4,15 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0014_auto_20230405_1339'),
+        (
+            "repository",
+            "0014_auto_20230405_1339",
+        ),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Announcement',
+            name="Announcement",
         ),
     ]

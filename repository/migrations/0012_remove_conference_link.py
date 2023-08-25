@@ -4,14 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0011_publication_type'),
+        (
+            "repository",
+            "0011_publication_type",
+        ),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='conference',
-            name='link',
+            model_name="conference",
+            name="link",
         ),
     ]

@@ -5,89 +5,135 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('blog', '0002_auto_20230403_1032'),
-        ('repository', '0001_initial'),
+        (
+            "blog",
+            "0002_auto_20230403_1032",
+        ),
+        ("repository", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ResearchArea',
+            name="ResearchArea",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('title', models.CharField(max_length=250, unique=True)),
-                ('slug', models.SlugField()),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=250,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(),
+                ),
             ],
         ),
         migrations.RemoveField(
-            model_name='conference',
-            name='conference_id',
+            model_name="conference",
+            name="conference_id",
         ),
         migrations.RemoveField(
-            model_name='post',
-            name='categories',
+            model_name="post",
+            name="categories",
         ),
         migrations.AddField(
-            model_name='author',
-            name='user_id',
-            field=models.AutoField(default=1, primary_key=True, serialize=False),
+            model_name="author",
+            name="user_id",
+            field=models.AutoField(
+                default=1,
+                primary_key=True,
+                serialize=False,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='conference',
-            name='authors',
-            field=models.ManyToManyField(default='', to='repository.Author'),
+            model_name="conference",
+            name="authors",
+            field=models.ManyToManyField(
+                default="",
+                to="repository.Author",
+            ),
         ),
         migrations.AddField(
-            model_name='conference',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="conference",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=django.utils.timezone.now,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='conference',
-            name='id',
-            field=models.AutoField(default=1, primary_key=True, serialize=False),
+            model_name="conference",
+            name="id",
+            field=models.AutoField(
+                default=1,
+                primary_key=True,
+                serialize=False,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='conference',
-            name='updated_at',
+            model_name="conference",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='post',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="post",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=django.utils.timezone.now,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='post',
-            name='updated_at',
+            model_name="post",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AlterField(
-            model_name='author',
-            name='user',
-            field=models.CharField(max_length=250, unique=True),
+            model_name="author",
+            name="user",
+            field=models.CharField(
+                max_length=250,
+                unique=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='post',
-            name='id',
-            field=models.AutoField(primary_key=True, serialize=False),
+            model_name="post",
+            name="id",
+            field=models.AutoField(
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.DeleteModel(
-            name='Category',
+            name="Category",
         ),
         migrations.AddField(
-            model_name='conference',
-            name='research_area',
-            field=models.ManyToManyField(default='', to='repository.ResearchArea'),
+            model_name="conference",
+            name="research_area",
+            field=models.ManyToManyField(
+                default="",
+                to="repository.ResearchArea",
+            ),
         ),
         migrations.AddField(
-            model_name='post',
-            name='research_area',
-            field=models.ManyToManyField(default='', to='repository.ResearchArea'),
+            model_name="post",
+            name="research_area",
+            field=models.ManyToManyField(
+                default="",
+                to="repository.ResearchArea",
+            ),
         ),
     ]

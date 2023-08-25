@@ -5,44 +5,54 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0012_remove_conference_link'),
+        (
+            "repository",
+            "0012_remove_conference_link",
+        ),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='conference',
-            name='authors',
+            model_name="conference",
+            name="authors",
         ),
         migrations.RemoveField(
-            model_name='conference',
-            name='id',
+            model_name="conference",
+            name="id",
         ),
         migrations.RemoveField(
-            model_name='conference',
-            name='name',
+            model_name="conference",
+            name="name",
         ),
         migrations.RemoveField(
-            model_name='conference',
-            name='overview',
+            model_name="conference",
+            name="overview",
         ),
         migrations.RemoveField(
-            model_name='conference',
-            name='research_area',
+            model_name="conference",
+            name="research_area",
         ),
         migrations.RemoveField(
-            model_name='conference',
-            name='resource_url',
+            model_name="conference",
+            name="resource_url",
         ),
         migrations.RemoveField(
-            model_name='session',
-            name='conference',
+            model_name="session",
+            name="conference",
         ),
         migrations.AddField(
-            model_name='conference',
-            name='venue_ptr',
-            field=models.OneToOneField(auto_created=True, default=1, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='repository.venue'),
+            model_name="conference",
+            name="venue_ptr",
+            field=models.OneToOneField(
+                auto_created=True,
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                parent_link=True,
+                primary_key=True,
+                serialize=False,
+                to="repository.venue",
+            ),
             preserve_default=False,
         ),
     ]

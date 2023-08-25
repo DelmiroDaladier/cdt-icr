@@ -5,82 +5,90 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0007_remove_paper_timestamp'),
+        (
+            "repository",
+            "0007_remove_paper_timestamp",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='announcement',
-            name='overview',
-            field=models.TextField(default=''),
+            model_name="announcement",
+            name="overview",
+            field=models.TextField(default=""),
         ),
         migrations.AddField(
-            model_name='announcement',
-            name='resource_url',
+            model_name="announcement",
+            name="resource_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='conference',
-            name='overview',
-            field=models.TextField(default=''),
+            model_name="conference",
+            name="overview",
+            field=models.TextField(default=""),
         ),
         migrations.AddField(
-            model_name='conference',
-            name='resource_url',
+            model_name="conference",
+            name="resource_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="dataset",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=django.utils.timezone.now,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='overview',
-            field=models.TextField(default=''),
+            model_name="dataset",
+            name="overview",
+            field=models.TextField(default=""),
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='resource_url',
+            model_name="dataset",
+            name="resource_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='dataset',
-            name='updated_at',
+            model_name="dataset",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='paper',
-            name='resource_url',
+            model_name="paper",
+            name="resource_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='session',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="session",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=django.utils.timezone.now,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='session',
-            name='overview',
-            field=models.TextField(default=''),
+            model_name="session",
+            name="overview",
+            field=models.TextField(default=""),
         ),
         migrations.AddField(
-            model_name='session',
-            name='resource_url',
+            model_name="session",
+            name="resource_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='session',
-            name='updated_at',
+            model_name="session",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AlterField(
-            model_name='paper',
-            name='overview',
-            field=models.TextField(default=''),
+            model_name="paper",
+            name="overview",
+            field=models.TextField(default=""),
         ),
     ]
