@@ -335,3 +335,91 @@ class RepositoryTest(TestCase):
         response = self.client.get(url, follow=True)
 
         self.assertEqual(response.status_code, 200)
+
+
+class TestSingup(StaticLiveServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        username = "temporary_user"
+        password = "temporary_password"
+        cls.username = username
+        cls.password = password
+        cls.client = Client()
+        cls.user = User.objects.create_user(
+            username=username,
+            password=password,
+        )
+        cls.client.login(
+            username=username,
+            password=password,
+        )
+
+        options = webdriver.ChromeOptions()
+        options.add_argument("--start-maximized")
+        options.add_argument("user-data-dir=selenium")
+        service = Service(
+            f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver"
+        )
+        cls.driver = webdriver.Chrome(
+            service=service,
+            options=options,
+        )
+        cls.driver.implicitly_wait(10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        super().tearDownClass()
+
+    def login(self):
+        username = "temporary_user"
+        password = "temporary_password"
+
+        self.driver.find_element(By.ID, "id_username").send_keys(username)
+        self.driver.find_element(By.ID, "id_password").send_keys(password)
+        self.driver.find_element(
+            By.CSS_SELECTOR,
+            'input[type="submit"]',
+        ).click()
+
+    def test_signup_fire(self):
+        self.driver.get("http://localhost:8000/")
+        self.login()
+
+        self.assertIn(
+            "http://localhost:8000/accounts/login/",
+            self.driver.current_url,
+        )
+
+    def test_user_login(self):
+        self.driver.get("http://localhost:8000/")
+        self.login()
+
+        self.assertIn(
+            "http://localhost:8000/",
+            self.driver.current_url,
+        )
+
+    def test_home(self):
+        session_cookie = create_session_cookie(
+            username="test@email.com",
+            password="top_secret",
+        )
+
+        # visit some url in your domain to setup Selenium.
+        # (404 pages load the quickest)
+        self.driver.get("your-url" + "/404-non-existent/")
+
+        # add the newly created session cookie to selenium webdriver.
+        self.driver.add_cookie(session_cookie)
+
+        # refresh to exchange cookies with the server.
+        self.driver.refresh()
+
+        self.driver.get("http://localhost:8000")
+        wait = WebDriverWait(self.driver, 30)
+        wait.until(EC.element_to_be_clickable((By.ID, "id_name"))).send_keys(
+            "Publication name"
+        )
