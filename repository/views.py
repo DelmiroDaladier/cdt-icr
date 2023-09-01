@@ -742,19 +742,22 @@ def submit_session(request):
     """
     Handle the submission of a session form.
 
-    This view function handles the submission of a session form through an HTTP POST request.
-    If the request method is POST and the submitted form is valid, it saves the form data.
-    Regardless of the request method, it renders the session submission page with an
-    empty form for GET requests.
+    This view function handles the submission of a session form through
+    an HTTP POST request.If the request method is POST and the submitted
+    form is valid, it saves the form data. Regardless of the request
+    method, it renders the session submission page with an empty form
+    for GET requests.
 
     Parameters:
         request (HttpRequest): The HTTP request object.
 
     Returns:
-        HttpResponse: A rendered HTML response containing the session submission form.
+        HttpResponse: A rendered HTML response containing the session
+        submission form.
 
     Example Usage:
-        To use this view, include it in your Django URL configuration and map it to a URL pattern.
+        To use this view, include it in your Django URL configuration
+        and map it to a URL pattern.
         For example:
         ```
         path('submit_session/', views.submit_session, name='submit_session'),
@@ -784,10 +787,12 @@ def help_page(request):
         request (HttpRequest): The HTTP request object.
 
     Returns:
-        HttpResponse: A rendered HTML response containing the help page content.
+        HttpResponse:
+        A rendered HTML response containing the help page content.
 
     Example Usage:
-        To use this view, include it in your Django URL configuration and map it to a URL pattern.
+        To use this view, include it in your Django URL configuration
+        and map it to a URL pattern.
         For example:
         ```
         path('help/', views.help_page, name='help_page'),
