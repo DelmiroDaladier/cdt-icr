@@ -77,7 +77,8 @@ def homepage(request):
                     current_path = os.getcwd()
 
                     current_path = (
-                        current_path + f"/icr_frontend/content/{folder_name}/"
+                        current_path
+                        + f"/icr_frontend/content/{folder_name}/"
                     )
 
                     file_path = f"{current_path}index.qmd"
@@ -98,7 +99,9 @@ def homepage(request):
                     )
 
                 try:
-                    generate_page_content(content, file_path, arxiv=False)
+                    generate_page_content(
+                        content, file_path, arxiv=False
+                    )
                 except Exception as ex:
                     messages.error(
                         request,
@@ -110,7 +113,9 @@ def homepage(request):
                     repo = "icr"
                     path = f"content/{folder_name}/index.qmd"
 
-                    create_push_request(file_path, folder_name, repo, path)
+                    create_push_request(
+                        file_path, folder_name, repo, path
+                    )
                 except Exception as ex:
                     print(ex)
                     messages.error(
@@ -127,9 +132,12 @@ def homepage(request):
                     "repo": "icr",
                 }
 
-                return render(request, "repository/submission.html", context)
+                return render(
+                    request, "repository/submission.html", context
+                )
             messages.error(
-                request, "The form is invalid, please review your submission."
+                request,
+                "The form is invalid, please review your submission.",
             )
             return redirect("/")
 
@@ -137,14 +145,17 @@ def homepage(request):
             print(ex)
             filled_form.add_error(None, "Form validation error.")
             messages.error(
-                request, "The form is invalid, please review your submission."
+                request,
+                "The form is invalid, please review your submission.",
             )
             return redirect("/")
 
     else:
         filled_form = PublicationForm()
         return render(
-            request, "repository/new_post.html", context={"form": filled_form}
+            request,
+            "repository/new_post.html",
+            context={"form": filled_form},
         )
 
 
@@ -206,14 +217,19 @@ def author_create(request):
             messages.error(
                 request,
                 "IntegrityError: Something went wrong with"
-                " the input data. Please check your input and try again.",
+                " the input data."
+                "Please check your input and try again.",
             )
             return render(
-                request, "repository/create_author.html", context=context
+                request,
+                "repository/create_author.html",
+                context=context,
             )
     else:
         messages.error(
-            request, "The form data is invalid, please review your submission."
+            request,
+            "The form data is invalid,"
+            "please review your submission.",
         )
         return render(
             request, "repository/create_author.html", context=context
@@ -242,7 +258,9 @@ def add_venue(request):
     if request.method == "GET":
         form = VenueForm()
         context = {"form": form}
-        return render(request, "repository/add_venue.html", context=context)
+        return render(
+            request, "repository/add_venue.html", context=context
+        )
 
     form = VenueForm(request.POST)
 
@@ -259,8 +277,9 @@ def add_venue(request):
         except Exception as ex:
             messages.error(
                 request,
-                "IntegrityError: Something went wrong with the input"
-                " data. Please check your input and try again.",
+                "IntegrityError: "
+                "Something went wrong with the input data."
+                "Please check your input and try again.",
             )
             return render(
                 request, "repository/add_venue.html", context=context
@@ -270,7 +289,9 @@ def add_venue(request):
             request,
             "The venue form is invalid, please review your submission.",
         )
-        return render(request, "repository/add_venue.html", context=context)
+        return render(
+            request, "repository/add_venue.html", context=context
+        )
 
 
 @login_required
@@ -298,7 +319,9 @@ def add_category(request):
         form = ResearchAreaForm()
 
         context = {"form": form}
-        return render(request, "repository/add_category.html", context=context)
+        return render(
+            request, "repository/add_category.html", context=context
+        )
 
     form = ResearchAreaForm(request.POST)
     if form.is_valid():
@@ -312,9 +335,13 @@ def add_category(request):
         return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(
-            request, "The category is invalid, please review your submission."
+            request,
+            "The category is invalid,"
+            " please review your submission.",
         )
-        return render(request, "repository/add_category.html", context={})
+        return render(
+            request, "repository/add_category.html", context={}
+        )
 
 
 @login_required
@@ -347,7 +374,9 @@ def update_post(request, slug):
 
     if request.method == "GET":
         context = {"form": form}
-        return render(request, "repository/update_post.html", context=context)
+        return render(
+            request, "repository/update_post.html", context=context
+        )
 
     if form.is_valid():
         post_instance = Publication.objects.get(slug=slug)
@@ -362,7 +391,8 @@ def update_post(request, slug):
         return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(
-            request, "The form is invalid, please review your submission."
+            request,
+            "The form is invalid," "please review your submission.",
         )
         return JsonResponse({"instance": instance}, status=200)
 
@@ -436,9 +466,11 @@ def arxiv_post(request):
                         except IntegrityError as integrity:
                             print(integrity)
 
-                        research_Area_id = ResearchArea.objects.filter(
-                            title=data["research_area"]
-                        )[0].id
+                        research_Area_id = (
+                            ResearchArea.objects.filter(
+                                title=data["research_area"]
+                            )[0].id
+                        )
 
                     data_dict = {
                         "name": data["citation_title"],
@@ -474,7 +506,8 @@ def arxiv_post(request):
                     current_path = os.getcwd()
 
                     current_path = (
-                        current_path + f"/icr_frontend/content/{folder_name}/"
+                        current_path
+                        + f"/icr_frontend/content/{folder_name}/"
                     )
                     file_path = f"{current_path}index.qmd"
 
@@ -486,13 +519,18 @@ def arxiv_post(request):
                         yaml.dump(content, fp)
                         fp.write("\n---")
 
-                    generate_page_content(content, file_path, arxiv=True)
+                    generate_page_content(
+                        content, file_path, arxiv=True
+                    )
 
                     try:
                         repo = "icr"
                         path = f"content/{folder_name}/index.qmd"
                         create_push_request(
-                            file_path, folder_name, repo=repo, path=path
+                            file_path,
+                            folder_name,
+                            repo=repo,
+                            path=path,
                         )
                     except Exception as ex:
                         messages.error(
@@ -503,10 +541,15 @@ def arxiv_post(request):
                         )
                         return redirect("arxiv_post")
 
-                    context = {"folder_name": folder_name, "form": filled_form}
+                    context = {
+                        "folder_name": folder_name,
+                        "form": filled_form,
+                    }
 
                     return render(
-                        request, "repository/submission.html", context=context
+                        request,
+                        "repository/submission.html",
+                        context=context,
                     )
 
                 else:
@@ -532,7 +575,9 @@ def arxiv_post(request):
 
     form = ArxivForm()
     context = {"form": form}
-    return render(request, "repository/arxiv_post.html", context=context)
+    return render(
+        request, "repository/arxiv_post.html", context=context
+    )
 
 
 def email_check(user):
@@ -578,7 +623,8 @@ def register_request(request):
                 messages.success(request, "Registration successfull.")
                 return redirect("homepage")
             messages.error(
-                request, "Email should belong to @bristol.ac.uk domain."
+                request,
+                "Email should belong to @bristol.ac.uk domain.",
             )
             return render(
                 request,
@@ -595,7 +641,9 @@ def register_request(request):
 
     form = NewUserForm()
     return render(
-        request, "registration/register.html", context={"register_form": form}
+        request,
+        "registration/register.html",
+        context={"register_form": form},
     )
 
 
@@ -615,7 +663,10 @@ def submit_conference(request):
     # noqa
     """
     if request.method == "POST":
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        if (
+            request.headers.get("x-requested-with")
+            == "XMLHttpRequest"
+        ):
             url = request.body.decode("UTF-8")
             if url != "":
                 try:
@@ -648,7 +699,9 @@ def submit_conference(request):
 
             current_path = os.getcwd()
 
-            filepath = current_path + f"/conference_calendar/input.csv"
+            filepath = (
+                current_path + f"/conference_calendar/input.csv"
+            )
 
             save_new_conference_data(conferences, filepath)
 
@@ -656,7 +709,10 @@ def submit_conference(request):
                 repo = "conference_calendar"
                 path = "input.csv"
                 create_push_request(
-                    file_path=filepath, folder_name="", repo=repo, path=path
+                    file_path=filepath,
+                    folder_name="",
+                    repo=repo,
+                    path=path,
                 )
             except Exception as ex:
                 print(ex)
@@ -669,7 +725,9 @@ def submit_conference(request):
 
             context = {"form": form, "repo": "conference_calendar"}
 
-            return render(request, "repository/submission.html", context)
+            return render(
+                request, "repository/submission.html", context
+            )
 
     form = ConferenceForm()
 
@@ -681,6 +739,28 @@ def submit_conference(request):
 
 
 def submit_session(request):
+    """
+    Handle the submission of a session form.
+
+    This view function handles the submission of a session form through an HTTP POST request.
+    If the request method is POST and the submitted form is valid, it saves the form data.
+    Regardless of the request method, it renders the session submission page with an
+    empty form for GET requests.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: A rendered HTML response containing the session submission form.
+
+    Example Usage:
+        To use this view, include it in your Django URL configuration and map it to a URL pattern.
+        For example:
+        ```
+        path('submit_session/', views.submit_session, name='submit_session'),
+        ```
+    #noqa
+    """
     if request.method == "POST":
         form = SessionForm(request.POST)
         if form.is_valid():
@@ -688,9 +768,31 @@ def submit_session(request):
 
     form = SessionForm()
     context = {"form": form}
-    return render(request, "repository/submit_session.html", context=context)
+    return render(
+        request, "repository/submit_session.html", context=context
+    )
 
 
 def help_page(request):
+    """
+    Render the help page.
+
+    This view function renders the help page of the application, which provides
+    information and assistance to users.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: A rendered HTML response containing the help page content.
+
+    Example Usage:
+        To use this view, include it in your Django URL configuration and map it to a URL pattern.
+        For example:
+        ```
+        path('help/', views.help_page, name='help_page'),
+        ```
+    #noqa
+    """
     context = {}
     return render(request, "repository/help.html", context=context)
