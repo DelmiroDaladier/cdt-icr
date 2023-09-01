@@ -306,3 +306,69 @@ class RepositoryTest(TestCase):
         response = self.client.get(url, follow=True)
 
         self.assertEqual(response.status_code, 200)
+
+
+class TestSingup(StaticLiveServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        username = "temporary_user"
+        password = "temporary_password"
+        cls.username = username
+        cls.password = password
+        cls.client = Client()
+        cls.user = User.objects.create_user(
+            username=username, password=password
+        )
+        cls.client.login(
+            username=username, password=password
+        )
+
+        options = webdriver.ChromeOptions()
+        options.add_argument("--start-maximized")
+        options.add_argument("user-data-dir=selenium")
+        service = Service(
+            f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver"
+        )
+        cls.driver = webdriver.Chrome(
+            service=service, options=options
+        )
+        cls.driver.implicitly_wait(10)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        super().tearDownClass()
+
+    def login(self):
+        username = "temporary_user"
+        password = "temporary_password"
+
+        self.driver.find_element(
+            By.ID, "id_username"
+        ).send_keys(username)
+        self.driver.find_element(
+            By.ID, "id_password"
+        ).send_keys(password)
+        self.driver.find_element(
+            By.CSS_SELECTOR, 'input[type="submit"]'
+        ).click()
+
+    def test_signup_fire(self):
+        self.driver.get("http://localhost:8000/")
+        self.login()
+
+        self.assertIn(
+            "http://localhost:8000/accounts/login/",
+            self.driver.current_url,
+        )
+
+    def test_user_login(self):
+        self.driver.get("http://localhost:8000/")
+        self.login()
+
+        self.assertIn(
+            "http://localhost:8000/",
+            self.driver.current_url,
+        )
