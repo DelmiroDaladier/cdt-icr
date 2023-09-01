@@ -328,6 +328,7 @@ class TestSingup(StaticLiveServerTestCase):
         options = webdriver.ChromeOptions()
         options.add_argument("--start-maximized")
         options.add_argument("user-data-dir=selenium")
+        options.add_argument('--headless')
         service = Service(
             f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver"
         )
