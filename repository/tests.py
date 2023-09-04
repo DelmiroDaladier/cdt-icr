@@ -1,6 +1,7 @@
 import unittest
 from selenium import webdriver
 import chromedriver_autoinstaller
+from pyvirtualdisplay import Display
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
@@ -314,6 +315,9 @@ class TestSingup(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
+        display = Display(visible=0, size=(800, 800))  
+        display.start()
+
         chromedriver_autoinstaller.install()
 
         username = "temporary_user"
@@ -328,22 +332,31 @@ class TestSingup(StaticLiveServerTestCase):
             username=username, password=password
         )
 
-        options = webdriver.ChromeOptions()
-        options.add_argument("--start-maximized")
-        options.add_argument("user-data-dir=selenium")
-        options.add_argument('--headless')
-        options.add_argument("--disable-gpu")
-        options.add_argument("--window-size=1920,1200")
-        options.add_argument("--ignore-certificate-errors")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+        chrome_options = webdriver.ChromeOptions()
+
+        options = [
+            # Define window size here
+            "--window-size=1200,1200",
+            "--ignore-certificate-errors"
+        
+            #"--headless",
+            #"--disable-gpu",
+            #"--window-size=1920,1200",
+            #"--ignore-certificate-errors",
+            #"--disable-extensions",
+            #"--no-sandbox",
+            #"--disable-dev-shm-usage",
+            #'--remote-debugging-port=9222'
+        ]
+
+        for option in options:
+            chrome_options.add_argument(option)
 
         service = Service(
             f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver"
         )
         cls.driver = webdriver.Chrome(
-            options=options
+            options=chrome_options
         )
         cls.driver.implicitly_wait(10)
 
@@ -376,10 +389,10 @@ class TestSingup(StaticLiveServerTestCase):
         )
 
     def test_user_login(self):
-        self.driver.get("http://localhost:8000/")
+        self.driver.get("http://127.0.0.1:8000/")
         self.login()
 
         self.assertIn(
-            "http://localhost:8000/",
+            "http://127.0.0.1:8000/",
             self.driver.current_url,
         )

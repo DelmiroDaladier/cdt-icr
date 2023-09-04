@@ -53,13 +53,15 @@ jobs:
       - name: Removing previous chrome instances on runner 
         run: sudo apt purge google-chrome-stable 
       - name: Installing all necessary packages
-        run: pip install chromedriver-autoinstaller selenium
+        run: pip install chromedriver-autoinstaller selenium pyvirtualdisplay
       - name: Install xvfb
         run: sudo apt-get install xvfb
+      - name: run server
+        run: python manage.py runserver &
 
       - name: Check Syntax # check code formatting
         run: pycodestyle --statistics repository
       - name: Run Migrations # run migrations to create table in side car db container
-        run: python manage.py migrate
+        run: python manage.py migrate  
       - name: Run Test # running tests
         run: python manage.py test
