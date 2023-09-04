@@ -1,5 +1,6 @@
 import unittest
 from selenium import webdriver
+import chromedriver_autoinstaller
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
@@ -313,6 +314,8 @@ class TestSingup(StaticLiveServerTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
+        chromedriver_autoinstaller.install()
+
         username = "temporary_user"
         password = "temporary_password"
         cls.username = username
@@ -340,7 +343,7 @@ class TestSingup(StaticLiveServerTestCase):
             f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver"
         )
         cls.driver = webdriver.Chrome(
-            service=service, options=options
+            options=options
         )
         cls.driver.implicitly_wait(10)
 
