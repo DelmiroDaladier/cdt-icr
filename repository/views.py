@@ -544,7 +544,7 @@ def arxiv_post(request):
                     context = {
                         "folder_name": folder_name,
                         "form": filled_form,
-                        "repo":"icr_frontend"
+                        "repo": "icr_frontend"
                     }
 
                     return render(
