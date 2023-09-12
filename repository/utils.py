@@ -315,8 +315,6 @@ def generate_page_content(
         authors_string = authors_string.replace('"', "")
         links_string = links_string.replace('"', "")
 
-        print(content["params"])
-
         save_publication_data(
             content["title"],
             authors_string,
@@ -389,6 +387,33 @@ def create_push_request(
 
     blob_sha = response.json()["sha"]
 
+    current_directory = os.getcwd()
+    input_absolute_path = (
+        current_directory
+        + f"/icr_frontend/input.csv")
+    input_relative_path = "input.csv"
+
+    print(current_directory)
+    print(input_absolute_path)
+    print(input_relative_path)
+
+    with open(input_absolute_path, "r") as fp:
+        content = fp.read()
+
+    data = {
+        "content": content,
+        "encoding": "utf-8"
+    }
+
+    url = f"https://api.github.com/repos/DelmiroDaladier/{repo}/git/blobs"
+    response = requests.post(
+        url,
+        json.dumps(data),
+        headers=header,
+    )
+
+    blob_sha_input_csv = response.json()["sha"]
+
     data = {
         "base_tree": sha_base_tree,
         "tree": [
@@ -397,6 +422,12 @@ def create_push_request(
                 "mode": "100644",
                 "type": "blob",
                 "sha": blob_sha,
+            },
+            {
+                "path": input_relative_path,
+                "mode": "100644",
+                "type": "blob",
+                "sha": blob_sha_input_csv,
             }
         ],
     }
