@@ -110,7 +110,7 @@ def generate_qmd_header(content: dict, form_data: dict):
 
     for idx, author in enumerate(form_data["authors"], 1):
         content["params"][f"author_{idx}"] = {
-            "name": author.user,
+            "name": author.user_name,
             "url": author.user_url,
         }
 

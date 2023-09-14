@@ -11,9 +11,18 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+)
 
-from .models import Conference, Author, Publication, ResearchArea
+from .models import (
+    Conference,
+    Author,
+    Publication,
+    ResearchArea,
+)
 from .forms import (
     PublicationForm,
     AuthorForm,
@@ -71,8 +80,12 @@ def homepage(request):
                 content = {}
 
                 try:
-                    content = generate_qmd_header(content, form_data)
-                    folder_name = slugify(content.get("title", ""))
+                    content = generate_qmd_header(
+                        content, form_data
+                    )
+                    folder_name = slugify(
+                        content.get("title", "")
+                    )
 
                     current_path = os.getcwd()
 
@@ -111,7 +124,9 @@ def homepage(request):
 
                 try:
                     repo = "icr"
-                    path = f"content/{folder_name}/index.qmd"
+                    path = (
+                        f"content/{folder_name}/index.qmd"
+                    )
 
                     create_push_request(
                         file_path, folder_name, repo, path
@@ -133,7 +148,9 @@ def homepage(request):
                 }
 
                 return render(
-                    request, "repository/submission.html", context
+                    request,
+                    "repository/submission.html",
+                    context,
                 )
             messages.error(
                 request,
@@ -143,7 +160,9 @@ def homepage(request):
 
         except Exception as ex:
             print(ex)
-            filled_form.add_error(None, "Form validation error.")
+            filled_form.add_error(
+                None, "Form validation error."
+            )
             messages.error(
                 request,
                 "The form is invalid, please review your submission.",
@@ -199,7 +218,9 @@ def author_create(request):
         form = AuthorForm()
         context = {"form": form}
         return render(
-            request, "repository/create_author.html", context=context
+            request,
+            "repository/create_author.html",
+            context=context,
         )
 
     form = AuthorForm(request.POST)
@@ -212,7 +233,9 @@ def author_create(request):
                     author_instance,
                 ],
             )
-            return JsonResponse({"instance": instance}, status=200)
+            return JsonResponse(
+                {"instance": instance}, status=200
+            )
         except IntegrityError as integrity:
             messages.error(
                 request,
@@ -232,7 +255,9 @@ def author_create(request):
             "please review your submission.",
         )
         return render(
-            request, "repository/create_author.html", context=context
+            request,
+            "repository/create_author.html",
+            context=context,
         )
 
 
@@ -259,7 +284,9 @@ def add_venue(request):
         form = VenueForm()
         context = {"form": form}
         return render(
-            request, "repository/add_venue.html", context=context
+            request,
+            "repository/add_venue.html",
+            context=context,
         )
 
     form = VenueForm(request.POST)
@@ -273,7 +300,9 @@ def add_venue(request):
                     venue_instance,
                 ],
             )
-            return JsonResponse({"instance": instance}, status=200)
+            return JsonResponse(
+                {"instance": instance}, status=200
+            )
         except Exception as ex:
             messages.error(
                 request,
@@ -282,7 +311,9 @@ def add_venue(request):
                 "Please check your input and try again.",
             )
             return render(
-                request, "repository/add_venue.html", context=context
+                request,
+                "repository/add_venue.html",
+                context=context,
             )
     else:
         messages.error(
@@ -290,7 +321,9 @@ def add_venue(request):
             "The venue form is invalid, please review your submission.",
         )
         return render(
-            request, "repository/add_venue.html", context=context
+            request,
+            "repository/add_venue.html",
+            context=context,
         )
 
 
@@ -320,7 +353,9 @@ def add_category(request):
 
         context = {"form": form}
         return render(
-            request, "repository/add_category.html", context=context
+            request,
+            "repository/add_category.html",
+            context=context,
         )
 
     form = ResearchAreaForm(request.POST)
@@ -332,7 +367,9 @@ def add_category(request):
                 category_instance,
             ],
         )
-        return JsonResponse({"instance": instance}, status=200)
+        return JsonResponse(
+            {"instance": instance}, status=200
+        )
     else:
         messages.error(
             request,
@@ -340,7 +377,9 @@ def add_category(request):
             " please review your submission.",
         )
         return render(
-            request, "repository/add_category.html", context={}
+            request,
+            "repository/add_category.html",
+            context={},
         )
 
 
@@ -370,12 +409,16 @@ def update_post(request, slug):
 
     post = get_object_or_404(Publication, slug=slug)
 
-    form = PublicationForm(request.POST or None, instance=post)
+    form = PublicationForm(
+        request.POST or None, instance=post
+    )
 
     if request.method == "GET":
         context = {"form": form}
         return render(
-            request, "repository/update_post.html", context=context
+            request,
+            "repository/update_post.html",
+            context=context,
         )
 
     if form.is_valid():
@@ -388,13 +431,18 @@ def update_post(request, slug):
                 post_instance,
             ],
         )
-        return JsonResponse({"instance": instance}, status=200)
+        return JsonResponse(
+            {"instance": instance}, status=200
+        )
     else:
         messages.error(
             request,
-            "The form is invalid," "please review your submission.",
+            "The form is invalid,"
+            "please review your submission.",
         )
-        return JsonResponse({"instance": instance}, status=200)
+        return JsonResponse(
+            {"instance": instance}, status=200
+        )
 
 
 @login_required
@@ -439,7 +487,8 @@ def arxiv_post(request):
                     authors = []
 
                     for author, link in zip(
-                        data["citation_author"], data["links"]
+                        data["citation_author"],
+                        data["links"],
                     ):
                         author = (
                             author.split(",")[1].strip()
@@ -447,7 +496,10 @@ def arxiv_post(request):
                             + author.split(",")[0].strip()
                         )
                         author_obj = Author(
-                            **{"user": author, "user_url": link}
+                            **{
+                                "user": author,
+                                "user_url": link,
+                            }
                         )
                         try:
                             author_obj.save()
@@ -458,7 +510,9 @@ def arxiv_post(request):
                     if data["research_area"]:
                         research_area_obj = ResearchArea(
                             **{
-                                "title": data["research_area"],
+                                "title": data[
+                                    "research_area"
+                                ],
                             }
                         )
                         try:
@@ -474,7 +528,9 @@ def arxiv_post(request):
 
                     data_dict = {
                         "name": data["citation_title"],
-                        "overview": data["citation_abstract"],
+                        "overview": data[
+                            "citation_abstract"
+                        ],
                         "pdf": data["citation_pdf"],
                     }
 
@@ -495,13 +551,19 @@ def arxiv_post(request):
                     for author in authors:
                         post_obj.authors.add(author.user_id)
 
-                    post_obj.research_area.add(research_Area_id)
+                    post_obj.research_area.add(
+                        research_Area_id
+                    )
 
                     post_obj.save()
 
-                    content = generate_qmd_header_for_arxiv(data)
+                    content = generate_qmd_header_for_arxiv(
+                        data
+                    )
 
-                    folder_name = slugify(content.get("title", ""))
+                    folder_name = slugify(
+                        content.get("title", "")
+                    )
 
                     current_path = os.getcwd()
 
@@ -544,7 +606,7 @@ def arxiv_post(request):
                     context = {
                         "folder_name": folder_name,
                         "form": filled_form,
-                        "repo": "icr_frontend"
+                        "repo": "icr_frontend",
                     }
 
                     return render(
@@ -572,12 +634,16 @@ def arxiv_post(request):
                 )
                 return redirect("arxiv_post")
 
-        messages.error(request, filled_form.errors.as_data())
+        messages.error(
+            request, filled_form.errors.as_data()
+        )
 
     form = ArxivForm()
     context = {"form": form}
     return render(
-        request, "repository/arxiv_post.html", context=context
+        request,
+        "repository/arxiv_post.html",
+        context=context,
     )
 
 
@@ -621,7 +687,9 @@ def register_request(request):
             if email.endswith("@bristol.ac.uk"):
                 user = form.save()
                 login(request, user)
-                messages.success(request, "Registration successfull.")
+                messages.success(
+                    request, "Registration successfull."
+                )
                 return redirect("homepage")
             messages.error(
                 request,
@@ -637,7 +705,9 @@ def register_request(request):
             )
 
         messages.error(
-            request, "Uncessfull registration. Invalid information."
+            request,
+            "Uncessfull registration."
+            " Invalid information.",
         )
 
     form = NewUserForm()
@@ -671,7 +741,9 @@ def submit_conference(request):
             url = request.body.decode("UTF-8")
             if url != "":
                 try:
-                    response = get_conference_information(url)
+                    response = get_conference_information(
+                        url
+                    )
                 except Exception as ex:
                     messages.error(
                         request,
@@ -682,26 +754,33 @@ def submit_conference(request):
 
                     return redirect("submit_conference")
 
-                return JsonResponse(response, status=200, safe=False)
+                return JsonResponse(
+                    response, status=200, safe=False
+                )
             else:
                 response = {
                     "title": "",
                     "dates": [["", ""]],
                     "places": "",
                 }
-                return JsonResponse(response, status=200, safe=False)
+                return JsonResponse(
+                    response, status=200, safe=False
+                )
 
         form = ConferenceForm(request.POST)
 
         if form.is_valid():
             form.save()
 
-            conferences = Conference.objects.order_by("start_date")
+            conferences = Conference.objects.order_by(
+                "start_date"
+            )
 
             current_path = os.getcwd()
 
             filepath = (
-                current_path + f"/conference_calendar/input.csv"
+                current_path
+                + f"/conference_calendar/input.csv"
             )
 
             save_new_conference_data(conferences, filepath)
@@ -724,10 +803,15 @@ def submit_conference(request):
                 )
                 return redirect("submit_conference")
 
-            context = {"form": form, "repo": "conference_calendar"}
+            context = {
+                "form": form,
+                "repo": "conference_calendar",
+            }
 
             return render(
-                request, "repository/submission.html", context
+                request,
+                "repository/submission.html",
+                context,
             )
 
     form = ConferenceForm()
@@ -735,10 +819,13 @@ def submit_conference(request):
     context = {"form": form}
 
     return render(
-        request, "repository/submit_conference.html", context=context
+        request,
+        "repository/submit_conference.html",
+        context=context,
     )
 
 
+@login_required
 def submit_session(request):
     """
     Handle the submission of a session form.
@@ -773,10 +860,13 @@ def submit_session(request):
     form = SessionForm()
     context = {"form": form}
     return render(
-        request, "repository/submit_session.html", context=context
+        request,
+        "repository/submit_session.html",
+        context=context,
     )
 
 
+@login_required
 def help_page(request):
     """
     Render the help page.
@@ -801,4 +891,6 @@ def help_page(request):
     #noqa
     """
     context = {}
-    return render(request, "repository/help.html", context=context)
+    return render(
+        request, "repository/help.html", context=context
+    )

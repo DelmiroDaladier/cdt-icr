@@ -5,6 +5,7 @@ from django.template.defaultfilters import (
 from django.contrib.contenttypes.models import (
     ContentType,
 )
+from django.contrib.auth.models import User
 
 PUBLICATION_CHOICES = (
     ("PAPER", "Paper"),
@@ -20,17 +21,21 @@ SESSION_CHOICES = (
 
 class Author(models.Model):
     user_id = models.AutoField(primary_key=True)
-    user = models.CharField(max_length=250, unique=True)
+    user_name = models.CharField(max_length=250, unique=True)
+    member = models.OneToOneField(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
     user_url = models.URLField(blank=True, null=True)
     orcid = models.URLField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
     slug = models.SlugField()
 
     def __str__(self):
-        return self.user
+        return self.user_name
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.user)
+            self.slug = slugify(self.user_name)
         return super().save(*args, **kwargs)
 
 

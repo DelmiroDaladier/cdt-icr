@@ -17,6 +17,7 @@ from .utils import (
 @login_required
 def blog_homepage(request):
     load_dotenv()
+    print(request.user)
 
     if request.method == "POST":
         filled_form = BlogPostForm(request.POST)

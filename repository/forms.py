@@ -120,7 +120,7 @@ class PublicationForm(forms.ModelForm):
 class AuthorForm(forms.ModelForm):
     class Meta:
         model = Author
-        fields = ["user", "user_url"]
+        fields = ["user_name", "user_url"]
         labels = ["name", "url"]
 
 
