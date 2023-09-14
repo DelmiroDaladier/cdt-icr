@@ -174,7 +174,7 @@ class RepositoryTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_author_form_is_not_valid(self):
-        data = {"user": ""}
+        data = {"user_name": ""}
         form = AuthorForm(data=data)
         self.assertFalse(form.is_valid())
 
