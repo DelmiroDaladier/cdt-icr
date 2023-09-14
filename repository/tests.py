@@ -82,7 +82,7 @@ class RepositoryTest(TestCase):
         return ResearchArea.objects.create(title=title)
 
     def create_author(self, user="Test User"):
-        return Author.objects.create(user=user)
+        return Author.objects.create(user_name=user)
 
     def create_venue(self, venue_name="venue_name"):
         return Venue.objects.create(venue_name=venue_name)
@@ -169,7 +169,7 @@ class RepositoryTest(TestCase):
         )
 
     def test_author_form_is_valid(self):
-        data = {"user": "User"}
+        data = {"user_name": "User"}
         form = AuthorForm(data=data)
         self.assertTrue(form.is_valid())
 
