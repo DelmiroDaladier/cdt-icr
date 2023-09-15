@@ -23,17 +23,23 @@ class DateInput(forms.DateInput):
 
 class PublicationForm(forms.ModelForm):
     name = forms.CharField(
-        widget=forms.TextInput(attrs={"class": "form-control"})
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        )
     )
     overview = forms.CharField(
-        widget=forms.Textarea(attrs={"class": "form-control"})
+        widget=forms.Textarea(
+            attrs={"class": "form-control"}
+        )
     )
     authors = forms.ModelMultipleChoiceField(
         help_text="Click in the box to access "
         "the Authors List, or add a new one.",
         queryset=Author.objects.all(),
         widget=forms.SelectMultiple(
-            attrs={"class": "multi-select-form form-control"}
+            attrs={
+                "class": "multi-select-form form-control"
+            }
         ),
     )
     research_area = forms.ModelMultipleChoiceField(
@@ -41,7 +47,9 @@ class PublicationForm(forms.ModelForm):
         "Reasearh Area List, or add a new one.",
         queryset=ResearchArea.objects.all(),
         widget=forms.SelectMultiple(
-            attrs={"class": "multi-select-form form-control"}
+            attrs={
+                "class": "multi-select-form form-control"
+            }
         ),
     )
     venue = forms.ModelMultipleChoiceField(
@@ -50,36 +58,52 @@ class PublicationForm(forms.ModelForm):
         required=False,
         queryset=Venue.objects.all(),
         widget=forms.SelectMultiple(
-            attrs={"class": "multi-select-form form-control"}
+            attrs={
+                "class": "multi-select-form form-control"
+            }
         ),
     )
     citation = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
     pdf = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
     supplement = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
     slides = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
     poster = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
     code = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
     video = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
 
     class Meta:
@@ -145,16 +169,57 @@ class ArxivForm(forms.Form):
     link = forms.CharField(max_length=200)
 
 
-class NewUserForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+class NewUserForm(forms.ModelForm):
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    short_bio = forms.CharField(
+        required=True,
+        widget=forms.Textarea(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    username = forms.CharField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    first_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    last_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    password = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control"}
+        ),
+    )
 
     class Meta:
         model = User
         fields = (
             "username",
+            "first_name",
+            "last_name",
             "email",
-            "password1",
-            "password2",
+            "password",
         )
 
     def save(self, commit=True):
@@ -193,7 +258,9 @@ class ConferenceForm(forms.ModelForm):
     venue_name = forms.CharField(
         max_length=200,
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
 
     start_date = forms.DateField(
@@ -209,7 +276,9 @@ class ConferenceForm(forms.ModelForm):
     location = forms.CharField(
         max_length=200,
         required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
     )
 
     class Meta:
@@ -255,13 +324,17 @@ class SessionForm(forms.ModelForm):
     type = forms.ChoiceField(
         required=True,
         choices=SESSION_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
+        widget=forms.Select(
+            attrs={"class": "form-control"}
+        ),
     )
 
     conference = forms.ModelChoiceField(
         queryset=Conference.objects.all(),
         required=False,
-        widget=forms.Select(attrs={"class": "form-control"}),
+        widget=forms.Select(
+            attrs={"class": "form-control"}
+        ),
     )
 
     class Meta:

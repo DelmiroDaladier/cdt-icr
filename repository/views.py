@@ -690,6 +690,16 @@ def register_request(request):
                 messages.success(
                     request, "Registration successfull."
                 )
+                author_data = {
+                    "user_name": form_data["first_name"]
+                    + " "
+                    + form_data["last_name"],
+                    "member": user,
+                    "bio": form_data["short_bio"],
+                }
+                author_obj = Author(**author_data)
+                author_obj.save()
+
                 return redirect("homepage")
             messages.error(
                 request,
