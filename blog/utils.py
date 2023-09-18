@@ -29,13 +29,14 @@ def create_push_request(file_path: str, folder_name: str):
     user = os.getenv("GH_USER")
     auth_token = os.getenv("GH_TOKEN")
     repo = os.getenv("GH_REPOSITORY")
-
+    print(auth_token)
     header = {"Authorization": "Bearer " + auth_token}
-
+    
     sha_last_commit_url = (
         f"https://api.github.com/repos/{user}/{repo}/branches/main"
     )
     response = requests.get(sha_last_commit_url, headers=header)
+    print(response.json())
     sha_last_commit = response.json()["commit"]["sha"]
 
     url = f"https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}"
