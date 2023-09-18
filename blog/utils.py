@@ -18,7 +18,6 @@ def generate_qmd_header(content: dict, form_data: dict):
 
 def generate_page_content(content: str, file_path: str):
     with open(file_path, "a") as fp:
-        print(content)
         fp.write("\n")
         overview = content["text"]
         fp.write(f"{overview}\n")
@@ -31,15 +30,12 @@ def create_push_request(file_path: str, folder_name: str):
     auth_token = os.getenv("GH_TOKEN")
     repo = os.getenv("GH_REPOSITORY")
 
-    print(auth_token)
-
     header = {"Authorization": "Bearer " + auth_token}
 
     sha_last_commit_url = (
         f"https://api.github.com/repos/{user}/{repo}/branches/main"
     )
     response = requests.get(sha_last_commit_url, headers=header)
-
     sha_last_commit = response.json()["commit"]["sha"]
 
     url = f"https://api.github.com/repos/{user}/{repo}/git/commits/{sha_last_commit}"
@@ -74,7 +70,6 @@ def create_push_request(file_path: str, folder_name: str):
 
     url = "https://api.github.com/repos/Delmirodaladier/icr/git/trees"
     response = requests.post(url, json.dumps(data), headers=header)
-    print(response.json())
     tree_sha = response.json()["sha"]
 
     data = {

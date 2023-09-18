@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 
+from .models import BlogPost
 from dotenv import load_dotenv
 from repository.models import Author, ResearchArea
 from repository.forms import ResearchAreaForm
@@ -31,7 +32,7 @@ def blog_homepage(request):
 
         if filled_form.is_valid():
             form_data = filled_form.cleaned_data
-            print(form_data)
+
             form_data['authors'] = post_author
             
             obj, created = ResearchArea.objects.get_or_create(title="blog post", slug='blog-post')
@@ -48,6 +49,11 @@ def blog_homepage(request):
             current_path = current_path + f"/icr_frontend/posts/{folder_name}/"
 
             file_path = f"{current_path}index.qmd"
+            
+            BlogPost.objects.create(**{
+                'name': form_data['name'],
+                'text': form_data['text']
+            })
 
             if not os.path.exists(current_path):
                 os.makedirs(current_path)
@@ -61,7 +67,8 @@ def blog_homepage(request):
             create_push_request(file_path, folder_name)
 
             context = {"form": filled_form, "folder_name": folder_name}
-            filled_form.save()
+        else:
+            print(filled_form.errors)    
 
         return render(request, "blog/submission.html", context=context)
 
