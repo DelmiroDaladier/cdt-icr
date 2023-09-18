@@ -1,11 +1,15 @@
 import os
 import yaml
-
+from django.core import serializers
+from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
 from django.contrib.auth.decorators import login_required
 
 from dotenv import load_dotenv
+from repository.models import Author, ResearchArea
+from repository.forms import ResearchAreaForm
 from .forms import BlogPostForm
 from .utils import (
     generate_qmd_header,
@@ -17,7 +21,8 @@ from .utils import (
 @login_required
 def blog_homepage(request):
     load_dotenv()
-    print(request.user)
+
+    post_author = Author.objects.filter(member=request.user)
 
     if request.method == "POST":
         filled_form = BlogPostForm(request.POST)
@@ -26,6 +31,12 @@ def blog_homepage(request):
 
         if filled_form.is_valid():
             form_data = filled_form.cleaned_data
+            print(form_data)
+            form_data['authors'] = post_author
+            
+            obj, created = ResearchArea.objects.get_or_create(title="blog post", slug='blog-post')
+            form_data['categories'] = [obj]
+            
 
             content = {}
             content = generate_qmd_header(content, form_data)
@@ -50,6 +61,7 @@ def blog_homepage(request):
             create_push_request(file_path, folder_name)
 
             context = {"form": filled_form, "folder_name": folder_name}
+            filled_form.save()
 
         return render(request, "blog/submission.html", context=context)
 
@@ -57,4 +69,59 @@ def blog_homepage(request):
         filled_form = BlogPostForm()
         return render(
             request, "blog/new_blogpost.html", context={"form": filled_form}
+        )
+
+@login_required
+def add_category(request):
+    """
+    View function for adding a new category.
+
+    If the request method is GET, the function renders a form for creating a new category.
+
+    If the request method is POST, the function attempts to validate the form data. If the form is valid,
+    a new category instance is created and returned as JSON in a 200 response. If the form is invalid,
+    an error message is displayed and the form is re-rendered.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: A rendered HTML template or JSON response.
+
+    Raises:
+        None
+    # noqa
+    """
+    if request.method == "GET":
+        form = ResearchAreaForm()
+
+        context = {"form": form}
+        return render(
+            request,
+            "repository/add_category.html",
+            context=context,
+        )
+
+    form = ResearchAreaForm(request.POST)
+    if form.is_valid():
+        category_instance = form.save()
+        instance = serializers.serialize(
+            "json",
+            [
+                category_instance,
+            ],
+        )
+        return JsonResponse(
+            {"instance": instance}, status=200
+        )
+    else:
+        messages.error(
+            request,
+            "The category is invalid,"
+            " please review your submission.",
+        )
+        return render(
+            request,
+            "repository/add_category.html",
+            context={},
         )

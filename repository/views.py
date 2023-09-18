@@ -144,7 +144,7 @@ def homepage(request):
                 context = {
                     "folder_name": folder_name,
                     "form": filled_form,
-                    "repo": "icr",
+                    "repo": "icr_frontend",
                 }
 
                 return render(
@@ -497,7 +497,7 @@ def arxiv_post(request):
                         )
                         author_obj = Author(
                             **{
-                                "user": author,
+                                "user_name": author,
                                 "user_url": link,
                             }
                         )

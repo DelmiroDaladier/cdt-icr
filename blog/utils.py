@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 def generate_qmd_header(content: dict, form_data: dict):
     content = {
-        "title": form_data.get("title", ""),
+        "title": form_data.get("name", ""),
         "text": form_data.get("text", ""),
         "categories": [category.title for category in form_data["categories"]],
         "format": {"html": {"df-print": "paged", "toc": True}},
@@ -30,6 +30,8 @@ def create_push_request(file_path: str, folder_name: str):
     user = os.getenv("GH_USER")
     auth_token = os.getenv("GH_TOKEN")
     repo = os.getenv("GH_REPOSITORY")
+
+    print(auth_token)
 
     header = {"Authorization": "Bearer " + auth_token}
 
@@ -72,7 +74,7 @@ def create_push_request(file_path: str, folder_name: str):
 
     url = "https://api.github.com/repos/Delmirodaladier/icr/git/trees"
     response = requests.post(url, json.dumps(data), headers=header)
-
+    print(response.json())
     tree_sha = response.json()["sha"]
 
     data = {

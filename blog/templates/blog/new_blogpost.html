@@ -2,38 +2,21 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+    
     <div class="container">
         <h1>New Post</h1>
         <form id="newPostForm" method="post" action="{% url 'blog_homepage' %}" >
             {% csrf_token %}
             <div class="form-group row">
                 <div class="form-group">
-                    {{ form.title|as_crispy_field }}
+                    {{ form.name|as_crispy_field }}
                 </div>
             </div>
             <div class="form-group row">
                 <div class="form-group ">
                     {{ form.text|as_crispy_field }}
                 </div>
-            </div>        
-            <div class="form-group row">
-                <div class="form-group col-md-2 mb-0">
-                    {{ form.authors|as_crispy_field }}
-                </div>
-                <div id="addAuthor" class="form-group col-md-2 mt-5 text-center" >
-                    <a class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#addAuthorModal"> Add 
-                    </a>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="form-group col-md-2 mb-0">
-                    {{ form.categories|as_crispy_field }}
-                </div>
-                <div id="addCategory" class="form-group col-md-2 mt-5 text-center" >
-                    <a class="btn btn-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#addCategoryModal"> Add 
-                    </a>
-                </div>
-            </div>      
+            </div>            
 
             <input type="submit" class='btn btn-primary btn-sm my-5' value="Submit">
         </form>
