@@ -23,10 +23,11 @@ RUN git clone https://github.com/DelmiroDaladier/newsletter_frontend.git
 
 RUN git clone https://github.com/DelmiroDaladier/icr.git icr_frontend
 
-RUN git clone https://github.com/DelmiroDaladier/conference_calendar.git
-
-RUN python manage.py migrate
+RUN git clone https://github.com/DelmiroDaladier/conference_calendar.git 
 
 EXPOSE 8000  
 
-CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "icr.wsgi:application"]
+RUN chmod +x /home/app/webapp/start.sh
+ENTRYPOINT ["./start.sh"]
+
+#CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "icr.wsgi:application"]
