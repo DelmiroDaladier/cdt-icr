@@ -264,12 +264,12 @@ class ConferenceForm(forms.ModelForm):
     )
 
     start_date = forms.DateField(
-        required=False,
+        required=True,
         input_formats=date_formats,
         widget=DateInput(attrs={"class": "form-control"}),
     )
     end_date = forms.DateField(
-        required=False,
+        required=True,
         input_formats=date_formats,
         widget=DateInput(attrs={"class": "form-control"}),
     )

@@ -182,7 +182,8 @@ def save_new_conference_data(conference_objects, filepath: str):
         os.remove(filepath)
 
     df = pd.DataFrame(list(conference_objects.values()))
-    df.drop("id", axis=1)
+    if "id" in df.columns:
+        df.drop("id", axis=1)
 
     df.to_csv(filepath, index=False)
 
