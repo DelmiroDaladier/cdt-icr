@@ -331,7 +331,7 @@ class SessionForm(forms.ModelForm):
 
     conference = forms.ModelChoiceField(
         queryset=Conference.objects.all(),
-        required=False,
+        required=True,
         widget=forms.Select(
             attrs={"class": "form-control"}
         ),

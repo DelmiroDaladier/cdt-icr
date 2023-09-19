@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import (
     ContentType,
 )
 from django.contrib.auth.models import User
+from django.db.models.signals import pre_save
 
 PUBLICATION_CHOICES = (
     ("PAPER", "Paper"),
@@ -21,9 +22,14 @@ SESSION_CHOICES = (
 
 class Author(models.Model):
     user_id = models.AutoField(primary_key=True)
-    user_name = models.CharField(max_length=250, unique=True)
+    user_name = models.CharField(
+        max_length=250, unique=True
+    )
     member = models.OneToOneField(
-        User, on_delete=models.SET_NULL, null=True, blank=True
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     user_url = models.URLField(blank=True, null=True)
     orcid = models.URLField(blank=True, null=True)
@@ -59,7 +65,9 @@ class AiResource(models.Model):
     overview = models.TextField(default="")
     authors = models.ManyToManyField(Author, default="")
     name = models.CharField(max_length=250, unique=True)
-    research_area = models.ManyToManyField(ResearchArea, default="")
+    research_area = models.ManyToManyField(
+        ResearchArea, default=""
+    )
     resource_url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -70,7 +78,9 @@ class AiResource(models.Model):
 
 class Venue(models.Model):
     id = models.AutoField(primary_key=True)
-    venue_name = models.CharField(max_length=250, unique=True)
+    venue_name = models.CharField(
+        max_length=250, unique=True
+    )
     venue_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
@@ -85,7 +95,9 @@ class Publication(AiResource):
         default="Paper",
     )
     thumbnail = models.ImageField(blank=True, null=True)
-    venue = models.ManyToManyField(Venue, blank=True, default="")
+    venue = models.ManyToManyField(
+        Venue, blank=True, default=""
+    )
     citation = models.URLField(blank=True, null=True)
     pdf = models.URLField(blank=True, null=True)
     supplement = models.URLField(blank=True, null=True)
@@ -127,6 +139,17 @@ class Session(AiResource):
     )
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+
+
+def check_date(sender, instance, *args, **kwargs):
+    if instance.start_date > instance.end_date:
+        raise ValueError(
+            "Start date must be before than end date"
+        )
+
+
+pre_save.connect(check_date, sender=Session)
+pre_save.connect(check_date, sender=Conference)
 
 
 class Dataset(AiResource):

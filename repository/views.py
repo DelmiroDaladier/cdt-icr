@@ -785,28 +785,33 @@ def submit_conference(request):
                 print(f"Exeception: {integrity}")
                 messages.error(
                     request,
-                    "Integrity error. Check the information submitted, it could be redundant or missing some fields."
+                    "Integrity error. Check the information submitted, it could be redundant or missing some fields.",
                 )
+                return redirect("submit_conference")
+
+            except ValueError as value_error:
+                print(value_error)
+                messages.error(request, value_error)
                 return redirect("submit_conference")
 
             except Exception as ex:
                 print(ex)
                 messages.error(
                     request,
-                    "Please check the submitted information."
+                    "Please check the submitted information.",
                 )
                 return redirect("submit_conference")
-            print('pickles')
+            print("pickles")
             conferences = Conference.objects.order_by(
-                    "start_date"
-                )
+                "start_date"
+            )
 
             current_path = os.getcwd()
 
             filepath = (
-                    current_path
-                    + f"/conference_calendar/input.csv"
-                )
+                current_path
+                + f"/conference_calendar/input.csv"
+            )
 
             save_new_conference_data(conferences, filepath)
 
@@ -839,7 +844,7 @@ def submit_conference(request):
                 context,
             )
         messages.error(
-        request,
+            request,
             "Please review your submission. Form seems to be invalid.",
         )
         return redirect("submit_conference")
@@ -884,7 +889,34 @@ def submit_session(request):
     if request.method == "POST":
         form = SessionForm(request.POST)
         if form.is_valid():
-            form.save()
+            try:
+                form.save()
+            except IntegrityError as integrity:
+                print(f"Exeception: {integrity}")
+                messages.error(
+                    request,
+                    "Integrity error. Check the information submitted, it could be redundant or missing some fields.",
+                )
+                return redirect("submit_session")
+
+            except ValueError as value_error:
+                print(value_error)
+                messages.error(request, value_error)
+                return redirect("submit_session")
+
+            except Exception as ex:
+                print(ex)
+                messages.error(
+                    request,
+                    "Please check the submitted information.",
+                )
+                return redirect("submit_session")
+
+        messages.error(
+            request,
+            "Please review your submission. Form seems to be invalid.",
+        )
+        return redirect("submit_session")
 
     form = SessionForm()
     context = {"form": form}
