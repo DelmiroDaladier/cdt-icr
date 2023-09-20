@@ -9,8 +9,11 @@ from django.core import serializers
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.contrib.auth import login
+from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import (
+    login_required,
+)
 from django.shortcuts import (
     render,
     redirect,
@@ -61,21 +64,50 @@ def homepage(request):
     load_dotenv()
 
     if request.method == "POST":
-        filled_form = PublicationForm(request.POST)
+        filled_form = PublicationForm(
+            request.POST
+        )
         context = {}
 
         try:
             if filled_form.is_valid():
                 try:
                     filled_form.save()
-                except Exception as ex:
+
+                except (
+                    ValidationError
+                ) as validation_error:
+                    print(validation_error)
                     messages.error(
                         request,
-                        "Oops! Something went wrong."
-                        " Please check your input and try again.",
+                        "Publication with this Name already exists.",
                     )
+                    return redirect("")
 
-                form_data = filled_form.cleaned_data
+                except (
+                    IntegrityError
+                ) as integrity:
+                    print(
+                        f"Exeception: {integrity}"
+                    )
+                    messages.error(
+                        request,
+                        "Integrity error. Check the information submitted,"
+                        " it could be redundant or missing some fields.",
+                    )
+                    return redirect("")
+
+                except Exception as ex:
+                    print(ex)
+                    messages.error(
+                        request,
+                        "Please check the submitted information.",
+                    )
+                    return redirect("")
+
+                form_data = (
+                    filled_form.cleaned_data
+                )
 
                 content = {}
 
@@ -94,15 +126,22 @@ def homepage(request):
                         + f"/icr_frontend/content/{folder_name}/"
                     )
 
-                    file_path = f"{current_path}index.qmd"
+                    file_path = (
+                        f"{current_path}index.qmd"
+                    )
 
-                    if not os.path.exists(current_path):
+                    if not os.path.exists(
+                        current_path
+                    ):
                         os.makedirs(current_path)
 
-                    with open(file_path, "w+") as fp:
+                    with open(
+                        file_path, "w+"
+                    ) as fp:
                         fp.write("---\n")
                         yaml.dump(content, fp)
                         fp.write("\n---")
+
                 except Exception as ex:
                     print(ex)
                     messages.error(
@@ -113,9 +152,12 @@ def homepage(request):
 
                 try:
                     generate_page_content(
-                        content, file_path, arxiv=False
+                        content,
+                        file_path,
+                        arxiv=False,
                     )
                 except Exception as ex:
+                    print(ex)
                     messages.error(
                         request,
                         "We are experiencing problems when filling qmd"
@@ -124,12 +166,13 @@ def homepage(request):
 
                 try:
                     repo = "icr"
-                    path = (
-                        f"content/{folder_name}/index.qmd"
-                    )
+                    path = f"content/{folder_name}/index.qmd"
 
                     create_push_request(
-                        file_path, folder_name, repo, path
+                        file_path,
+                        folder_name,
+                        repo,
+                        path,
                     )
                 except Exception as ex:
                     print(ex)
@@ -152,6 +195,7 @@ def homepage(request):
                     "repository/submission.html",
                     context,
                 )
+            print(filled_form.errors.as_data())
             messages.error(
                 request,
                 "The form is invalid, please review your submission.",
@@ -189,7 +233,9 @@ def about(request):
         HttpResponse: An HTTP response object that renders the 'about_page.html' template.
     # noqa
     """
-    return render(request, "repository/about_page.html")
+    return render(
+        request, "repository/about_page.html"
+    )
 
 
 @login_required
@@ -407,7 +453,9 @@ def update_post(request, slug):
     """
     context = {}
 
-    post = get_object_or_404(Publication, slug=slug)
+    post = get_object_or_404(
+        Publication, slug=slug
+    )
 
     form = PublicationForm(
         request.POST or None, instance=post
@@ -422,8 +470,12 @@ def update_post(request, slug):
         )
 
     if form.is_valid():
-        post_instance = Publication.objects.get(slug=slug)
-        form = PublicationForm(request.POST, instance=post)
+        post_instance = Publication.objects.get(
+            slug=slug
+        )
+        form = PublicationForm(
+            request.POST, instance=post
+        )
         form.save()
         instance = serializers.serialize(
             "json",
@@ -479,8 +531,12 @@ def arxiv_post(request):
             try:
                 data = scrap_data_from_arxiv(url)
 
-                entry_existis = Publication.objects.filter(
-                    name=data["citation_title"]
+                entry_existis = (
+                    Publication.objects.filter(
+                        name=data[
+                            "citation_title"
+                        ]
+                    )
                 )
 
                 if not entry_existis:
@@ -491,9 +547,13 @@ def arxiv_post(request):
                         data["links"],
                     ):
                         author = (
-                            author.split(",")[1].strip()
+                            author.split(",")[
+                                1
+                            ].strip()
                             + " "
-                            + author.split(",")[0].strip()
+                            + author.split(",")[
+                                0
+                            ].strip()
                         )
                         author_obj = Author(
                             **{
@@ -503,8 +563,12 @@ def arxiv_post(request):
                         )
                         try:
                             author_obj.save()
-                            authors.append(author_obj)
-                        except IntegrityError as integrity:
+                            authors.append(
+                                author_obj
+                            )
+                        except (
+                            IntegrityError
+                        ) as integrity:
                             print(integrity)
 
                     if data["research_area"]:
@@ -517,24 +581,34 @@ def arxiv_post(request):
                         )
                         try:
                             research_area_obj.save()
-                        except IntegrityError as integrity:
+                        except (
+                            IntegrityError
+                        ) as integrity:
                             print(integrity)
 
-                        research_Area_id = (
-                            ResearchArea.objects.filter(
-                                title=data["research_area"]
-                            )[0].id
-                        )
+                        research_Area_id = ResearchArea.objects.filter(
+                            title=data[
+                                "research_area"
+                            ]
+                        )[
+                            0
+                        ].id
 
                     data_dict = {
-                        "name": data["citation_title"],
+                        "name": data[
+                            "citation_title"
+                        ],
                         "overview": data[
                             "citation_abstract"
                         ],
-                        "pdf": data["citation_pdf"],
+                        "pdf": data[
+                            "citation_pdf"
+                        ],
                     }
 
-                    post_obj = Publication(**data_dict)
+                    post_obj = Publication(
+                        **data_dict
+                    )
 
                     try:
                         post_obj.save()
@@ -546,10 +620,14 @@ def arxiv_post(request):
                             " review the existing records and ensure"
                             " that you are not duplicating data.",
                         )
-                        return redirect("arxiv_post")
+                        return redirect(
+                            "arxiv_post"
+                        )
 
                     for author in authors:
-                        post_obj.authors.add(author.user_id)
+                        post_obj.authors.add(
+                            author.user_id
+                        )
 
                     post_obj.research_area.add(
                         research_Area_id
@@ -571,18 +649,26 @@ def arxiv_post(request):
                         current_path
                         + f"/icr_frontend/content/{folder_name}/"
                     )
-                    file_path = f"{current_path}index.qmd"
+                    file_path = (
+                        f"{current_path}index.qmd"
+                    )
 
-                    if not os.path.exists(current_path):
+                    if not os.path.exists(
+                        current_path
+                    ):
                         os.makedirs(current_path)
 
-                    with open(file_path, "w+") as fp:
+                    with open(
+                        file_path, "w+"
+                    ) as fp:
                         fp.write("---\n")
                         yaml.dump(content, fp)
                         fp.write("\n---")
 
                     generate_page_content(
-                        content, file_path, arxiv=True
+                        content,
+                        file_path,
+                        arxiv=True,
                     )
 
                     try:
@@ -601,7 +687,9 @@ def arxiv_post(request):
                             "when communication with github."
                             " Please Try again later.",
                         )
-                        return redirect("arxiv_post")
+                        return redirect(
+                            "arxiv_post"
+                        )
 
                     context = {
                         "folder_name": folder_name,
@@ -659,7 +747,9 @@ def email_check(user):
     # noqa
     """
     if user.is_authenticated:
-        return user.email.endswith("@bristol.ac.uk")
+        return user.email.endswith(
+            "@bristol.ac.uk"
+        )
     return False
 
 
@@ -688,10 +778,13 @@ def register_request(request):
                 user = form.save()
                 login(request, user)
                 messages.success(
-                    request, "Registration successfull."
+                    request,
+                    "Registration successfull.",
                 )
                 author_data = {
-                    "user_name": form_data["first_name"]
+                    "user_name": form_data[
+                        "first_name"
+                    ]
                     + " "
                     + form_data["last_name"],
                     "member": user,
@@ -745,7 +838,9 @@ def submit_conference(request):
     """
     if request.method == "POST":
         if (
-            request.headers.get("x-requested-with")
+            request.headers.get(
+                "x-requested-with"
+            )
             == "XMLHttpRequest"
         ):
             url = request.body.decode("UTF-8")
@@ -762,10 +857,14 @@ def submit_conference(request):
                         "Please Try again later.",
                     )
 
-                    return redirect("submit_conference")
+                    return redirect(
+                        "submit_conference"
+                    )
 
                 return JsonResponse(
-                    response, status=200, safe=False
+                    response,
+                    status=200,
+                    safe=False,
                 )
             else:
                 response = {
@@ -774,7 +873,9 @@ def submit_conference(request):
                     "places": "",
                 }
                 return JsonResponse(
-                    response, status=200, safe=False
+                    response,
+                    status=200,
+                    safe=False,
                 )
 
         form = ConferenceForm(request.POST)
@@ -785,14 +886,21 @@ def submit_conference(request):
                 print(f"Exeception: {integrity}")
                 messages.error(
                     request,
-                    "Integrity error. Check the information submitted, it could be redundant or missing some fields.",
+                    "Integrity error. Check the information submitted,"
+                    " it could be redundant or missing some fields.",
                 )
-                return redirect("submit_conference")
+                return redirect(
+                    "submit_conference"
+                )
 
             except ValueError as value_error:
                 print(value_error)
-                messages.error(request, value_error)
-                return redirect("submit_conference")
+                messages.error(
+                    request, value_error
+                )
+                return redirect(
+                    "submit_conference"
+                )
 
             except Exception as ex:
                 print(ex)
@@ -800,10 +908,14 @@ def submit_conference(request):
                     request,
                     "Please check the submitted information.",
                 )
-                return redirect("submit_conference")
+                return redirect(
+                    "submit_conference"
+                )
             print("pickles")
-            conferences = Conference.objects.order_by(
-                "start_date"
+            conferences = (
+                Conference.objects.order_by(
+                    "start_date"
+                )
             )
 
             current_path = os.getcwd()
@@ -813,7 +925,9 @@ def submit_conference(request):
                 + f"/conference_calendar/input.csv"
             )
 
-            save_new_conference_data(conferences, filepath)
+            save_new_conference_data(
+                conferences, filepath
+            )
 
             try:
                 repo = "conference_calendar"
@@ -831,7 +945,9 @@ def submit_conference(request):
                     "We are experiencing some problems when fetching when "
                     "communication with github. Please Try again later.",
                 )
-                return redirect("submit_conference")
+                return redirect(
+                    "submit_conference"
+                )
 
             context = {
                 "form": form,
@@ -891,17 +1007,21 @@ def submit_session(request):
         if form.is_valid():
             try:
                 form.save()
+
             except IntegrityError as integrity:
                 print(f"Exeception: {integrity}")
                 messages.error(
                     request,
-                    "Integrity error. Check the information submitted, it could be redundant or missing some fields.",
+                    "Integrity error. Check the information submitted,"
+                    " it could be redundant or missing some fields.",
                 )
                 return redirect("submit_session")
 
             except ValueError as value_error:
                 print(value_error)
-                messages.error(request, value_error)
+                messages.error(
+                    request, value_error
+                )
                 return redirect("submit_session")
 
             except Exception as ex:
@@ -953,5 +1073,7 @@ def help_page(request):
     """
     context = {}
     return render(
-        request, "repository/help.html", context=context
+        request,
+        "repository/help.html",
+        context=context,
     )
