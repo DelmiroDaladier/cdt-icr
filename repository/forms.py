@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.contrib.admin import widgets
 from django.contrib.auth.models import (
     User,
@@ -35,7 +36,10 @@ class PublicationForm(forms.ModelForm):
     authors = forms.ModelMultipleChoiceField(
         help_text="Click in the box to access "
         "the Authors List, or add a new one.",
-        queryset=Author.objects.all(),
+        queryset=Author.objects.filter(
+            Q(member__is_active=True)
+            | Q(member=None)
+        ),
         widget=forms.SelectMultiple(
             attrs={
                 "class": "multi-select-form form-control"
@@ -223,7 +227,9 @@ class NewUserForm(forms.ModelForm):
         )
 
     def save(self, commit=True):
-        user = super(NewUserForm, self).save(commit=False)
+        user = super(NewUserForm, self).save(
+            commit=False
+        )
         user.email = self.cleaned_data["email"]
         if commit:
             user.save()
@@ -251,7 +257,9 @@ class ConferenceForm(forms.ModelForm):
         help_text="Conference URL.",
         max_length=200,
         widget=forms.TextInput(
-            attrs={"class": "conference_link form-control"}
+            attrs={
+                "class": "conference_link form-control"
+            }
         ),
     )
 
@@ -266,12 +274,16 @@ class ConferenceForm(forms.ModelForm):
     start_date = forms.DateField(
         required=True,
         input_formats=date_formats,
-        widget=DateInput(attrs={"class": "form-control"}),
+        widget=DateInput(
+            attrs={"class": "form-control"}
+        ),
     )
     end_date = forms.DateField(
         required=True,
         input_formats=date_formats,
-        widget=DateInput(attrs={"class": "form-control"}),
+        widget=DateInput(
+            attrs={"class": "form-control"}
+        ),
     )
     location = forms.CharField(
         max_length=200,
@@ -313,12 +325,16 @@ class SessionForm(forms.ModelForm):
 
     start_date = forms.DateField(
         required=True,
-        widget=DateInput(attrs={"class": "form-control"}),
+        widget=DateInput(
+            attrs={"class": "form-control"}
+        ),
     )
 
     end_date = forms.DateField(
         required=True,
-        widget=DateInput(attrs={"class": "form-control"}),
+        widget=DateInput(
+            attrs={"class": "form-control"}
+        ),
     )
 
     type = forms.ChoiceField(

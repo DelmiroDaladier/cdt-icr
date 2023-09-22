@@ -6,11 +6,27 @@ import urllib3
 
 from dotenv import load_dotenv
 from django.core import serializers
+from django.core.mail import EmailMessage
 from django.http import JsonResponse, HttpResponse
+from django.template.loader import (
+    render_to_string,
+)
+from django.utils.encoding import (
+    force_bytes,
+    force_text,
+)
+from django.contrib.sites.shortcuts import (
+    get_current_site,
+)
+from django.utils.http import (
+    urlsafe_base64_encode,
+    urlsafe_base64_decode,
+)
 from django.contrib import messages
 from django.contrib.auth import login
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import (
     login_required,
 )
@@ -45,6 +61,7 @@ from .utils import (
     get_conference_information,
     save_new_conference_data,
 )
+from .tokens import account_activation_token
 
 from django.db import IntegrityError
 
@@ -635,41 +652,59 @@ def arxiv_post(request):
 
                     post_obj.save()
 
-                    content = generate_qmd_header_for_arxiv(
-                        data
-                    )
+                    try:
+                        content = generate_qmd_header_for_arxiv(
+                            data
+                        )
 
-                    folder_name = slugify(
-                        content.get("title", "")
-                    )
+                        folder_name = slugify(
+                            content.get(
+                                "title", ""
+                            )
+                        )
 
-                    current_path = os.getcwd()
+                        current_path = os.getcwd()
 
-                    current_path = (
-                        current_path
-                        + f"/icr_frontend/content/{folder_name}/"
-                    )
-                    file_path = (
-                        f"{current_path}index.qmd"
-                    )
+                        current_path = (
+                            current_path
+                            + f"/icr_frontend/content/{folder_name}/"
+                        )
+                        file_path = f"{current_path}index.qmd"
 
-                    if not os.path.exists(
-                        current_path
-                    ):
-                        os.makedirs(current_path)
+                        if not os.path.exists(
+                            current_path
+                        ):
+                            os.makedirs(
+                                current_path
+                            )
 
-                    with open(
-                        file_path, "w+"
-                    ) as fp:
-                        fp.write("---\n")
-                        yaml.dump(content, fp)
-                        fp.write("\n---")
+                        with open(
+                            file_path, "w+"
+                        ) as fp:
+                            fp.write("---\n")
+                            yaml.dump(content, fp)
+                            fp.write("\n---")
+                    except Exception as ex:
+                        print(ex)
+                        messages.error(
+                            request,
+                            "We are experiencing problems when creating qmd"
+                            " headers. Please try again later.",
+                        )
 
-                    generate_page_content(
-                        content,
-                        file_path,
-                        arxiv=True,
-                    )
+                    try:
+                        generate_page_content(
+                            content,
+                            file_path,
+                            arxiv=True,
+                        )
+                    except Exception as ex:
+                        print(ex)
+                        messages.error(
+                            request,
+                            "We are experiencing problems when filling qmd"
+                            " files. Please try again later.",
+                        )
 
                     try:
                         repo = "icr"
@@ -819,6 +854,102 @@ def register_request(request):
         "registration/register.html",
         context={"register_form": form},
     )
+
+
+def singup(request):
+    if request.method == "POST":
+        form = NewUserForm(request.POST)
+        if form.is_valid():
+            form_data = form.cleaned_data
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+
+            author_data = {
+                "user_name": form_data[
+                    "first_name"
+                ]
+                + " "
+                + form_data["last_name"],
+                "member": user,
+                "bio": form_data["short_bio"],
+            }
+            author_obj = Author(**author_data)
+            author_obj.save()
+
+            current_site = get_current_site(
+                request
+            )
+            mail_subject = (
+                "Activate your account."
+            )
+            message = render_to_string(
+                "registration/acc_active_email.html",
+                {
+                    "user": user,
+                    "domain": current_site.domain,
+                    "uid": urlsafe_base64_encode(
+                        force_bytes(user.pk)
+                    ),
+                    "token": account_activation_token.make_token(
+                        user
+                    ),
+                },
+            )
+            to_email = form.cleaned_data.get(
+                "email"
+            )
+            email = EmailMessage(
+                mail_subject,
+                message,
+                to=[to_email],
+            )
+            email.send()
+            return render(
+                request,
+                "registration/confirm_registration.html",
+            )
+    else:
+        form = NewUserForm()
+    return render(
+        request,
+        "registration/singup.html",
+        {"form": form},
+    )
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(
+            urlsafe_base64_decode(uidb64)
+        )
+        user = User.objects.get(pk=uid)
+
+    except (
+        TypeError,
+        ValueError,
+        OverflowError,
+        User.DoesNotExist,
+    ):
+        user = None
+    if (
+        user is not None
+        and account_activation_token.check_token(
+            user, token
+        )
+    ):
+        user.is_active = True
+        user.save()
+        login(request, user)
+
+        return render(
+            request,
+            "registration/activation_successfull.html",
+        )
+    else:
+        return HttpResponse(
+            "Activation link is invalid!"
+        )
 
 
 @login_required

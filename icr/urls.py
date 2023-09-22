@@ -21,6 +21,8 @@ from cdt_newsletter.forms import Newsletterform
 from repository.views import (
     homepage,
     about,
+    singup,
+    activate,
     help_page,
     author_create,
     add_category,
@@ -37,6 +39,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", homepage, name="homepage"),
     path("about/", about, name="about"),
+    path("singup/", singup, name="singup"),
+    path("activate/<slug:uidb64>/<slug:token>/", activate, name="activate"),
     path("update_post/<slug>/", update_post, name="update_post"),
     path("author_create/", author_create, name="author_create"),
     path("add_category/", add_category, name="add_category"),
@@ -48,12 +52,8 @@ urlpatterns = [
     path("submit_session/", submit_session, name="submit_session"),
     path("review_newsletter", review_newsletter, name="review_newsletter"),
     path("create_newsletter", create_newsletter, name="create_newsletter"),
-    path(
-        "download_newsletter", download_newsletter, name="download_newsletter"
-    ),
-    path(
-        "create_announcement", create_announcement, name="create_announcement"
-    ),
+    path("download_newsletter", download_newsletter, name="download_newsletter"),
+    path("create_announcement", create_announcement, name="create_announcement"),
     path(
         "newsletter_preview",
         NewsletterPreview(Newsletterform),
