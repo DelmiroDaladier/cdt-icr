@@ -29,7 +29,6 @@ from repository.views import (
     add_venue,
     update_post,
     arxiv_post,
-    register_request,
     submit_conference,
     submit_session,
 )
@@ -47,7 +46,6 @@ urlpatterns = [
     path("add_venue/", add_venue, name="add_venue"),
     path("blog/", blog_homepage, name="blog_homepage"),
     path("arxiv_post/", arxiv_post, name="arxiv_post"),
-    path("register/", register_request, name="register"),
     path("submit_conference/", submit_conference, name="submit_conference"),
     path("submit_session/", submit_session, name="submit_session"),
     path("review_newsletter", review_newsletter, name="review_newsletter"),
