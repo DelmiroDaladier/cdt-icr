@@ -787,6 +787,7 @@ def email_check(user):
         )
     return False
 
+
 def singup(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
