@@ -473,7 +473,6 @@ def update_post(request, slug):
     post = get_object_or_404(
         Publication, slug=slug
     )
-
     form = PublicationForm(
         request.POST or None, instance=post
     )
@@ -788,7 +787,7 @@ def email_check(user):
     return False
 
 
-def singup(request):
+def signup(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
@@ -1138,5 +1137,21 @@ def help_page(request):
     return render(
         request,
         "repository/help.html",
+        context=context,
+    )
+
+
+@login_required
+def user_profile(request, username):
+    print(username)
+    user = User.objects.get(username=username)
+    author = Author.objects.get(member=user)
+
+    print(author)
+    context = {"user": user, "author": author}
+
+    return render(
+        request,
+        "repository/profile.html",
         context=context,
     )
