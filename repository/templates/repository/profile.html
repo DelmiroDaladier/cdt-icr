@@ -1,0 +1,9 @@
+{% extends 'repository/base.html' %} 
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container">
+        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+        <p>{{ author.bio }}</p>
+    <div>    
+{% endblock content %}
