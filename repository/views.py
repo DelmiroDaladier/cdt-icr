@@ -844,7 +844,7 @@ def signup(request):
         form = NewUserForm()
     return render(
         request,
-        "registration/singup.html",
+        "registration/signup.html",
         {"form": form},
     )
 

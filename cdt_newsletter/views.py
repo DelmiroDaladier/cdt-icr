@@ -17,8 +17,11 @@ from repository.utils import create_push_request
 from .forms import Newsletterform, AnnouncementForm
 from .models import Newsletter, Announcement, Event
 from .utils import generate_newsletter_body, parse_html_to_text
+from django.contrib.auth.decorators import (
+    login_required,
+)
 
-
+@login_required
 def review_newsletter(request):
     """
     Handle subscription form submissions and render the subscription page.
@@ -45,7 +48,7 @@ def review_newsletter(request):
             context=context,
         )
 
-
+@login_required
 def create_newsletter(request):
     if request.method == "POST":
         form = Newsletterform(request.POST)
@@ -96,7 +99,7 @@ def create_newsletter(request):
     context = {"form": form}
     return render(request, "cdt_newsletter/create_newsletter.html", context)
 
-
+@login_required
 def download_newsletter(request):
     if request.method == "GET":
         directory = os.getcwd()
@@ -112,7 +115,7 @@ def download_newsletter(request):
 
         return response
 
-
+@login_required
 def create_announcement(request):
     if request.method == "POST":
         form = AnnouncementForm(request.POST)
@@ -207,14 +210,14 @@ class NewsletterPreview(FormPreview):
         Newsletter.objects.create(**newsletter)
         return HttpResponseRedirect("/newsletter_submission_success")
 
-
+@login_required
 def newsletter_submission_success(request):
     context = {}
     return render(
         request, "cdt_newsletter/newsletter_submission_success.html", context
     )
 
-
+@login_required
 def announcements(request):
     objects = Announcement.objects.all()
 
@@ -224,7 +227,7 @@ def announcements(request):
         request, "cdt_newsletter/announcements.html", context=context
     )
 
-
+@login_required
 def announcement_detail(request, pk):
     announcement = Announcement.objects.get(pk=pk)
 
@@ -232,7 +235,7 @@ def announcement_detail(request, pk):
 
     return render(request, "cdt_newsletter/announcement_detail.html", context)
 
-
+@login_required
 def edit_announcement(request, pk):
     data = Announcement.objects.get(id=int(pk))
     form = AnnouncementForm(instance=data)
@@ -250,7 +253,7 @@ def edit_announcement(request, pk):
 
     return render(request, "cdt_newsletter/update_announcement.html", context)
 
-
+@login_required
 def delete_announcement(request, pk):
     announcement = Announcement.objects.get(id=pk)
     announcement.delete()
