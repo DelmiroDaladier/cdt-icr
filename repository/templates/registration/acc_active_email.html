@@ -1,4 +1,4 @@
 {% autoescape off %}
     Hi {{ user.username }},
-    Please click on the link to confirm your registration, https://cdt-icr.onrender.com/{% url 'activate' uidb64=uid token=token %}
+    Please click on the link to confirm your registration, https://cdt-icr.onrender.com{% url 'activate' uidb64=uid token=token %}
 {% endautoescape %}

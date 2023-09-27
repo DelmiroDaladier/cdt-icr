@@ -7,19 +7,37 @@ from htmldocx import HtmlToDocx
 
 from django.contrib import messages
 from django.utils.safestring import mark_safe
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+)
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+)
 from django.http import StreamingHttpResponse
 from wsgiref.util import FileWrapper
 
 from formtools.preview import FormPreview
 from repository.utils import create_push_request
-from .forms import Newsletterform, AnnouncementForm
-from .models import Newsletter, Announcement, Event
-from .utils import generate_newsletter_body, parse_html_to_text
+from .forms import (
+    Newsletterform,
+    AnnouncementForm,
+)
+from .models import (
+    Newsletter,
+    Announcement,
+    Event,
+)
+from .utils import (
+    generate_newsletter_body,
+    parse_html_to_text,
+)
 from django.contrib.auth.decorators import (
     login_required,
 )
+
 
 @login_required
 def review_newsletter(request):
@@ -48,6 +66,7 @@ def review_newsletter(request):
             context=context,
         )
 
+
 @login_required
 def create_newsletter(request):
     if request.method == "POST":
@@ -55,27 +74,41 @@ def create_newsletter(request):
         if form.is_valid():
             form_data = form.cleaned_data
 
-            for object in form_data["announcements"]:
+            for object in form_data[
+                "announcements"
+            ]:
                 object.published = True
                 object.save()
 
-            forthcoming_events = Event.objects.all().order_by("date")
-
-            newsletter_body = generate_newsletter_body(
-                form_data, forthcoming_events
+            forthcoming_events = (
+                Event.objects.all().order_by(
+                    "date"
+                )
             )
 
-            context = {"newsletter_body": newsletter_body}
+            newsletter_body = (
+                generate_newsletter_body(
+                    form_data, forthcoming_events
+                )
+            )
+
+            context = {
+                "newsletter_body": newsletter_body
+            }
 
             document = Document()
             new_parser = HtmlToDocx()
 
-            new_parser.add_html_to_document(newsletter_body, document)
+            new_parser.add_html_to_document(
+                newsletter_body, document
+            )
             document.save("newsletter.doc")
 
             try:
                 form.save()
-                messages.success(request, "Newsletter Created!")
+                messages.success(
+                    request, "Newsletter Created!"
+                )
             except Exception as ex:
                 messages.error(
                     request,
@@ -97,7 +130,12 @@ def create_newsletter(request):
 
     form = Newsletterform(initial=data_dict)
     context = {"form": form}
-    return render(request, "cdt_newsletter/create_newsletter.html", context)
+    return render(
+        request,
+        "cdt_newsletter/create_newsletter.html",
+        context,
+    )
+
 
 @login_required
 def download_newsletter(request):
@@ -107,13 +145,20 @@ def download_newsletter(request):
 
         path = open(filepath, "rb")
 
-        mime_type, _ = mimetypes.guess_type(filepath)
+        mime_type, _ = mimetypes.guess_type(
+            filepath
+        )
 
-        response = HttpResponse(path, content_type=mime_type)
+        response = HttpResponse(
+            path, content_type=mime_type
+        )
 
-        response["Content-Disposition"] = "attachment; filename=newsletter.doc"
+        response[
+            "Content-Disposition"
+        ] = "attachment; filename=newsletter.doc"
 
         return response
+
 
 @login_required
 def create_announcement(request):
@@ -127,7 +172,9 @@ def create_announcement(request):
                     Event.objects.create(**data)
                 else:
                     del data["date"]
-                    announcement_object = Announcement.objects.create(**data)
+                    announcement_object = Announcement.objects.create(
+                        **data
+                    )
                     announcement_object.save()
                 messages.success(
                     request,
@@ -136,10 +183,14 @@ def create_announcement(request):
                     ),
                 )
 
-                context["form"] = AnnouncementForm()
+                context[
+                    "form"
+                ] = AnnouncementForm()
 
                 return render(
-                    request, "cdt_newsletter/create_announcement.html", context
+                    request,
+                    "cdt_newsletter/create_announcement.html",
+                    context,
                 )
             except Exception as ex:
                 print(ex)
@@ -149,73 +200,115 @@ def create_announcement(request):
                 )
 
                 return render(
-                    request, "cdt_newsletter/create_announcement.html", context
+                    request,
+                    "cdt_newsletter/create_announcement.html",
+                    context,
                 )
         else:
-            messages.error(request, form.errors.as_text())
+            messages.error(
+                request, form.errors.as_text()
+            )
 
     form = AnnouncementForm()
     context = {"form": form}
-    return render(request, "cdt_newsletter/create_announcement.html", context)
+    return render(
+        request,
+        "cdt_newsletter/create_announcement.html",
+        context,
+    )
 
 
 class NewsletterPreview(FormPreview):
-    form_template = "cdt_newsletter/create_newsletter.html"
+    form_template = (
+        "cdt_newsletter/create_newsletter.html"
+    )
     preview_template = "cdt_newsletter/newsletter_visualization.html"
 
     def get_context(self, request, form):
         if form.is_valid():
             render_data = {
-                "title": form.cleaned_data["title"],
+                "title": form.cleaned_data[
+                    "title"
+                ],
                 "text": form.cleaned_data["text"],
-                "announcements": form.cleaned_data["announcements"],
-                "events": Event.objects.all().order_by("date"),
+                "announcements": form.cleaned_data[
+                    "announcements"
+                ],
+                "events": Event.objects.all().order_by(
+                    "date"
+                ),
             }
             return {
                 "render_data": render_data,
                 "form": form,
-                "stage_field": self.unused_name("stage"),
+                "stage_field": self.unused_name(
+                    "stage"
+                ),
                 "state": self.state,
             }
 
-    def process_preview(self, request, form, context):
-        forthcoming_events = Event.objects.all().order_by("date")
+    def process_preview(
+        self, request, form, context
+    ):
+        forthcoming_events = (
+            Event.objects.all().order_by("date")
+        )
 
         if form.is_valid():
             cleaned_data = form.cleaned_data
 
-            newsletter_body = generate_newsletter_body(
-                cleaned_data, forthcoming_events
+            newsletter_body = (
+                generate_newsletter_body(
+                    cleaned_data,
+                    forthcoming_events,
+                )
             )
 
             document = Document()
             new_parser = HtmlToDocx()
 
-            new_parser.add_html_to_document(newsletter_body, document)
+            new_parser.add_html_to_document(
+                newsletter_body, document
+            )
             document.save("newsletter.doc")
         return context
 
     def done(self, request, cleaned_data):
-        for object in cleaned_data["announcements"]:
+        for object in cleaned_data[
+            "announcements"
+        ]:
             object.published = True
             object.save()
 
-        newsletter_body = generate_newsletter_body(
-            cleaned_data, forthcoming_events
+        newsletter_body = (
+            generate_newsletter_body(
+                cleaned_data, forthcoming_events
+            )
         )
-        parsed_body = parse_html_to_text(newsletter_body)
+        parsed_body = parse_html_to_text(
+            newsletter_body
+        )
 
-        newsletter = {"title": cleaned_data["title"], "text": parsed_body}
+        newsletter = {
+            "title": cleaned_data["title"],
+            "text": parsed_body,
+        }
 
         Newsletter.objects.create(**newsletter)
-        return HttpResponseRedirect("/newsletter_submission_success")
+        return HttpResponseRedirect(
+            "/newsletter_submission_success"
+        )
+
 
 @login_required
 def newsletter_submission_success(request):
     context = {}
     return render(
-        request, "cdt_newsletter/newsletter_submission_success.html", context
+        request,
+        "cdt_newsletter/newsletter_submission_success.html",
+        context,
     )
+
 
 @login_required
 def announcements(request):
@@ -224,8 +317,11 @@ def announcements(request):
     context = {"announcements": objects}
 
     return render(
-        request, "cdt_newsletter/announcements.html", context=context
+        request,
+        "cdt_newsletter/announcements.html",
+        context=context,
     )
+
 
 @login_required
 def announcement_detail(request, pk):
@@ -233,7 +329,12 @@ def announcement_detail(request, pk):
 
     context = {"announcement": announcement}
 
-    return render(request, "cdt_newsletter/announcement_detail.html", context)
+    return render(
+        request,
+        "cdt_newsletter/announcement_detail.html",
+        context,
+    )
+
 
 @login_required
 def edit_announcement(request, pk):
@@ -242,16 +343,25 @@ def edit_announcement(request, pk):
 
     if request.method == "POST":
         print("post request")
-        form = AnnouncementForm(request.POST, instance=data)
+        form = AnnouncementForm(
+            request.POST, instance=data
+        )
 
         if form.is_valid():
             form.save()
-            return redirect(f"/announcements/{pk}/")
+            return redirect(
+                f"/announcements/{pk}/"
+            )
 
     print("DEU GET")
     context = {"form": form}
 
-    return render(request, "cdt_newsletter/update_announcement.html", context)
+    return render(
+        request,
+        "cdt_newsletter/update_announcement.html",
+        context,
+    )
+
 
 @login_required
 def delete_announcement(request, pk):

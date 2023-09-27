@@ -42,7 +42,9 @@ def create_qmd_file(filepath: str):
         fp.write("\n---")
 
 
-def generate_page_content(filepath: str, content: dict):
+def generate_page_content(
+    filepath: str, content: dict
+):
     """
     Generate page content for a newsletter and write it to a file at the specified path.
 
@@ -65,7 +67,9 @@ def generate_page_content(filepath: str, content: dict):
 
         for post in content["posts"]:
             text += f"\n### [{post.get('title', '')}](https://delmirodaladier.github.io/icr/content/{post.get('slug', '')})\n"
-            text += f"\n{post.get('overview', '')}\n"
+            text += (
+                f"\n{post.get('overview', '')}\n"
+            )
 
         text += "\n# Conferences \n"
 
@@ -77,26 +81,39 @@ def generate_page_content(filepath: str, content: dict):
 
         fp.write(text)
 
-    data_dict = {"title": title, "text": text, "sent": True}
+    data_dict = {
+        "title": title,
+        "text": text,
+        "sent": True,
+    }
 
     object = Newsletter(**data_dict)
     object.save()
 
 
-def generate_newsletter_body(form_data: dict, forthcoming_events):
+def generate_newsletter_body(
+    form_data: dict, forthcoming_events
+):
     newsletter_body = ""
-    newsletter_items = [item for item in form_data["announcements"]]
+    newsletter_items = [
+        item
+        for item in form_data["announcements"]
+    ]
     events = [item for item in forthcoming_events]
 
     if not form_data.get("title", ""):
-        newsletter_body += "<h2>CDT Weekly Newsletter</h2>"
+        newsletter_body += (
+            "<h2>CDT Weekly Newsletter</h2>"
+        )
     else:
         newsletter_body = f"<h2>{form_data.get('title')}</h2><br>"
 
     newsletter_body += "<ul>"
 
     for item in newsletter_items:
-        newsletter_body += f"<li>{item.title}</li>"
+        newsletter_body += (
+            f"<li>{item.title}</li>"
+        )
 
     newsletter_body += "</ul>"
 
@@ -106,8 +123,12 @@ def generate_newsletter_body(form_data: dict, forthcoming_events):
         newsletter_body += f"<p>{form_data.get('text', '')}</p><br><br>"
 
     for announcement in newsletter_items:
-        newsletter_body += f"<b>{announcement.title}</b><br>"
-        newsletter_body += f"{announcement.text}<br><br>"
+        newsletter_body += (
+            f"<b>{announcement.title}</b><br>"
+        )
+        newsletter_body += (
+            f"{announcement.text}<br><br>"
+        )
 
     newsletter_body += "<h2>Forthcoming Calendar of Events<br><br></h2>"
 
@@ -118,8 +139,12 @@ def generate_newsletter_body(form_data: dict, forthcoming_events):
 
 
 def parse_html_to_text(newsletter_body: str):
-    newsletter_body = newsletter_body.replace("<br>", "\n")
+    newsletter_body = newsletter_body.replace(
+        "<br>", "\n"
+    )
 
-    soup = BeautifulSoup(newsletter_body, "html.parser")
+    soup = BeautifulSoup(
+        newsletter_body, "html.parser"
+    )
 
     return soup.text

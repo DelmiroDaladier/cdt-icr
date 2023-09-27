@@ -231,6 +231,9 @@ class NewUserForm(forms.ModelForm):
             commit=False
         )
         user.email = self.cleaned_data["email"]
+        user.password = self.cleaned_data[
+            "password"
+        ]
         if commit:
             user.save()
         return user

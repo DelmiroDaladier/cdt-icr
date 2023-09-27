@@ -794,6 +794,9 @@ def signup(request):
             form_data = form.cleaned_data
             user = form.save(commit=False)
             user.is_active = False
+            user.set_password(
+                form.cleaned_data.get("password")
+            )
             user.save()
 
             author_data = {

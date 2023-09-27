@@ -220,12 +220,14 @@
                         <!-- <li class="nav-item"><a class="nav-link" href="{% url 'blog_homepage' %}">Blog</a></li> -->
                         <li class="nav-item"><a class="nav-link" href="{% url 'submit_conference' %}">Conferences</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'submit_session' %}">Sessions</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'create_newsletter' %}">Newsletter</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'announcements' %}">Announcements</a></li>
+                        {% if user.is_staff %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'create_newsletter' %}">Newsletter</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'announcements' %}">Announcements</a></li>
+                        {% endif %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'blog_homepage' %}">Blog</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'help' %}">Help</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next={{ request.path }}">Logout</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next={% url 'login' %}">Logout</a></li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'profile' user.username %}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
@@ -234,7 +236,7 @@
                             </a>
                         </li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={% url 'homepage' %}">Login</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Register</a></li>
                     {% endif %}
                 </ul>
