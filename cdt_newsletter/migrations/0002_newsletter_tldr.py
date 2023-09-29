@@ -12,7 +12,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="newsletter",
             name="tldr",
-            field=models.TextField(default=" ", max_length=200),
+            field=models.TextField(
+                default=" ", max_length=200
+            ),
             preserve_default=False,
         ),
     ]

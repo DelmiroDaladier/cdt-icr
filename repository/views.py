@@ -791,58 +791,93 @@ def signup(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
-            form_data = form.cleaned_data
-            user = form.save(commit=False)
-            user.is_active = False
-            user.set_password(
-                form.cleaned_data.get("password")
-            )
-            user.save()
+            try:
+                form_data = form.cleaned_data
+                user = form.save(commit=False)
+                user.is_active = False
+                user.set_password(
+                    form.cleaned_data.get(
+                        "password"
+                    )
+                )
 
-            author_data = {
-                "user_name": form_data[
-                    "first_name"
-                ]
-                + " "
-                + form_data["last_name"],
-                "member": user,
-                "bio": form_data["short_bio"],
-            }
-            author_obj = Author(**author_data)
-            author_obj.save()
+                author_data = {
+                    "user_name": form_data[
+                        "first_name"
+                    ]
+                    + " "
+                    + form_data["last_name"],
+                    "member": user,
+                    "bio": form_data["short_bio"],
+                }
+                author_obj = Author(**author_data)
 
-            current_site = get_current_site(
-                request
-            )
-            mail_subject = (
-                "Activate your account."
-            )
-            message = render_to_string(
-                "registration/acc_active_email.html",
-                {
-                    "user": user,
-                    "domain": current_site.domain,
-                    "uid": urlsafe_base64_encode(
-                        force_bytes(user.pk)
-                    ),
-                    "token": account_activation_token.make_token(
-                        user
-                    ),
-                },
-            )
-            to_email = form.cleaned_data.get(
-                "email"
-            )
-            email = EmailMessage(
-                mail_subject,
-                message,
-                to=[to_email],
-            )
-            email.send()
-            return render(
-                request,
-                "registration/confirm_registration.html",
-            )
+                if Author.objects.filter(
+                    user_name=author_data[
+                        "user_name"
+                    ]
+                ):
+                    print("Integrity error")
+                    raise IntegrityError
+
+                user.save()
+                author_obj.save()
+
+                current_site = get_current_site(
+                    request
+                )
+                mail_subject = (
+                    "Activate your account."
+                )
+                message = render_to_string(
+                    "registration/acc_active_email.html",
+                    {
+                        "user": user,
+                        "domain": current_site.domain,
+                        "uid": urlsafe_base64_encode(
+                            force_bytes(user.pk)
+                        ),
+                        "token": account_activation_token.make_token(
+                            user
+                        ),
+                    },
+                )
+                to_email = form.cleaned_data.get(
+                    "email"
+                )
+                email = EmailMessage(
+                    mail_subject,
+                    message,
+                    to=[to_email],
+                )
+                email.send()
+                return render(
+                    request,
+                    "registration/confirm_registration.html",
+                )
+            except ValueError as value:
+                print(value)
+                messages.error(request, value)
+                return redirect("signup")
+            except (
+                IntegrityError
+            ) as integrity_error:
+                print(integrity_error)
+                messages.error(
+                    request,
+                    "Integrity error. Check the information submitted,"
+                    " it could be redundant or missing some fields.",
+                )
+                return redirect("signup")
+            except Exception as ex:
+                print(ex)
+                messages.error(
+                    request,
+                    "Something went wrong with your submission."
+                    " Try again later, please.",
+                )
+                return redirect("signup")
+
     else:
         form = NewUserForm()
     return render(

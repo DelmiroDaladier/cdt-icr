@@ -12,12 +12,38 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Newsletter",
             fields=[
-                ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("title", models.CharField(max_length=100, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=100, null=True
+                    ),
+                ),
                 ("text", models.TextField()),
-                ("created_at", models.DateField(auto_now_add=True)),
-                ("modified_at", models.DateField(auto_now=True)),
-                ("sent", models.BooleanField(default=False)),
+                (
+                    "created_at",
+                    models.DateField(
+                        auto_now_add=True
+                    ),
+                ),
+                (
+                    "modified_at",
+                    models.DateField(
+                        auto_now=True
+                    ),
+                ),
+                (
+                    "sent",
+                    models.BooleanField(
+                        default=False
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
@@ -32,8 +58,18 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("email", models.EmailField(max_length=254, null=True)),
-                ("date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "email",
+                    models.EmailField(
+                        max_length=254, null=True
+                    ),
+                ),
+                (
+                    "date",
+                    models.DateTimeField(
+                        auto_now_add=True
+                    ),
+                ),
             ],
         ),
     ]

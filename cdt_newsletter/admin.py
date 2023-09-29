@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Subscription, Newsletter, Announcement, Event
+from .models import (
+    Subscription,
+    Newsletter,
+    Announcement,
+    Event,
+)
 
 
 # Register your models here.

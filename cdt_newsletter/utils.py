@@ -11,20 +11,26 @@ def create_qmd_file(filepath: str):
     """
     Create a new QuickMark data file at the specified filepath.
 
-    If a file already exists at the filepath, it will be deleted before creating the new file.
+    If a file already exists at the filepath,
+    it will be deleted before creating the new file.
 
-    The file will contain a YAML header with metadata about the file, including the title, page
-    layout, title block banner, and comments. The metadata will be formatted according to the
+    The file will contain a YAML header with metadata
+    about the file, including the title, page
+    layout, title block banner, and comments.
+    The metadata will be formatted according to the
     QuickMark data file specification.
 
     Args:
-        filepath (str): The path and filename for the new QuickMark data file.
+        filepath (str): The path and filename
+        for the new QuickMark data file.
 
     Raises:
-        OSError: If an error occurs while deleting the existing file, or while creating the new file.
+        OSError: If an error occurs while
+        deleting the existing file, or while creating the new file.
 
     Returns:
         None
+    #noqa
     """
     if os.path.exists(filepath):
         os.remove(filepath)
@@ -46,18 +52,21 @@ def generate_page_content(
     filepath: str, content: dict
 ):
     """
-    Generate page content for a newsletter and write it to a file at the specified path.
+    Generate page content for a newsletter and write
+    it to a file at the specified path.
 
     Args:
-        filepath (str): The path to the file where the page content will be written.
-        content (dict): A dictionary containing the content to be included in the page.
+        filepath (str): The path to the file where
+        the page content will be written.
+        content (dict): A dictionary containing
+        the content to be included in the page.
 
     Returns:
         None
 
     Raises:
         TypeError: If filepath is not a string or content is not a dictionary.
-
+    #noqa
     """
     title = "CDT Newsletter"
     text = ""
@@ -66,7 +75,7 @@ def generate_page_content(
         text += "\n# Posts \n"
 
         for post in content["posts"]:
-            text += f"\n### [{post.get('title', '')}](https://delmirodaladier.github.io/icr/content/{post.get('slug', '')})\n"
+            text += f"\n### [{post.get('title', '')}](https://delmirodaladier.github.io/icr/content/{post.get('slug', '')})\n"  # noqa
             text += (
                 f"\n{post.get('overview', '')}\n"
             )
@@ -74,7 +83,7 @@ def generate_page_content(
         text += "\n# Conferences \n"
 
         for conference in content["conferences"]:
-            text += f"\n### [{conference.get('name', '')}]({conference.get('link', '')})\n"
+            text += f"\n### [{conference.get('name', '')}]({conference.get('link', '')})\n"  # noqa
             text += f"\n- Location:{conference.get('location', '')}\n"
             text += f"\n- Start date:{conference.get('start_date', '')}\n"
             text += f"\n- End date:{conference.get('end_date', '')}\n"

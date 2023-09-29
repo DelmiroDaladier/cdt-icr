@@ -44,11 +44,14 @@ def review_newsletter(request):
     """
     Handle subscription form submissions and render the subscription page.
 
-    If the request method is POST, process the form data and create a new subscription
-    if the form is valid. Then redirect the user to the subscription page with a success
-    message.
+    If the request method is POST, process the
+    form data and create a new subscription
+    if the form is valid. Then redirect the
+    user to the subscription page with a
+    success message.
 
-    If the request method is not POST, or if the form is invalid, render the subscription
+    If the request method is not POST, or if the form
+    is invalid, render the subscription
     page with an empty subscription form.
 
     Args:
@@ -112,7 +115,8 @@ def create_newsletter(request):
             except Exception as ex:
                 messages.error(
                     request,
-                    "Oops! Something went wrong. Please check your input and try again.",
+                    "Oops! Something went wrong."
+                    "Please check your input and try again.",
                 )
 
             return render(
@@ -169,17 +173,22 @@ def create_announcement(request):
             try:
                 data = form.cleaned_data
                 if data.get("date"):
-                    Event.objects.create(**data)
+                    created_object = (
+                        Event.objects.create(
+                            **data
+                        )
+                    )
                 else:
                     del data["date"]
-                    announcement_object = Announcement.objects.create(
+                    created_object = Announcement.objects.create(
                         **data
                     )
-                    announcement_object.save()
+                    created_object.save()
+
                 messages.success(
                     request,
                     mark_safe(
-                        f"Announcement Created! Check the created announcement <a href=/announcement/{announcement_object.id} >here</a>"
+                        f"Announcement Created! Check the created announcement <a href=/announcement/{created_object.id} >here</a>"  # noqa
                     ),
                 )
 
@@ -196,7 +205,8 @@ def create_announcement(request):
                 print(ex)
                 messages.error(
                     request,
-                    "Oops! Something went wrong. Please check your input and try again.",
+                    "Oops! Something went wrong."
+                    "Please check your input and try again.",
                 )
 
                 return render(

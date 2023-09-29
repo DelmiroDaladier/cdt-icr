@@ -5,19 +5,53 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cdt_newsletter", "0002_newsletter_tldr"),
+        (
+            "cdt_newsletter",
+            "0002_newsletter_tldr",
+        ),
     ]
 
     operations = [
         migrations.CreateModel(
             name="Announcement",
             fields=[
-                ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("title", models.CharField(max_length=100, null=True)),
-                ("text", models.TextField(max_length=500)),
-                ("created_at", models.DateField(auto_now_add=True)),
-                ("modified_at", models.DateField(auto_now=True)),
-                ("published", models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        max_length=100, null=True
+                    ),
+                ),
+                (
+                    "text",
+                    models.TextField(
+                        max_length=500
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateField(
+                        auto_now_add=True
+                    ),
+                ),
+                (
+                    "modified_at",
+                    models.DateField(
+                        auto_now=True
+                    ),
+                ),
+                (
+                    "published",
+                    models.BooleanField(
+                        default=False
+                    ),
+                ),
             ],
         ),
     ]

@@ -26,6 +26,8 @@ class Migration(migrations.Migration):
                 ),
                 ("date", models.DateField()),
             ],
-            bases=("cdt_newsletter.announcement",),
+            bases=(
+                "cdt_newsletter.announcement",
+            ),
         ),
     ]
