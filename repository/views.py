@@ -1193,29 +1193,41 @@ def user_profile(request, username):
         context=context,
     )
 
+
 @login_required
 def edit_profile(request, pk):
     user = User.objects.get(id=int(pk))
     form = UpdateUserForm(instance=user)
 
     author = Author.objects.get(member=user)
-    
-    if request.method == "POST":
 
+    if request.method == "POST":
         form = UpdateUserForm(
             request.POST, instance=user
         )
         if form.is_valid():
             if form.cleaned_data["first_name"]:
-                User.objects.filter(pk=pk).update(first_name=form.cleaned_data["first_name"])
+                User.objects.filter(pk=pk).update(
+                    first_name=form.cleaned_data[
+                        "first_name"
+                    ]
+                )
             if form.cleaned_data["last_name"]:
-                User.objects.filter(pk=pk).update(last_name=form.cleaned_data["last_name"])
-            if form.cleaned_data["short_bio"]: 
-                Author.objects.filter(pk=author.pk).update(bio=form.cleaned_data.get("short_bio"))
-            return redirect(
-                f"/profile/{pk}/"
-            )
-        print('form not valid')
+                User.objects.filter(pk=pk).update(
+                    last_name=form.cleaned_data[
+                        "last_name"
+                    ]
+                )
+            if form.cleaned_data["short_bio"]:
+                Author.objects.filter(
+                    pk=author.pk
+                ).update(
+                    bio=form.cleaned_data.get(
+                        "short_bio"
+                    )
+                )
+            return redirect(f"/profile/{pk}/")
+        print("form not valid")
         print(form.errors.as_data())
 
     context = {"form": form}

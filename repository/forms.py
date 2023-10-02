@@ -238,8 +238,8 @@ class NewUserForm(forms.ModelForm):
             user.save()
         return user
 
+
 class UpdateUserForm(forms.ModelForm):
-    
     short_bio = forms.CharField(
         required=False,
         widget=forms.Textarea(
@@ -263,10 +263,7 @@ class UpdateUserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = (
-            "first_name",
-            "last_name"
-        )
+        fields = ("first_name", "last_name")
 
     def save(self, commit=True):
         user = super(NewUserForm, self).save(
@@ -279,6 +276,7 @@ class UpdateUserForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
 
 class ConferenceForm(forms.ModelForm):
     date_formats = [
