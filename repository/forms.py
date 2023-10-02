@@ -238,6 +238,47 @@ class NewUserForm(forms.ModelForm):
             user.save()
         return user
 
+class UpdateUserForm(forms.ModelForm):
+    
+    short_bio = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    first_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    last_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={"class": "form-control"}
+        ),
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            "first_name",
+            "last_name"
+        )
+
+    def save(self, commit=True):
+        user = super(NewUserForm, self).save(
+            commit=False
+        )
+        user.email = self.cleaned_data["email"]
+        user.password = self.cleaned_data[
+            "password"
+        ]
+        if commit:
+            user.save()
+        return user
 
 class ConferenceForm(forms.ModelForm):
     date_formats = [

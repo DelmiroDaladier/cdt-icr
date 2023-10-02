@@ -281,9 +281,14 @@ class NewsletterPreview(FormPreview):
                 newsletter_body, document
             )
             document.save("newsletter.doc")
+
         return context
 
     def done(self, request, cleaned_data):
+        forthcoming_events = (
+            Event.objects.all().order_by("date")
+        )
+
         for object in cleaned_data[
             "announcements"
         ]:
@@ -295,6 +300,7 @@ class NewsletterPreview(FormPreview):
                 cleaned_data, forthcoming_events
             )
         )
+
         parsed_body = parse_html_to_text(
             newsletter_body
         )
@@ -352,7 +358,6 @@ def edit_announcement(request, pk):
     form = AnnouncementForm(instance=data)
 
     if request.method == "POST":
-        print("post request")
         form = AnnouncementForm(
             request.POST, instance=data
         )
@@ -363,7 +368,6 @@ def edit_announcement(request, pk):
                 f"/announcements/{pk}/"
             )
 
-    print("DEU GET")
     context = {"form": form}
 
     return render(

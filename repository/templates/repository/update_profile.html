@@ -1,0 +1,18 @@
+{% block content %}
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+            <h1 class="modal-title fs-5"   id="updateProfileLabel"> Update Profile </h1>
+        </div>
+        <form id="updateProfileForm" method="post" >
+            <div class="modal-body">
+                {% csrf_token %}
+                {{ form.as_table }}
+                
+                <input class="mt-3" type="submit" value="Submit" />
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock content %}

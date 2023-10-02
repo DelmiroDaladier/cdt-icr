@@ -159,6 +159,38 @@
                     });
                 });
             });
+
+            $(document).ready(function () {
+                let my_modal = $("#updateProfileModal");
+                const url_form = "/edit_profile/{{ user.id }}/";
+                data = { 'id': '{{ user.id }}' }
+                $("#updateProfile a").click(function (e) {
+                    e.preventDefault();
+                    console.log(url_form)
+                    my_modal.load(url_form, function () {
+                        my_modal.modal("show"); // Open Modal
+                        $("#updateProfileForm").submit(function (e) {
+                            e.preventDefault(); // Cancel the default action
+                            $.ajax({
+                                method: "POST",
+                                data: $(this).serialize(),
+                                dataType: "json",
+                                url: "/edit_profile/{{ user.id }}/",
+                                success: function (response) {
+                                    console.log('*******')
+                                    my_modal.modal('hide');
+                                    window.location.reload();
+                                },
+                                error: function (response) {
+                                    console.log(response);
+                                    my_modal.modal('hide');
+                                    window.location.reload();
+                                },
+                            });
+                        });
+                    });
+                });
+            });
             
 
             $(document).ready(function (){
