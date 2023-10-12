@@ -11,6 +11,7 @@ from .models import BlogPost
 from dotenv import load_dotenv
 from repository.models import Author, ResearchArea
 from repository.forms import ResearchAreaForm
+from repository.utils import update_repo_and_push
 from .forms import BlogPostForm
 from .utils import (
     generate_qmd_header,
@@ -28,7 +29,7 @@ def blog_homepage(request):
     if request.method == "POST":
         filled_form = BlogPostForm(request.POST)
 
-        enviroment_name = os.getenv("ENV_NAME")
+        env_name = os.getenv("ENV_NAME")
 
         if filled_form.is_valid():
             form_data = filled_form.cleaned_data
@@ -64,7 +65,18 @@ def blog_homepage(request):
                 fp.write("\n---")
 
             generate_page_content(content, file_path)
-            create_push_request(file_path, folder_name)
+
+            relative_paths_list = [
+                f"posts/{folder_name}/index.qmd"
+            ]
+
+            project_name = 'icr_frontend'
+            repo = 'icr'
+
+            if env_name == 'prod':
+                update_repo_and_push(folder_name, relative_paths_list, project_name, repo)
+            else:
+                print('Run quarto preview command to check the local changes.')
 
             context = {"form": filled_form, "folder_name": folder_name}
         else:

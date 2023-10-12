@@ -61,11 +61,12 @@ from .utils import (
     scrap_data_from_arxiv,
     get_conference_information,
     save_new_conference_data,
+    generate_researcher_profile,
+    update_repo_and_push
 )
 from .tokens import account_activation_token
 
 from django.db import IntegrityError
-
 
 @login_required
 def homepage(request):
@@ -80,6 +81,7 @@ def homepage(request):
     # noqa
     """
     load_dotenv()
+    env_name = os.getenv('ENV_NAME')
 
     if request.method == "POST":
         filled_form = PublicationForm(
@@ -186,12 +188,18 @@ def homepage(request):
                     repo = "icr"
                     path = f"content/{folder_name}/index.qmd"
 
-                    create_push_request(
-                        file_path,
-                        folder_name,
-                        repo,
-                        path,
-                    )
+                    relative_path_list = [
+                        f"content/{folder_name}/index.qmd",
+                        "input.csv"
+                    ]
+
+                    project_name = "icr_frontend"
+
+                    if env_name == "prod":
+                        update_repo_and_push(folder_name, relative_path_list, project_name, repo)
+                    else:
+                        print('Run quarto preview command to check the local changes·')
+
                 except Exception as ex:
                     print(ex)
                     messages.error(
@@ -536,6 +544,8 @@ def arxiv_post(request):
     """
     load_dotenv()
 
+    env_name = os.getenv('ENV_NAME')
+
     if request.method == "POST":
         context = {}
 
@@ -709,12 +719,20 @@ def arxiv_post(request):
                     try:
                         repo = "icr"
                         path = f"content/{folder_name}/index.qmd"
-                        create_push_request(
-                            file_path,
-                            folder_name,
-                            repo=repo,
-                            path=path,
-                        )
+
+                        relative_path_list = [
+                            f"content/{folder_name}/index.qmd",
+                            "input.csv"
+                        ]
+
+                        project_name = 'icr_frontend'
+
+
+                        if env_name == "prod":
+                            update_repo_and_push(folder_name, relative_path_list, project_name, repo)
+                        else:
+                            print('Run quarto preview command to check the local changes·')
+
                     except Exception as ex:
                         messages.error(
                             request,
@@ -793,6 +811,11 @@ def signup(request):
         form = NewUserForm(request.POST)
         if form.is_valid():
             try:
+
+                load_dotenv()
+
+                env_name = os.getenv('ENV_NAME')
+
                 form_data = form.cleaned_data
                 user = form.save(commit=False)
                 user.is_active = False
@@ -823,6 +846,18 @@ def signup(request):
 
                 user.save()
                 author_obj.save()
+
+                input_data = {
+                    'title': author_data.get('user_name', ''),
+                    'user_bio': author_data.get('bio', ''),
+                    'project_folder': 'icr_frontend',
+                    'sub_project_folder': 'researchers',
+                }
+
+                generate_researcher_profile(input_data)
+
+                if env_name == 'prod':
+                    print('create push request...')
 
                 current_site = get_current_site(
                     request
@@ -1012,7 +1047,7 @@ def submit_conference(request):
                 return redirect(
                     "submit_conference"
                 )
-            print("pickles")
+
             conferences = (
                 Conference.objects.order_by(
                     "start_date"

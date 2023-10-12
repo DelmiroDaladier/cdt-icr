@@ -33,6 +33,7 @@ from .models import (
 from .utils import (
     generate_newsletter_body,
     parse_html_to_text,
+    create_newsletter_file_and_push
 )
 from django.contrib.auth.decorators import (
     login_required,
@@ -260,8 +261,9 @@ class NewsletterPreview(FormPreview):
     def process_preview(
         self, request, form, context
     ):
+        today = datetime.datetime.today()
         forthcoming_events = (
-            Event.objects.all().order_by("date")
+            Event.objects.filter(date__gte=today).order_by("date")
         )
 
         if form.is_valid():
@@ -285,8 +287,9 @@ class NewsletterPreview(FormPreview):
         return context
 
     def done(self, request, cleaned_data):
+        today = datetime.datetime.today()
         forthcoming_events = (
-            Event.objects.all().order_by("date")
+            Event.objects.filter(date__gte=today).order_by("date")
         )
 
         for object in cleaned_data[
@@ -310,7 +313,40 @@ class NewsletterPreview(FormPreview):
             "text": parsed_body,
         }
 
-        Newsletter.objects.create(**newsletter)
+        try:
+            Newsletter.objects.create(**newsletter)
+        except Exception as ex:
+            print(ex)
+            messages.error(
+                request,
+                "Please check the submitted information.",
+            )
+            return redirect("create_newsletter")
+
+        try:
+            folder_name = cleaned_data["title"]
+            folder_name = folder_name.lower()
+            folder_name = folder_name.replace(' ', '_')
+            today_str = today.strftime('%d-%m-%Y')
+            if folder_name == 'cdt_weekly_newsletter':
+                folder_name = f"{folder_name}-{today_str}"
+
+            relative_path_list = [
+                f"newsletter_issues/{folder_name}/index.qmd"
+            ]
+            project_name = "newsletter_frontend"
+            repo = "newsletter_frontend"
+
+            create_newsletter_file_and_push(folder_name, relative_path_list, project_name, repo, newsletter_body, today_str)
+
+        except Exception as ex:
+            print(ex)
+            messages.error(
+                request,
+                "Please check the submitted information.",
+            )
+            return redirect("create_newsletter")
+
         return HttpResponseRedirect(
             "/newsletter_submission_success"
         )

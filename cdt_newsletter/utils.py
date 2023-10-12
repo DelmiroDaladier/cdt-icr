@@ -1,11 +1,13 @@
 import os
 import yaml
 from datetime import datetime
+from dotenv import load_dotenv
 
 from .models import Newsletter
 
 from bs4 import BeautifulSoup
 
+from repository.utils import update_repo_and_push
 
 def create_qmd_file(filepath: str):
     """
@@ -139,7 +141,7 @@ def generate_newsletter_body(
             f"{announcement.text}<br><br>"
         )
 
-    newsletter_body += "<h2>Forthcoming Calendar of Events<br><br></h2>"
+    newsletter_body += "<h2>Forthcoming Calendar of Events</h2><br><br>"
 
     for event in events:
         newsletter_body += f"<b>{event.title} - {event.date}</b><br>"
@@ -157,3 +159,42 @@ def parse_html_to_text(newsletter_body: str):
     )
 
     return soup.text
+
+def create_newsletter_file_and_push(folder_name:str, relative_path_list:str, project_name:str, repo:str, newsletter_body: str, today_str):
+
+    file_list = [os.getcwd() + f"/{project_name}/{path}" for path in relative_path_list]
+
+    content = {
+        "title": f"Newsletter Issue - {today_str}",
+        "execute": {
+            "echo": False
+        },
+        "format": {
+            "html": {
+                "df-print": "paged",
+                "toc": True
+            }
+        }
+    }
+
+    for file in file_list:
+        folder_path = os.getcwd() + f"/{project_name}/newsletter_issues/{folder_name.replace(' ', '_')}"
+        
+        if not os.path.exists(
+                        folder_path
+                    ):
+            os.makedirs(folder_path)
+
+        with open(file, 'w+') as fp:
+            fp.write("---\n")
+            yaml.dump(content, fp)
+            fp.write("\n---\n")
+            fp.write(newsletter_body)
+
+    load_dotenv()
+    env_name = os.getenv("ENV_NAME")
+
+    if env_name == "dev":
+        update_repo_and_push(folder_name, relative_path_list, project_name, repo)
+    else:
+        print('Please run the command quarto preview in the newsletter_frontend folder.')

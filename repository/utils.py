@@ -474,6 +474,165 @@ def create_push_request(
         headers=header,
     )
 
+def _get_sha_last_commit(user: str, auth_token: str, repo: str):
+
+    header = {"Authorization": "Bearer " + auth_token}
+
+    sha_last_commit_url = (
+        f"https://api.github.com/repos/{user}/{repo}/branches/main"
+    )
+    response = requests.get(
+        sha_last_commit_url,
+        headers=header,
+    )
+
+    print(response.json())
+
+    sha_last_commit = response.json()["commit"]["sha"]
+
+    return sha_last_commit
+
+def _get_sha_base_tree(user: str, repo:str, auth_token: str, sha_last_commit:str):
+
+    header = {"Authorization": "Bearer " + auth_token} 
+
+    url = f"https://api.github.com/repos/"\
+        f"{user}/{repo}/git/commits/{sha_last_commit}"
+    response = requests.get(url, headers=header)
+
+    sha_base_tree = response.json()["sha"]
+
+    return sha_base_tree
+
+def _read_files_and_create_blob(user: str, repo:str, auth_token: str, files: list):
+
+    blob_sha_list = []
+
+    for file in files:
+       with open(file, "r") as fp:
+        content = fp.read()
+
+        data = {
+            "content": content,
+            "encoding": "utf-8",
+        }
+
+        header = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": "Bearer " + auth_token,
+        }
+
+        url = f"https://api.github.com/repos/{user}/{repo}/git/blobs"
+        response = requests.post(
+            url,
+            json.dumps(data),
+            headers=header,
+        )
+
+        blob_sha = response.json()["sha"] 
+        blob_sha_list.append(blob_sha)
+    
+    return blob_sha_list
+
+def _post_sha_blob_list(
+        user: str,
+        repo: str,
+        auth_token: str,
+        sha_base_tree: str,
+        blob_sha_list: list,
+        file_path_list: list):
+
+    header = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": "Bearer " + auth_token,
+    }
+
+    data = {
+        "base_tree": sha_base_tree,
+        "tree": [],
+    }
+
+    for blob_sha, file_path in zip(blob_sha_list, file_path_list): 
+        blob_obj = {
+                "path": file_path,
+                "mode": "100644",
+                "type": "blob",
+                "sha": blob_sha,
+            }
+        data['tree'].append(blob_obj)
+
+    url = f"https://api.github.com/repos/{user}/{repo}/git/trees"
+    response = requests.post(
+        url,
+        json.dumps(data),
+        headers=header,
+    )
+    new_tree_sha = response.json()["sha"]
+
+    return new_tree_sha
+
+def _commit_changes(
+        user: str,
+        repo: str,
+        auth_token: str,
+        folder_name: str,
+        sha_last_commit: str,
+        new_tree_sha: str,
+    ):
+
+    header = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": "Bearer " + auth_token,
+    }
+
+    data = {
+        "message": f"Add new files at content/{folder_name}",
+        "author": {
+            "name": "Delmiro Daladier",
+            "email": "daladiersampaio@gmail.com",
+        },
+        "parents": [sha_last_commit],
+        "tree": new_tree_sha,
+    }
+
+    url = f"https://api.github.com/repos/"\
+        f"{user}/{repo}/git/commits"
+    response = requests.post(
+        url,
+        json.dumps(data),
+        headers=header,
+    )
+    new_commit_sha = response.json()["sha"]
+
+    data = {
+        "ref": "refs/heads/main",
+        "sha": new_commit_sha,
+    }
+
+    url = f"https://api.github.com/repos"\
+        f"/{user}/{repo}/git/refs/heads/main"
+    response = requests.post(
+        url,
+        json.dumps(data),
+        headers=header,
+    )
+
+
+def update_repo_and_push(folder_name: str, relative_path_list: list, project_name: str, repo:str):
+    load_dotenv()
+
+    file_list = [os.getcwd() + f"/{project_name}/{path}" for path in relative_path_list]
+
+
+    user = os.getenv('GH_USER')
+    auth_token = os.getenv('GH_TOKEN')
+
+    sha_last_commit = _get_sha_last_commit(user, auth_token, repo)
+    sha_base_tree = _get_sha_base_tree(user, repo, auth_token, sha_last_commit)
+    blob_sha_list = _read_files_and_create_blob(user, repo, auth_token, file_list)
+    new_tree_sha = _post_sha_blob_list(user, repo, auth_token, sha_base_tree, blob_sha_list, relative_path_list)
+    _commit_changes(user, repo, auth_token, folder_name, sha_last_commit, new_tree_sha)
+    
 
 def generate_qmd_header_for_arxiv(
     data: dict,
@@ -880,3 +1039,61 @@ def get_conference_information(
     }
 
     return context
+
+def _generate_researcher_qmd_header(input_data: dict):
+
+    header = {
+        "title": input_data.get("title", ''),
+        "description": "",
+        "image": 
+            "https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png",
+        "format": {
+            "html": {
+                "df-print": "paged",
+                "toc": True,
+            }
+        },
+        "execute": {"echo": False},
+    }
+
+    return header
+
+def _generate_author_page_content(
+        input_data: dict,
+        file_path:str
+    ):
+    with open(file_path, "a") as fp:
+        fp.write("\n## Bio \n")
+        fp.write(f"{input_data.get('user_bio', '')}\n")
+
+def generate_researcher_profile(
+        input_data: dict):
+    
+    header = _generate_researcher_qmd_header(input_data)
+
+    folder_name = slugify(header.get("title", 'researcher'))
+
+    current_path = os.getcwd()
+
+    current_path = (
+                        current_path
+                        + f"/{input_data.get('project_folder', '')}/{input_data.get('sub_project_folder', '')}/{folder_name}/"
+                    )
+
+    file_path = (
+        f"{current_path}index.qmd"
+    )
+
+    if not os.path.exists(
+        current_path
+    ):
+        os.makedirs(current_path)
+
+    with open(
+        file_path, "w+"
+    ) as fp:
+        fp.write("---\n")
+        yaml.dump(header, fp)
+        fp.write("\n---")
+
+    _generate_author_page_content(input_data, file_path)
