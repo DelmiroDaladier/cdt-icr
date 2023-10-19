@@ -288,6 +288,11 @@ class SessionForm(forms.ModelForm):
         ("PROCEEDINGS", "Proceedings"),
     )
 
+    name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+
     start_date = forms.DateField(
         required=True,
         widget=DateInput(attrs={"class": "form-control"}),
@@ -313,6 +318,7 @@ class SessionForm(forms.ModelForm):
     class Meta:
         model = Session
         fields = [
+            "name",
             "start_date",
             "end_date",
             "type",

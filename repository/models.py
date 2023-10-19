@@ -132,6 +132,14 @@ class Session(AiResource):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = f"{self.conference}_{self.type}"
+        return super().save(*args, **kwargs)
+
 
 def check_date(sender, instance, *args, **kwargs):
     if instance.start_date > instance.end_date:

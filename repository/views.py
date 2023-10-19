@@ -1037,6 +1037,7 @@ def submit_session(request):
         form = SessionForm(request.POST)
         if form.is_valid():
             try:
+                print(form.cleaned_data)
                 form.save()
 
             except IntegrityError as integrity:
@@ -1060,7 +1061,14 @@ def submit_session(request):
                     "Please check the submitted information.",
                 )
                 return redirect("submit_session")
+            
+            messages.success(
+                request,
+                "Session successfully submited!",
+            )
+            return redirect("submit_session")
 
+        print(f"form errors: {form.errors.as_data()}")
         messages.error(
             request,
             "Please review your submission. Form seems to be invalid.",
