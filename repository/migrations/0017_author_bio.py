@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('repository', '0016_rename_user_author_user_name'),
+        ("repository", "0016_rename_user_author_user_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='author',
-            name='bio',
+            model_name="author",
+            name="bio",
             field=models.TextField(blank=True, null=True),
         ),
     ]

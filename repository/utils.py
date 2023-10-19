@@ -83,9 +83,7 @@ def generate_qmd_header(content: dict, form_data: dict):
             "thumbnail",
             "https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png",
         ),
-        "categories": [
-            category.title for category in form_data["research_area"]
-        ],
+        "categories": [category.title for category in form_data["research_area"]],
         "format": {
             "html": {
                 "df-print": "paged",
@@ -236,9 +234,7 @@ def generate_page_content(
             for author in authors:
                 author_list = author.replace('"', "").split(",")
                 aux.append(
-                    '"'
-                    + " ".join(author_list[-1:] + author_list[:-1]).strip()
-                    + '"'
+                    '"' + " ".join(author_list[-1:] + author_list[:-1]).strip() + '"'
                 )
             authors = aux
 
@@ -350,9 +346,7 @@ def create_push_request(
 
     header = {"Authorization": "Bearer " + auth_token}
 
-    sha_last_commit_url = (
-        f"https://api.github.com/repos/{user}/{repo}/branches/main"
-    )
+    sha_last_commit_url = f"https://api.github.com/repos/{user}/{repo}/branches/main"
     response = requests.get(
         sha_last_commit_url,
         headers=header,
@@ -360,8 +354,9 @@ def create_push_request(
 
     sha_last_commit = response.json()["commit"]["sha"]
 
-    url = f"https://api.github.com/repos/"\
-        f"{user}/{repo}/git/commits/{sha_last_commit}"
+    url = (
+        f"https://api.github.com/repos/" f"{user}/{repo}/git/commits/{sha_last_commit}"
+    )
     response = requests.get(url, headers=header)
 
     sha_base_tree = response.json()["sha"]
@@ -389,9 +384,7 @@ def create_push_request(
     blob_sha = response.json()["sha"]
 
     current_directory = os.getcwd()
-    input_absolute_path = (
-        current_directory
-        + f"/icr_frontend/input.csv")
+    input_absolute_path = current_directory + f"/icr_frontend/input.csv"
     input_relative_path = "input.csv"
 
     print(current_directory)
@@ -401,10 +394,7 @@ def create_push_request(
     with open(input_absolute_path, "r") as fp:
         content = fp.read()
 
-    data = {
-        "content": content,
-        "encoding": "utf-8"
-    }
+    data = {"content": content, "encoding": "utf-8"}
 
     url = f"https://api.github.com/repos/DelmiroDaladier/{repo}/git/blobs"
     response = requests.post(
@@ -429,7 +419,7 @@ def create_push_request(
                 "mode": "100644",
                 "type": "blob",
                 "sha": blob_sha_input_csv,
-            }
+            },
         ],
     }
 
@@ -452,8 +442,7 @@ def create_push_request(
         "tree": tree_sha,
     }
 
-    url = f"https://api.github.com/repos/"\
-        f"DelmiroDaladier/{repo}/git/commits"
+    url = f"https://api.github.com/repos/" f"DelmiroDaladier/{repo}/git/commits"
     response = requests.post(
         url,
         json.dumps(data),
@@ -466,81 +455,155 @@ def create_push_request(
         "sha": new_commit_sha,
     }
 
-    url = f"https://api.github.com/repos"\
-        f"/DelmiroDaladier/{repo}/git/refs/heads/main"
+    url = f"https://api.github.com/repos" f"/DelmiroDaladier/{repo}/git/refs/heads/main"
     response = requests.post(
         url,
         json.dumps(data),
         headers=header,
     )
 
-def _get_sha_last_commit(user: str, auth_token: str, repo: str):
 
+def _get_sha_last_commit(user: str, auth_token: str, repo: str):
+    """
+    Get the SHA of the last commit in a GitHub repository's 'main' branch.
+
+    This function sends an HTTP GET request to the GitHub API to retrieve information about the 'main' branch of
+    the specified repository. It extracts and returns the SHA (hash) of the last commit in that branch.
+
+    Args:
+        user (str): The GitHub username or organization name.
+        auth_token (str): The authentication token to access the GitHub API.
+        repo (str): The name of the GitHub repository.
+
+    Returns:
+        str: The SHA of the last commit in the 'main' branch of the repository.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the HTTP request to the GitHub API.
+        KeyError: If the response JSON does not contain the expected structure.
+    """
     header = {"Authorization": "Bearer " + auth_token}
 
-    sha_last_commit_url = (
-        f"https://api.github.com/repos/{user}/{repo}/branches/main"
-    )
+    sha_last_commit_url = f"https://api.github.com/repos/{user}/{repo}/branches/main"
     response = requests.get(
         sha_last_commit_url,
         headers=header,
     )
 
-    print(response.json())
-
     sha_last_commit = response.json()["commit"]["sha"]
 
     return sha_last_commit
 
-def _get_sha_base_tree(user: str, repo:str, auth_token: str, sha_last_commit:str):
 
-    header = {"Authorization": "Bearer " + auth_token} 
+def _get_sha_base_tree(user: str, repo: str, auth_token: str, sha_last_commit: str):
+    """
+    Get the SHA of the base tree associated with a specific commit in a GitHub repository.
 
-    url = f"https://api.github.com/repos/"\
-        f"{user}/{repo}/git/commits/{sha_last_commit}"
+    This function sends an HTTP GET request to the GitHub API to retrieve information about the specified commit,
+    including the SHA of the associated base tree.
+
+    Args:
+        user (str): The GitHub username or organization name.
+        repo (str): The name of the GitHub repository.
+        auth_token (str): The authentication token to access the GitHub API.
+        sha_last_commit (str): The SHA (hash) of the commit for which the base tree SHA is required.
+
+    Returns:
+        str: The SHA of the base tree associated with the specified commit.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the HTTP request to the GitHub API.
+        KeyError: If the response JSON does not contain the expected structure.
+    """
+    header = {"Authorization": "Bearer " + auth_token}
+
+    url = (
+        f"https://api.github.com/repos/" f"{user}/{repo}/git/commits/{sha_last_commit}"
+    )
     response = requests.get(url, headers=header)
 
     sha_base_tree = response.json()["sha"]
 
     return sha_base_tree
 
-def _read_files_and_create_blob(user: str, repo:str, auth_token: str, files: list):
 
+def _read_files_and_create_blob(user: str, repo: str, auth_token: str, files: list):
+    """
+    Read files and create blob objects in a GitHub repository.
+
+    This function reads a list of files and creates blob objects in the specified GitHub repository for each file's content.
+
+    Args:
+        user (str): The GitHub username or organization name.
+        repo (str): The name of the GitHub repository.
+        auth_token (str): The authentication token to access the GitHub API.
+        files (list): A list of file paths to read and create blobs for.
+
+    Returns:
+        list: A list of SHA (hash) values for the created blob objects.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the HTTP requests to the GitHub API.
+        KeyError: If the response JSON does not contain the expected structure.
+    """
     blob_sha_list = []
 
     for file in files:
-       with open(file, "r") as fp:
-        content = fp.read()
+        with open(file, "r") as fp:
+            content = fp.read()
 
-        data = {
-            "content": content,
-            "encoding": "utf-8",
-        }
+            data = {
+                "content": content,
+                "encoding": "utf-8",
+            }
 
-        header = {
-            "Accept": "application/vnd.github+json",
-            "Authorization": "Bearer " + auth_token,
-        }
+            header = {
+                "Accept": "application/vnd.github+json",
+                "Authorization": "Bearer " + auth_token,
+            }
 
-        url = f"https://api.github.com/repos/{user}/{repo}/git/blobs"
-        response = requests.post(
-            url,
-            json.dumps(data),
-            headers=header,
-        )
+            url = f"https://api.github.com/repos/{user}/{repo}/git/blobs"
+            response = requests.post(
+                url,
+                json.dumps(data),
+                headers=header,
+            )
 
-        blob_sha = response.json()["sha"] 
-        blob_sha_list.append(blob_sha)
-    
+            blob_sha = response.json()["sha"]
+            blob_sha_list.append(blob_sha)
+
     return blob_sha_list
 
+
 def _post_sha_blob_list(
-        user: str,
-        repo: str,
-        auth_token: str,
-        sha_base_tree: str,
-        blob_sha_list: list,
-        file_path_list: list):
+    user: str,
+    repo: str,
+    auth_token: str,
+    sha_base_tree: str,
+    blob_sha_list: list,
+    file_path_list: list,
+):
+    """
+    Create and post a new tree object in a GitHub repository.
+
+    This function creates a new tree object in the specified GitHub repository, referencing blob objects created for
+    a list of files. The new tree is based on a provided base tree SHA and includes information about the blob objects.
+
+    Args:
+        user (str): The GitHub username or organization name.
+        repo (str): The name of the GitHub repository.
+        auth_token (str): The authentication token to access the GitHub API.
+        sha_base_tree (str): The SHA (hash) of the base tree to build upon.
+        blob_sha_list (list): A list of SHA values for the blob objects to be included in the new tree.
+        file_path_list (list): A list of file paths corresponding to the blob objects.
+
+    Returns:
+        str: The SHA of the new tree object created in the GitHub repository.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the HTTP request to the GitHub API.
+        KeyError: If the response JSON does not contain the expected structure.
+    """
 
     header = {
         "Accept": "application/vnd.github+json",
@@ -552,14 +615,14 @@ def _post_sha_blob_list(
         "tree": [],
     }
 
-    for blob_sha, file_path in zip(blob_sha_list, file_path_list): 
+    for blob_sha, file_path in zip(blob_sha_list, file_path_list):
         blob_obj = {
-                "path": file_path,
-                "mode": "100644",
-                "type": "blob",
-                "sha": blob_sha,
-            }
-        data['tree'].append(blob_obj)
+            "path": file_path,
+            "mode": "100644",
+            "type": "blob",
+            "sha": blob_sha,
+        }
+        data["tree"].append(blob_obj)
 
     url = f"https://api.github.com/repos/{user}/{repo}/git/trees"
     response = requests.post(
@@ -571,14 +634,36 @@ def _post_sha_blob_list(
 
     return new_tree_sha
 
+
 def _commit_changes(
-        user: str,
-        repo: str,
-        auth_token: str,
-        folder_name: str,
-        sha_last_commit: str,
-        new_tree_sha: str,
-    ):
+    user: str,
+    repo: str,
+    auth_token: str,
+    folder_name: str,
+    sha_last_commit: str,
+    new_tree_sha: str,
+):
+    """
+    Create a new commit with changes in a GitHub repository.
+
+    This function creates a new commit in the specified GitHub repository with changes based on a new tree object,
+    and it updates the 'main' branch to reference the new commit.
+
+    Args:
+        user (str): The GitHub username or organization name.
+        repo (str): The name of the GitHub repository.
+        auth_token (str): The authentication token to access the GitHub API.
+        folder_name (str): The name of the folder where changes were made.
+        sha_last_commit (str): The SHA (hash) of the last commit on the 'main' branch.
+        new_tree_sha (str): The SHA of the new tree object containing the changes.
+
+    Returns:
+        None.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the HTTP requests to the GitHub API.
+        KeyError: If the response JSON does not contain the expected structure.
+    """
 
     header = {
         "Accept": "application/vnd.github+json",
@@ -595,8 +680,7 @@ def _commit_changes(
         "tree": new_tree_sha,
     }
 
-    url = f"https://api.github.com/repos/"\
-        f"{user}/{repo}/git/commits"
+    url = f"https://api.github.com/repos/" f"{user}/{repo}/git/commits"
     response = requests.post(
         url,
         json.dumps(data),
@@ -609,8 +693,7 @@ def _commit_changes(
         "sha": new_commit_sha,
     }
 
-    url = f"https://api.github.com/repos"\
-        f"/{user}/{repo}/git/refs/heads/main"
+    url = f"https://api.github.com/repos" f"/{user}/{repo}/git/refs/heads/main"
     response = requests.post(
         url,
         json.dumps(data),
@@ -618,21 +701,44 @@ def _commit_changes(
     )
 
 
-def update_repo_and_push(folder_name: str, relative_path_list: list, project_name: str, repo:str):
+def update_repo_and_push(
+    folder_name: str, relative_path_list: list, project_name: str, repo: str
+):
+    """
+    Update files in a GitHub repository and push changes to the 'main' branch.
+
+    This function automates the process of updating files in a GitHub repository. It loads user and authentication
+    token information from environment variables, retrieves the necessary SHA values, creates blob objects for the
+    updated files, constructs a new tree, and commits the changes to the 'main' branch.
+
+    Args:
+        folder_name (str): The name of the folder where the changes are made.
+        relative_path_list (list): A list of relative paths to the files to be updated.
+        project_name (str): The name of the project containing the files.
+        repo (str): The name of the GitHub repository.
+
+    Returns:
+        None.
+
+    Raises:
+        requests.exceptions.RequestException: If there is an issue with the HTTP requests to the GitHub API.
+        KeyError: If the response JSON does not contain the expected structure.
+    """
     load_dotenv()
 
     file_list = [os.getcwd() + f"/{project_name}/{path}" for path in relative_path_list]
 
-
-    user = os.getenv('GH_USER')
-    auth_token = os.getenv('GH_TOKEN')
+    user = os.getenv("GH_USER")
+    auth_token = os.getenv("GH_TOKEN")
 
     sha_last_commit = _get_sha_last_commit(user, auth_token, repo)
     sha_base_tree = _get_sha_base_tree(user, repo, auth_token, sha_last_commit)
     blob_sha_list = _read_files_and_create_blob(user, repo, auth_token, file_list)
-    new_tree_sha = _post_sha_blob_list(user, repo, auth_token, sha_base_tree, blob_sha_list, relative_path_list)
+    new_tree_sha = _post_sha_blob_list(
+        user, repo, auth_token, sha_base_tree, blob_sha_list, relative_path_list
+    )
     _commit_changes(user, repo, auth_token, folder_name, sha_last_commit, new_tree_sha)
-    
+
 
 def generate_qmd_header_for_arxiv(
     data: dict,
@@ -651,8 +757,7 @@ def generate_qmd_header_for_arxiv(
     content = {
         "title": data.get("citation_title", ""),
         "description": data.get("citation_abstract", ""),
-        "image": "https://upload.wikimedia."
-                 "org/wikipedia/commons/5/59/Empty.png",
+        "image": "https://upload.wikimedia." "org/wikipedia/commons/5/59/Empty.png",
         "categories": data.get("research_area", ""),
         "format": {
             "html": {
@@ -758,9 +863,7 @@ def scrap_data_from_arxiv(url: str):
                 class_="subheader",
             )
         )
-        data["research_area"] = (
-            subheader[-1].h1.text.split(">")[-1].strip().lower()
-        )
+        data["research_area"] = subheader[-1].h1.text.split(">")[-1].strip().lower()
 
     else:
         data["research_area"] = None
@@ -768,8 +871,7 @@ def scrap_data_from_arxiv(url: str):
     if soup.find("div", {"class": "authors"}):
         authors = soup.find("div", {"class": "authors"})
         data["links"] = [
-            "https://arxiv.org" + author["href"]
-            for author in authors.find_all("a")
+            "https://arxiv.org" + author["href"] for author in authors.find_all("a")
         ]
     else:
         data["links"] = None
@@ -905,9 +1007,7 @@ def get_years(date: str):
 
     candidates = re.findall("[0-9]+", date)
     candidates = [
-        candidate
-        for candidate in candidates
-        if re.fullmatch("\\d\\d\\d\\d", candidate)
+        candidate for candidate in candidates if re.fullmatch("\\d\\d\\d\\d", candidate)
     ]
 
     return candidates
@@ -1040,13 +1140,27 @@ def get_conference_information(
 
     return context
 
-def _generate_researcher_qmd_header(input_data: dict):
 
+def _generate_researcher_qmd_header(input_data: dict):
+    """
+    Generate a Quarto Markdown (QMD) header for a researcher profile.
+
+    This function generates a QMD header with metadata for a researcher profile, including title, description, image,
+    and formatting options.
+
+    Args:
+        input_data (dict): A dictionary containing metadata for the researcher profile.
+
+    Returns:
+        dict: A dictionary representing the QMD header.
+
+    Raises:
+        None.
+    """
     header = {
-        "title": input_data.get("title", ''),
+        "title": input_data.get("title", ""),
         "description": "",
-        "image": 
-            "https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png",
         "format": {
             "html": {
                 "df-print": "paged",
@@ -1058,40 +1172,62 @@ def _generate_researcher_qmd_header(input_data: dict):
 
     return header
 
-def _generate_author_page_content(
-        input_data: dict,
-        file_path:str
-    ):
+
+def _generate_author_page_content(input_data: dict, file_path: str):
+    """
+    Append author's bio content to a markdown file.
+
+    This function appends the author's bio content, retrieved from the input_data dictionary, to the specified markdown file.
+
+    Args:
+        input_data (dict): A dictionary containing metadata for the author's page content.
+        file_path (str): The path to the markdown file where the bio content will be appended.
+
+    Returns:
+        None.
+
+    Raises:
+        None.
+    """
     with open(file_path, "a") as fp:
         fp.write("\n## Bio \n")
         fp.write(f"{input_data.get('user_bio', '')}\n")
 
-def generate_researcher_profile(
-        input_data: dict):
-    
+
+def generate_researcher_profile(input_data: dict):
+    """
+    Generate a researcher profile in Quarto Markdown (QMD) format.
+
+    This function generates a researcher profile by creating a QMD file with metadata specified in the input_data
+    dictionary, including the profile header and bio content. The QMD file is saved in the appropriate directory
+    structure based on the provided project and sub-project folders.
+
+    Args:
+        input_data (dict): A dictionary containing metadata for the researcher profile.
+
+    Returns:
+        None.
+
+    Raises:
+        None.
+    """
     header = _generate_researcher_qmd_header(input_data)
 
-    folder_name = slugify(header.get("title", 'researcher'))
+    folder_name = slugify(header.get("title", "researcher"))
 
     current_path = os.getcwd()
 
     current_path = (
-                        current_path
-                        + f"/{input_data.get('project_folder', '')}/{input_data.get('sub_project_folder', '')}/{folder_name}/"
-                    )
-
-    file_path = (
-        f"{current_path}index.qmd"
+        current_path
+        + f"/{input_data.get('project_folder', '')}/{input_data.get('sub_project_folder', '')}/{folder_name}/"
     )
 
-    if not os.path.exists(
-        current_path
-    ):
+    file_path = f"{current_path}index.qmd"
+
+    if not os.path.exists(current_path):
         os.makedirs(current_path)
 
-    with open(
-        file_path, "w+"
-    ) as fp:
+    with open(file_path, "w+") as fp:
         fp.write("---\n")
         yaml.dump(header, fp)
         fp.write("\n---")

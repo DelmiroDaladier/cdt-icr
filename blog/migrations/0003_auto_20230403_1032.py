@@ -13,9 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="blogpost",
             name="research_area",
-            field=models.ManyToManyField(
-                default="", to="repository.ResearchArea"
-            ),
+            field=models.ManyToManyField(default="", to="repository.ResearchArea"),
         ),
         migrations.AddField(
             model_name="blogpost",

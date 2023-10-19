@@ -24,33 +24,23 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "title",
-                    models.CharField(
-                        max_length=100, null=True
-                    ),
+                    models.CharField(max_length=100, null=True),
                 ),
                 (
                     "text",
-                    models.TextField(
-                        max_length=500
-                    ),
+                    models.TextField(max_length=500),
                 ),
                 (
                     "created_at",
-                    models.DateField(
-                        auto_now_add=True
-                    ),
+                    models.DateField(auto_now_add=True),
                 ),
                 (
                     "modified_at",
-                    models.DateField(
-                        auto_now=True
-                    ),
+                    models.DateField(auto_now=True),
                 ),
                 (
                     "published",
-                    models.BooleanField(
-                        default=False
-                    ),
+                    models.BooleanField(default=False),
                 ),
             ],
         ),

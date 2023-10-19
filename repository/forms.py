@@ -23,91 +23,52 @@ class DateInput(forms.DateInput):
 
 
 class PublicationForm(forms.ModelForm):
-    name = forms.CharField(
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        )
-    )
-    overview = forms.CharField(
-        widget=forms.Textarea(
-            attrs={"class": "form-control"}
-        )
-    )
+    name = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
+    overview = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control"}))
     authors = forms.ModelMultipleChoiceField(
-        help_text="Click in the box to access "
-        "the Authors List, or add a new one.",
-        queryset=Author.objects.filter(
-            Q(member__is_active=True)
-            | Q(member=None)
-        ),
-        widget=forms.SelectMultiple(
-            attrs={
-                "class": "multi-select-form form-control"
-            }
-        ),
+        help_text="Click in the box to access " "the Authors List, or add a new one.",
+        queryset=Author.objects.filter(Q(member__is_active=True) | Q(member=None)),
+        widget=forms.SelectMultiple(attrs={"class": "multi-select-form form-control"}),
     )
     research_area = forms.ModelMultipleChoiceField(
         help_text="Click in the box to access the "
         "Reasearh Area List, or add a new one.",
         queryset=ResearchArea.objects.all(),
-        widget=forms.SelectMultiple(
-            attrs={
-                "class": "multi-select-form form-control"
-            }
-        ),
+        widget=forms.SelectMultiple(attrs={"class": "multi-select-form form-control"}),
     )
     venue = forms.ModelMultipleChoiceField(
-        help_text="Click in the box to access"
-        " the Venue List, or add a new one.",
+        help_text="Click in the box to access" " the Venue List, or add a new one.",
         required=False,
         queryset=Venue.objects.all(),
-        widget=forms.SelectMultiple(
-            attrs={
-                "class": "multi-select-form form-control"
-            }
-        ),
+        widget=forms.SelectMultiple(attrs={"class": "multi-select-form form-control"}),
     )
     citation = forms.URLField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     pdf = forms.URLField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     supplement = forms.URLField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     slides = forms.URLField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     poster = forms.URLField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     code = forms.URLField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
     video = forms.URLField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
@@ -176,44 +137,32 @@ class ArxivForm(forms.Form):
 class NewUserForm(forms.ModelForm):
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.EmailInput(attrs={"class": "form-control"}),
     )
 
     short_bio = forms.CharField(
         required=True,
-        widget=forms.Textarea(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.Textarea(attrs={"class": "form-control"}),
     )
 
     username = forms.CharField(
         required=True,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     first_name = forms.CharField(
         required=True,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     last_name = forms.CharField(
         required=True,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     password = forms.CharField(
         required=True,
-        widget=forms.PasswordInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
@@ -227,13 +176,9 @@ class NewUserForm(forms.ModelForm):
         )
 
     def save(self, commit=True):
-        user = super(NewUserForm, self).save(
-            commit=False
-        )
+        user = super(NewUserForm, self).save(commit=False)
         user.email = self.cleaned_data["email"]
-        user.password = self.cleaned_data[
-            "password"
-        ]
+        user.password = self.cleaned_data["password"]
         if commit:
             user.save()
         return user
@@ -242,23 +187,17 @@ class NewUserForm(forms.ModelForm):
 class UpdateUserForm(forms.ModelForm):
     short_bio = forms.CharField(
         required=False,
-        widget=forms.Textarea(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.Textarea(attrs={"class": "form-control"}),
     )
 
     first_name = forms.CharField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     last_name = forms.CharField(
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
@@ -266,13 +205,9 @@ class UpdateUserForm(forms.ModelForm):
         fields = ("first_name", "last_name")
 
     def save(self, commit=True):
-        user = super(NewUserForm, self).save(
-            commit=False
-        )
+        user = super(NewUserForm, self).save(commit=False)
         user.email = self.cleaned_data["email"]
-        user.password = self.cleaned_data[
-            "password"
-        ]
+        user.password = self.cleaned_data["password"]
         if commit:
             user.save()
         return user
@@ -298,41 +233,29 @@ class ConferenceForm(forms.ModelForm):
     venue_url = forms.CharField(
         help_text="Conference URL.",
         max_length=200,
-        widget=forms.TextInput(
-            attrs={
-                "class": "conference_link form-control"
-            }
-        ),
+        widget=forms.TextInput(attrs={"class": "conference_link form-control"}),
     )
 
     venue_name = forms.CharField(
         max_length=200,
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     start_date = forms.DateField(
         required=True,
         input_formats=date_formats,
-        widget=DateInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=DateInput(attrs={"class": "form-control"}),
     )
     end_date = forms.DateField(
         required=True,
         input_formats=date_formats,
-        widget=DateInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=DateInput(attrs={"class": "form-control"}),
     )
     location = forms.CharField(
         max_length=200,
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
@@ -367,32 +290,24 @@ class SessionForm(forms.ModelForm):
 
     start_date = forms.DateField(
         required=True,
-        widget=DateInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=DateInput(attrs={"class": "form-control"}),
     )
 
     end_date = forms.DateField(
         required=True,
-        widget=DateInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=DateInput(attrs={"class": "form-control"}),
     )
 
     type = forms.ChoiceField(
         required=True,
         choices=SESSION_CHOICES,
-        widget=forms.Select(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     conference = forms.ModelChoiceField(
         queryset=Conference.objects.all(),
         required=True,
-        widget=forms.Select(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     class Meta:

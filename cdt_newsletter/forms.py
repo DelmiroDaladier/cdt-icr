@@ -26,31 +26,23 @@ class Newsletterform(forms.ModelForm):
     title = forms.CharField(
         help_text="Newsletter title.",
         required=False,
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     tldr = forms.CharField(
         required=False,
-        widget=forms.Textarea(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.Textarea(attrs={"class": "form-control"}),
     )
 
     text = forms.CharField(
         help_text="The text that will appear at the top of the newsletter.",
         required=False,
-        widget=forms.Textarea(
-            attrs={"class": "form-control"}
-        ),
+        widget=forms.Textarea(attrs={"class": "form-control"}),
     )
 
     announcements = forms.ModelMultipleChoiceField(
         help_text="Click in the box to access the Announcement List.",
-        queryset=Announcement.objects.filter(
-            published=False
-        ),
+        queryset=Announcement.objects.filter(published=False),
         widget=forms.SelectMultiple(
             attrs={
                 "class": "form-control",
@@ -70,23 +62,13 @@ class DateInput(forms.DateInput):
 
 
 class AnnouncementForm(forms.ModelForm):
-    title = forms.CharField(
-        widget=forms.TextInput(
-            attrs={"class": "form-control"}
-        )
-    )
+    title = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
 
-    text = forms.CharField(
-        widget=forms.Textarea(
-            attrs={"class": "form-control"}
-        )
-    )
+    text = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control"}))
 
     date = forms.DateField(
         required=False,
-        widget=DateInput(
-            attrs={"class": "form-control"}
-        ),
+        widget=DateInput(attrs={"class": "form-control"}),
     )
 
     class Meta:

@@ -54,16 +54,12 @@ from .forms import (
 # Create your tests here.
 def create_session_cookie(username, password):
     # First, create a new test user
-    user = User.objects.create_user(
-        username=username, password=password
-    )
+    user = User.objects.create_user(username=username, password=password)
 
     # Then create the authenticated session using the new user credentials
     session = SessionStore()
     session[SESSION_KEY] = user.pk
-    session[
-        BACKEND_SESSION_KEY
-    ] = settings.AUTHENTICATION_BACKENDS[0]
+    session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
     session[HASH_SESSION_KEY] = user.get_session_auth_hash()
     session.save()
 
@@ -97,12 +93,8 @@ class RepositoryTest(TestCase):
         return Conference.objects.create(
             venue_name=venue_name,
             location=location,
-            start_date=datetime.strptime(
-                start_date, "%d/%m/%Y"
-            ),
-            end_date=datetime.strptime(
-                end_date, "%d/%m/%Y"
-            ),
+            start_date=datetime.strptime(start_date, "%d/%m/%Y"),
+            end_date=datetime.strptime(end_date, "%d/%m/%Y"),
         )
 
     def create_session(
@@ -116,12 +108,8 @@ class RepositoryTest(TestCase):
         return Session.objects.create(
             conference=conference,
             type=type,
-            start_date=datetime.strptime(
-                start_date, "%d/%m/%Y"
-            ),
-            end_date=datetime.strptime(
-                end_date, "%d/%m/%Y"
-            ),
+            start_date=datetime.strptime(start_date, "%d/%m/%Y"),
+            end_date=datetime.strptime(end_date, "%d/%m/%Y"),
         )
 
     def create_publication(
@@ -131,9 +119,7 @@ class RepositoryTest(TestCase):
     ):
         authors = self.create_author()
         research_area = self.create_research_area()
-        publication = Publication.objects.create(
-            name=name, overview=overview
-        )
+        publication = Publication.objects.create(name=name, overview=overview)
 
         publication.authors.add(authors)
         publication.research_area.add(research_area)
@@ -142,9 +128,7 @@ class RepositoryTest(TestCase):
 
     def test_research_area_creation(self):
         research_area = self.create_research_area()
-        self.assertTrue(
-            isinstance(research_area, ResearchArea)
-        )
+        self.assertTrue(isinstance(research_area, ResearchArea))
 
     def test_author_creation(self):
         author = self.create_author()
@@ -164,9 +148,7 @@ class RepositoryTest(TestCase):
 
     def test_publication_creation(self):
         publication = self.create_publication()
-        self.assertTrue(
-            isinstance(publication, Publication)
-        )
+        self.assertTrue(isinstance(publication, Publication))
 
     def test_author_form_is_valid(self):
         data = {"user_name": "User"}
@@ -257,9 +239,7 @@ class RepositoryTest(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response["location"], "/accounts/login/?next=/"
-        )
+        self.assertEqual(response["location"], "/accounts/login/?next=/")
 
     def test_homepage_view(self):
         url = reverse(homepage)
@@ -325,29 +305,18 @@ class TestSingup(StaticLiveServerTestCase):
         cls.username = username
         cls.password = password
         cls.client = Client()
-        cls.user = User.objects.create_user(
-            username=username, password=password
-        )
-        cls.client.login(
-            username=username, password=password
-        )
+        cls.user = User.objects.create_user(username=username, password=password)
+        cls.client.login(username=username, password=password)
 
         chrome_options = webdriver.ChromeOptions()
 
-        options = [
-            "--window-size=1200,1200",
-            "--ignore-certificate-errors"
-        ]
+        options = ["--window-size=1200,1200", "--ignore-certificate-errors"]
 
         for option in options:
             chrome_options.add_argument(option)
 
-        service = Service(
-            f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver"
-        )
-        cls.driver = webdriver.Chrome(
-            options=chrome_options
-        )
+        service = Service(f"{settings.BASE_DIR}/chromedriver_linux64/chromedriver")
+        cls.driver = webdriver.Chrome(options=chrome_options)
         cls.driver.implicitly_wait(10)
 
     @classmethod
@@ -359,15 +328,9 @@ class TestSingup(StaticLiveServerTestCase):
         username = "temporary_user"
         password = "temporary_password"
 
-        self.driver.find_element(
-            By.ID, "id_username"
-        ).send_keys(username)
-        self.driver.find_element(
-            By.ID, "id_password"
-        ).send_keys(password)
-        self.driver.find_element(
-            By.CSS_SELECTOR, 'input[type="submit"]'
-        ).click()
+        self.driver.find_element(By.ID, "id_username").send_keys(username)
+        self.driver.find_element(By.ID, "id_password").send_keys(password)
+        self.driver.find_element(By.CSS_SELECTOR, 'input[type="submit"]').click()
 
     def test_signup_fire(self):
         self.driver.get("http://localhost:8000/")

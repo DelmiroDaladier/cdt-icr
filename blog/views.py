@@ -22,6 +22,22 @@ from .utils import (
 
 @login_required
 def blog_homepage(request):
+    """
+    Display the blog homepage and handle blog post submissions.
+
+    This function serves as the blog homepage view. It loads user information from the request and processes
+    submitted blog posts. If a valid blog post is submitted, it creates a new blog post, generates a Quarto Markdown
+    (QMD) file for the post, and pushes it to a GitHub repository.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: A response object rendered with the blog post submission form or the new blog post creation form.
+
+    Raises:
+        None.
+    """
     load_dotenv()
 
     post_author = Author.objects.filter(member=request.user)
@@ -34,11 +50,12 @@ def blog_homepage(request):
         if filled_form.is_valid():
             form_data = filled_form.cleaned_data
 
-            form_data['authors'] = post_author
-            
-            obj, created = ResearchArea.objects.get_or_create(title="blog post", slug='blog-post')
-            form_data['categories'] = [obj]
-            
+            form_data["authors"] = post_author
+
+            obj, created = ResearchArea.objects.get_or_create(
+                title="blog post", slug="blog-post"
+            )
+            form_data["categories"] = [obj]
 
             content = {}
             content = generate_qmd_header(content, form_data)
@@ -46,15 +63,14 @@ def blog_homepage(request):
             folder_name = slugify(content.get("title", ""))
 
             current_path = os.getcwd()
-            
+
             current_path = current_path + f"/icr_frontend/posts/{folder_name}/"
 
             file_path = f"{current_path}index.qmd"
-            
-            BlogPost.objects.create(**{
-                'name': form_data['name'],
-                'text': form_data['text']
-            })
+
+            BlogPost.objects.create(
+                **{"name": form_data["name"], "text": form_data["text"]}
+            )
 
             if not os.path.exists(current_path):
                 os.makedirs(current_path)
@@ -66,29 +82,28 @@ def blog_homepage(request):
 
             generate_page_content(content, file_path)
 
-            relative_paths_list = [
-                f"posts/{folder_name}/index.qmd"
-            ]
+            relative_paths_list = [f"posts/{folder_name}/index.qmd"]
 
-            project_name = 'icr_frontend'
-            repo = 'icr'
+            project_name = "icr_frontend"
+            repo = "icr"
 
-            if env_name == 'prod':
-                update_repo_and_push(folder_name, relative_paths_list, project_name, repo)
+            if env_name == "prod":
+                update_repo_and_push(
+                    folder_name, relative_paths_list, project_name, repo
+                )
             else:
-                print('Run quarto preview command to check the local changes.')
+                print("Run quarto preview command to check the local changes.")
 
             context = {"form": filled_form, "folder_name": folder_name}
         else:
-            print(filled_form.errors)    
+            print(filled_form.errors)
 
         return render(request, "blog/submission.html", context=context)
 
     else:
         filled_form = BlogPostForm()
-        return render(
-            request, "blog/new_blogpost.html", context={"form": filled_form}
-        )
+        return render(request, "blog/new_blogpost.html", context={"form": filled_form})
+
 
 @login_required
 def add_category(request):
@@ -130,14 +145,11 @@ def add_category(request):
                 category_instance,
             ],
         )
-        return JsonResponse(
-            {"instance": instance}, status=200
-        )
+        return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(
             request,
-            "The category is invalid,"
-            " please review your submission.",
+            "The category is invalid," " please review your submission.",
         )
         return render(
             request,

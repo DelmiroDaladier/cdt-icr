@@ -15,8 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="announcement",
             name="title",
-            field=models.CharField(
-                max_length=250, null=True
-            ),
+            field=models.CharField(max_length=250, null=True),
         ),
     ]

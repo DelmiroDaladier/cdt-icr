@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 
 from repository.utils import update_repo_and_push
 
+
 def create_qmd_file(filepath: str):
     """
     Create a new QuickMark data file at the specified filepath.
@@ -50,9 +51,7 @@ def create_qmd_file(filepath: str):
         fp.write("\n---")
 
 
-def generate_page_content(
-    filepath: str, content: dict
-):
+def generate_page_content(filepath: str, content: dict):
     """
     Generate page content for a newsletter and write
     it to a file at the specified path.
@@ -78,9 +77,7 @@ def generate_page_content(
 
         for post in content["posts"]:
             text += f"\n### [{post.get('title', '')}](https://delmirodaladier.github.io/icr/content/{post.get('slug', '')})\n"  # noqa
-            text += (
-                f"\n{post.get('overview', '')}\n"
-            )
+            text += f"\n{post.get('overview', '')}\n"
 
         text += "\n# Conferences \n"
 
@@ -102,29 +99,36 @@ def generate_page_content(
     object.save()
 
 
-def generate_newsletter_body(
-    form_data: dict, forthcoming_events
-):
+def generate_newsletter_body(form_data: dict, forthcoming_events):
+    """
+    Generate the content for a newsletter.
+
+    This function takes a dictionary of form data and a list of forthcoming events and generates the content
+    for a newsletter. It includes a title, announcements, a newsletter text, and a calendar of forthcoming events.
+
+    Args:
+        form_data (dict): A dictionary containing form data, including the newsletter title, announcements, and text.
+        forthcoming_events (QuerySet): A queryset containing forthcoming events.
+
+    Returns:
+        str: The generated content for the newsletter in HTML format.
+
+    Raises:
+        None.
+    """
     newsletter_body = ""
-    newsletter_items = [
-        item
-        for item in form_data["announcements"]
-    ]
+    newsletter_items = [item for item in form_data["announcements"]]
     events = [item for item in forthcoming_events]
 
     if not form_data.get("title", ""):
-        newsletter_body += (
-            "<h2>CDT Weekly Newsletter</h2>"
-        )
+        newsletter_body += "<h2>CDT Weekly Newsletter</h2>"
     else:
         newsletter_body = f"<h2>{form_data.get('title')}</h2><br>"
 
     newsletter_body += "<ul>"
 
     for item in newsletter_items:
-        newsletter_body += (
-            f"<li>{item.title}</li>"
-        )
+        newsletter_body += f"<li>{item.title}</li>"
 
     newsletter_body += "</ul>"
 
@@ -134,12 +138,8 @@ def generate_newsletter_body(
         newsletter_body += f"<p>{form_data.get('text', '')}</p><br><br>"
 
     for announcement in newsletter_items:
-        newsletter_body += (
-            f"<b>{announcement.title}</b><br>"
-        )
-        newsletter_body += (
-            f"{announcement.text}<br><br>"
-        )
+        newsletter_body += f"<b>{announcement.title}</b><br>"
+        newsletter_body += f"{announcement.text}<br><br>"
 
     newsletter_body += "<h2>Forthcoming Calendar of Events</h2><br><br>"
 
@@ -150,51 +150,84 @@ def generate_newsletter_body(
 
 
 def parse_html_to_text(newsletter_body: str):
-    newsletter_body = newsletter_body.replace(
-        "<br>", "\n"
-    )
+    """
+    Parse HTML content to plain text.
 
-    soup = BeautifulSoup(
-        newsletter_body, "html.parser"
-    )
+    This function takes HTML content as input, removes HTML tags, and converts it to plain text.
+
+    Args:
+        newsletter_body (str): HTML content to be parsed.
+
+    Returns:
+        str: The plain text extracted from the HTML content.
+
+    Raises:
+        None.
+    """
+    newsletter_body = newsletter_body.replace("<br>", "\n")
+
+    soup = BeautifulSoup(newsletter_body, "html.parser")
 
     return soup.text
 
-def create_newsletter_file_and_push(folder_name:str, relative_path_list:str, project_name:str, repo:str, newsletter_body: str, today_str):
 
+def create_newsletter_file_and_push(
+    folder_name: str,
+    relative_path_list: str,
+    project_name: str,
+    repo: str,
+    newsletter_body: str,
+    today_str,
+):
+    """
+    Create a newsletter file, save it, and push changes to a repository.
+
+    This function creates a newsletter file with the provided content, saves it to the specified folder, and
+    pushes changes to a version control repository.
+
+    Args:
+        folder_name (str): The name of the folder where the newsletter file should be saved.
+        relative_path_list (list): A list of relative file paths for the newsletter files.
+        project_name (str): The name of the project where the newsletter file should be saved.
+        repo (str): The name of the repository to push changes to.
+        newsletter_body (str): The content of the newsletter in HTML format.
+        today_str (str): The formatted date string for the newsletter issue.
+
+    Returns:
+        None.
+
+    Raises:
+        None.
+    """
+    load_dotenv()
     file_list = [os.getcwd() + f"/{project_name}/{path}" for path in relative_path_list]
 
     content = {
         "title": f"Newsletter Issue - {today_str}",
-        "execute": {
-            "echo": False
-        },
-        "format": {
-            "html": {
-                "df-print": "paged",
-                "toc": True
-            }
-        }
+        "execute": {"echo": False},
+        "format": {"html": {"df-print": "paged", "toc": True}},
     }
 
     for file in file_list:
-        folder_path = os.getcwd() + f"/{project_name}/newsletter_issues/{folder_name.replace(' ', '_')}"
-        
-        if not os.path.exists(
-                        folder_path
-                    ):
+        folder_path = (
+            os.getcwd()
+            + f"/{project_name}/newsletter_issues/{folder_name.replace(' ', '_')}"
+        )
+
+        if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        with open(file, 'w+') as fp:
+        with open(file, "w+") as fp:
             fp.write("---\n")
             yaml.dump(content, fp)
             fp.write("\n---\n")
             fp.write(newsletter_body)
 
-    load_dotenv()
     env_name = os.getenv("ENV_NAME")
 
-    if env_name == "dev":
+    if env_name == "prod":
         update_repo_and_push(folder_name, relative_path_list, project_name, repo)
     else:
-        print('Please run the command quarto preview in the newsletter_frontend folder.')
+        print(
+            "Please run the command quarto preview in the newsletter_frontend folder."
+        )

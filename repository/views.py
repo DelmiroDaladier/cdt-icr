@@ -62,11 +62,12 @@ from .utils import (
     get_conference_information,
     save_new_conference_data,
     generate_researcher_profile,
-    update_repo_and_push
+    update_repo_and_push,
 )
 from .tokens import account_activation_token
 
 from django.db import IntegrityError
+
 
 @login_required
 def homepage(request):
@@ -81,12 +82,10 @@ def homepage(request):
     # noqa
     """
     load_dotenv()
-    env_name = os.getenv('ENV_NAME')
+    env_name = os.getenv("ENV_NAME")
 
     if request.method == "POST":
-        filled_form = PublicationForm(
-            request.POST
-        )
+        filled_form = PublicationForm(request.POST)
         context = {}
 
         try:
@@ -94,9 +93,7 @@ def homepage(request):
                 try:
                     filled_form.save()
 
-                except (
-                    ValidationError
-                ) as validation_error:
+                except ValidationError as validation_error:
                     print(validation_error)
                     messages.error(
                         request,
@@ -104,12 +101,8 @@ def homepage(request):
                     )
                     return redirect("")
 
-                except (
-                    IntegrityError
-                ) as integrity:
-                    print(
-                        f"Exeception: {integrity}"
-                    )
+                except IntegrityError as integrity:
+                    print(f"Exeception: {integrity}")
                     messages.error(
                         request,
                         "Integrity error. Check the information submitted,"
@@ -125,39 +118,26 @@ def homepage(request):
                     )
                     return redirect("")
 
-                form_data = (
-                    filled_form.cleaned_data
-                )
+                form_data = filled_form.cleaned_data
 
                 content = {}
 
                 try:
-                    content = generate_qmd_header(
-                        content, form_data
-                    )
-                    folder_name = slugify(
-                        content.get("title", "")
-                    )
+                    content = generate_qmd_header(content, form_data)
+                    folder_name = slugify(content.get("title", ""))
 
                     current_path = os.getcwd()
 
                     current_path = (
-                        current_path
-                        + f"/icr_frontend/content/{folder_name}/"
+                        current_path + f"/icr_frontend/content/{folder_name}/"
                     )
 
-                    file_path = (
-                        f"{current_path}index.qmd"
-                    )
+                    file_path = f"{current_path}index.qmd"
 
-                    if not os.path.exists(
-                        current_path
-                    ):
+                    if not os.path.exists(current_path):
                         os.makedirs(current_path)
 
-                    with open(
-                        file_path, "w+"
-                    ) as fp:
+                    with open(file_path, "w+") as fp:
                         fp.write("---\n")
                         yaml.dump(content, fp)
                         fp.write("\n---")
@@ -190,15 +170,17 @@ def homepage(request):
 
                     relative_path_list = [
                         f"content/{folder_name}/index.qmd",
-                        "input.csv"
+                        "input.csv",
                     ]
 
                     project_name = "icr_frontend"
 
                     if env_name == "prod":
-                        update_repo_and_push(folder_name, relative_path_list, project_name, repo)
+                        update_repo_and_push(
+                            folder_name, relative_path_list, project_name, repo
+                        )
                     else:
-                        print('Run quarto preview command to check the local changes·')
+                        print("Run quarto preview command to check the local changes·")
 
                 except Exception as ex:
                     print(ex)
@@ -230,9 +212,7 @@ def homepage(request):
 
         except Exception as ex:
             print(ex)
-            filled_form.add_error(
-                None, "Form validation error."
-            )
+            filled_form.add_error(None, "Form validation error.")
             messages.error(
                 request,
                 "The form is invalid, please review your submission.",
@@ -259,9 +239,7 @@ def about(request):
         HttpResponse: An HTTP response object that renders the 'about_page.html' template.
     # noqa
     """
-    return render(
-        request, "repository/about_page.html"
-    )
+    return render(request, "repository/about_page.html")
 
 
 @login_required
@@ -305,9 +283,7 @@ def author_create(request):
                     author_instance,
                 ],
             )
-            return JsonResponse(
-                {"instance": instance}, status=200
-            )
+            return JsonResponse({"instance": instance}, status=200)
         except IntegrityError as integrity:
             messages.error(
                 request,
@@ -323,8 +299,7 @@ def author_create(request):
     else:
         messages.error(
             request,
-            "The form data is invalid,"
-            "please review your submission.",
+            "The form data is invalid," "please review your submission.",
         )
         return render(
             request,
@@ -372,9 +347,7 @@ def add_venue(request):
                     venue_instance,
                 ],
             )
-            return JsonResponse(
-                {"instance": instance}, status=200
-            )
+            return JsonResponse({"instance": instance}, status=200)
         except Exception as ex:
             messages.error(
                 request,
@@ -439,14 +412,11 @@ def add_category(request):
                 category_instance,
             ],
         )
-        return JsonResponse(
-            {"instance": instance}, status=200
-        )
+        return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(
             request,
-            "The category is invalid,"
-            " please review your submission.",
+            "The category is invalid," " please review your submission.",
         )
         return render(
             request,
@@ -479,12 +449,8 @@ def update_post(request, slug):
     """
     context = {}
 
-    post = get_object_or_404(
-        Publication, slug=slug
-    )
-    form = PublicationForm(
-        request.POST or None, instance=post
-    )
+    post = get_object_or_404(Publication, slug=slug)
+    form = PublicationForm(request.POST or None, instance=post)
 
     if request.method == "GET":
         context = {"form": form}
@@ -495,12 +461,8 @@ def update_post(request, slug):
         )
 
     if form.is_valid():
-        post_instance = Publication.objects.get(
-            slug=slug
-        )
-        form = PublicationForm(
-            request.POST, instance=post
-        )
+        post_instance = Publication.objects.get(slug=slug)
+        form = PublicationForm(request.POST, instance=post)
         form.save()
         instance = serializers.serialize(
             "json",
@@ -508,18 +470,13 @@ def update_post(request, slug):
                 post_instance,
             ],
         )
-        return JsonResponse(
-            {"instance": instance}, status=200
-        )
+        return JsonResponse({"instance": instance}, status=200)
     else:
         messages.error(
             request,
-            "The form is invalid,"
-            "please review your submission.",
+            "The form is invalid," "please review your submission.",
         )
-        return JsonResponse(
-            {"instance": instance}, status=200
-        )
+        return JsonResponse({"instance": instance}, status=200)
 
 
 @login_required
@@ -544,7 +501,7 @@ def arxiv_post(request):
     """
     load_dotenv()
 
-    env_name = os.getenv('ENV_NAME')
+    env_name = os.getenv("ENV_NAME")
 
     if request.method == "POST":
         context = {}
@@ -558,13 +515,7 @@ def arxiv_post(request):
             try:
                 data = scrap_data_from_arxiv(url)
 
-                entry_existis = (
-                    Publication.objects.filter(
-                        name=data[
-                            "citation_title"
-                        ]
-                    )
-                )
+                entry_existis = Publication.objects.filter(name=data["citation_title"])
 
                 if not entry_existis:
                     authors = []
@@ -574,13 +525,9 @@ def arxiv_post(request):
                         data["links"],
                     ):
                         author = (
-                            author.split(",")[
-                                1
-                            ].strip()
+                            author.split(",")[1].strip()
                             + " "
-                            + author.split(",")[
-                                0
-                            ].strip()
+                            + author.split(",")[0].strip()
                         )
                         author_obj = Author(
                             **{
@@ -590,52 +537,32 @@ def arxiv_post(request):
                         )
                         try:
                             author_obj.save()
-                            authors.append(
-                                author_obj
-                            )
-                        except (
-                            IntegrityError
-                        ) as integrity:
+                            authors.append(author_obj)
+                        except IntegrityError as integrity:
                             print(integrity)
 
                     if data["research_area"]:
                         research_area_obj = ResearchArea(
                             **{
-                                "title": data[
-                                    "research_area"
-                                ],
+                                "title": data["research_area"],
                             }
                         )
                         try:
                             research_area_obj.save()
-                        except (
-                            IntegrityError
-                        ) as integrity:
+                        except IntegrityError as integrity:
                             print(integrity)
 
                         research_Area_id = ResearchArea.objects.filter(
-                            title=data[
-                                "research_area"
-                            ]
-                        )[
-                            0
-                        ].id
+                            title=data["research_area"]
+                        )[0].id
 
                     data_dict = {
-                        "name": data[
-                            "citation_title"
-                        ],
-                        "overview": data[
-                            "citation_abstract"
-                        ],
-                        "pdf": data[
-                            "citation_pdf"
-                        ],
+                        "name": data["citation_title"],
+                        "overview": data["citation_abstract"],
+                        "pdf": data["citation_pdf"],
                     }
 
-                    post_obj = Publication(
-                        **data_dict
-                    )
+                    post_obj = Publication(**data_dict)
 
                     try:
                         post_obj.save()
@@ -647,50 +574,31 @@ def arxiv_post(request):
                             " review the existing records and ensure"
                             " that you are not duplicating data.",
                         )
-                        return redirect(
-                            "arxiv_post"
-                        )
+                        return redirect("arxiv_post")
 
                     for author in authors:
-                        post_obj.authors.add(
-                            author.user_id
-                        )
+                        post_obj.authors.add(author.user_id)
 
-                    post_obj.research_area.add(
-                        research_Area_id
-                    )
+                    post_obj.research_area.add(research_Area_id)
 
                     post_obj.save()
 
                     try:
-                        content = generate_qmd_header_for_arxiv(
-                            data
-                        )
+                        content = generate_qmd_header_for_arxiv(data)
 
-                        folder_name = slugify(
-                            content.get(
-                                "title", ""
-                            )
-                        )
+                        folder_name = slugify(content.get("title", ""))
 
                         current_path = os.getcwd()
 
                         current_path = (
-                            current_path
-                            + f"/icr_frontend/content/{folder_name}/"
+                            current_path + f"/icr_frontend/content/{folder_name}/"
                         )
                         file_path = f"{current_path}index.qmd"
 
-                        if not os.path.exists(
-                            current_path
-                        ):
-                            os.makedirs(
-                                current_path
-                            )
+                        if not os.path.exists(current_path):
+                            os.makedirs(current_path)
 
-                        with open(
-                            file_path, "w+"
-                        ) as fp:
+                        with open(file_path, "w+") as fp:
                             fp.write("---\n")
                             yaml.dump(content, fp)
                             fp.write("\n---")
@@ -722,27 +630,28 @@ def arxiv_post(request):
 
                         relative_path_list = [
                             f"content/{folder_name}/index.qmd",
-                            "input.csv"
+                            "input.csv",
                         ]
 
-                        project_name = 'icr_frontend'
-
-
+                        project_name = "icr_frontend"
+                        print(f"env name: {env_name}")
                         if env_name == "prod":
-                            update_repo_and_push(folder_name, relative_path_list, project_name, repo)
+                            update_repo_and_push(
+                                folder_name, relative_path_list, project_name, repo
+                            )
                         else:
-                            print('Run quarto preview command to check the local changes·')
+                            print(
+                                "Run quarto preview command to check the local changes·"
+                            )
 
                     except Exception as ex:
                         messages.error(
                             request,
-                            "We are experiencing some problems when fetching "
+                            "We are experiencing some problems "
                             "when communication with github."
                             " Please Try again later.",
                         )
-                        return redirect(
-                            "arxiv_post"
-                        )
+                        return redirect("arxiv_post")
 
                     context = {
                         "folder_name": folder_name,
@@ -770,14 +679,13 @@ def arxiv_post(request):
                 print(ex)
                 messages.error(
                     request,
-                    "We are experiencing some problems when fetching"
-                    "information from Arxiv. Please Try again later.",
+                    "We are experiencing some problems when fetching "
+                    "information from the link. Please Try again later ",
+                    "or check the link provided.",
                 )
                 return redirect("arxiv_post")
 
-        messages.error(
-            request, filled_form.errors.as_data()
-        )
+        messages.error(request, filled_form.errors.as_data())
 
     form = ArxivForm()
     context = {"form": form}
@@ -800,47 +708,50 @@ def email_check(user):
     # noqa
     """
     if user.is_authenticated:
-        return user.email.endswith(
-            "@bristol.ac.uk"
-        )
+        return user.email.endswith("@bristol.ac.uk")
     return False
 
 
 def signup(request):
+    """
+    View function for user registration.
+
+    Handles user registration by processing the submitted form data. If the HTTP request method is POST,
+    it validates the form data, creates a new user account, and sends an activation email. If the registration
+    is successful, it redirects to a confirmation page. If any errors occur during the registration process,
+    appropriate error messages are displayed, and the user is redirected back to the signup page.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing user data.
+
+    Returns:
+        HttpResponse: A response object rendered with the registration form or a confirmation page.
+
+    Raises:
+        IntegrityError: If an integrity error occurs during database operations.
+        Exception: If any unexpected exception occurs during registration.
+    """
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
             try:
-
                 load_dotenv()
 
-                env_name = os.getenv('ENV_NAME')
+                env_name = os.getenv("ENV_NAME")
 
                 form_data = form.cleaned_data
                 user = form.save(commit=False)
                 user.is_active = False
-                user.set_password(
-                    form.cleaned_data.get(
-                        "password"
-                    )
-                )
+                user.set_password(form.cleaned_data.get("password"))
 
                 author_data = {
-                    "user_name": form_data[
-                        "first_name"
-                    ]
-                    + " "
-                    + form_data["last_name"],
+                    "user_name": form_data["first_name"] + " " + form_data["last_name"],
                     "member": user,
                     "bio": form_data["short_bio"],
                 }
                 author_obj = Author(**author_data)
 
-                if Author.objects.filter(
-                    user_name=author_data[
-                        "user_name"
-                    ]
-                ):
+                if Author.objects.filter(user_name=author_data["user_name"]):
                     print("Integrity error")
                     raise IntegrityError
 
@@ -848,39 +759,29 @@ def signup(request):
                 author_obj.save()
 
                 input_data = {
-                    'title': author_data.get('user_name', ''),
-                    'user_bio': author_data.get('bio', ''),
-                    'project_folder': 'icr_frontend',
-                    'sub_project_folder': 'researchers',
+                    "title": author_data.get("user_name", ""),
+                    "user_bio": author_data.get("bio", ""),
+                    "project_folder": "icr_frontend",
+                    "sub_project_folder": "researchers",
                 }
 
                 generate_researcher_profile(input_data)
 
-                if env_name == 'prod':
-                    print('create push request...')
+                if env_name == "prod":
+                    print("create push request...")
 
-                current_site = get_current_site(
-                    request
-                )
-                mail_subject = (
-                    "Activate your account."
-                )
+                current_site = get_current_site(request)
+                mail_subject = "Activate your account."
                 message = render_to_string(
                     "registration/acc_active_email.html",
                     {
                         "user": user,
                         "domain": current_site.domain,
-                        "uid": urlsafe_base64_encode(
-                            force_bytes(user.pk)
-                        ),
-                        "token": account_activation_token.make_token(
-                            user
-                        ),
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "token": account_activation_token.make_token(user),
                     },
                 )
-                to_email = form.cleaned_data.get(
-                    "email"
-                )
+                to_email = form.cleaned_data.get("email")
                 email = EmailMessage(
                     mail_subject,
                     message,
@@ -895,9 +796,7 @@ def signup(request):
                 print(value)
                 messages.error(request, value)
                 return redirect("signup")
-            except (
-                IntegrityError
-            ) as integrity_error:
+            except IntegrityError as integrity_error:
                 print(integrity_error)
                 messages.error(
                     request,
@@ -924,10 +823,27 @@ def signup(request):
 
 
 def activate(request, uidb64, token):
+    """
+    View function for activating a user account.
+
+    This function handles the activation of a user account by verifying the provided UID and token.
+    If the UID and token are valid, it activates the user's account and logs them in. If the activation
+    is successful, it redirects to a success page. If the activation link is invalid, it displays an
+    error message.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        uidb64 (str): The UID encoded in base64.
+        token (str): The activation token for the user account.
+
+    Returns:
+        HttpResponse: A response object that either indicates a successful activation or an error message.
+
+    Raises:
+        None.
+    """
     try:
-        uid = force_text(
-            urlsafe_base64_decode(uidb64)
-        )
+        uid = force_text(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
 
     except (
@@ -937,12 +853,7 @@ def activate(request, uidb64, token):
         User.DoesNotExist,
     ):
         user = None
-    if (
-        user is not None
-        and account_activation_token.check_token(
-            user, token
-        )
-    ):
+    if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
         login(request, user)
@@ -952,9 +863,7 @@ def activate(request, uidb64, token):
             "registration/activation_successfull.html",
         )
     else:
-        return HttpResponse(
-            "Activation link is invalid!"
-        )
+        return HttpResponse("Activation link is invalid!")
 
 
 @login_required
@@ -973,18 +882,11 @@ def submit_conference(request):
     # noqa
     """
     if request.method == "POST":
-        if (
-            request.headers.get(
-                "x-requested-with"
-            )
-            == "XMLHttpRequest"
-        ):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
             url = request.body.decode("UTF-8")
             if url != "":
                 try:
-                    response = get_conference_information(
-                        url
-                    )
+                    response = get_conference_information(url)
                 except Exception as ex:
                     messages.error(
                         request,
@@ -993,9 +895,7 @@ def submit_conference(request):
                         "Please Try again later.",
                     )
 
-                    return redirect(
-                        "submit_conference"
-                    )
+                    return redirect("submit_conference")
 
                 return JsonResponse(
                     response,
@@ -1025,18 +925,12 @@ def submit_conference(request):
                     "Integrity error. Check the information submitted,"
                     " it could be redundant or missing some fields.",
                 )
-                return redirect(
-                    "submit_conference"
-                )
+                return redirect("submit_conference")
 
             except ValueError as value_error:
                 print(value_error)
-                messages.error(
-                    request, value_error
-                )
-                return redirect(
-                    "submit_conference"
-                )
+                messages.error(request, value_error)
+                return redirect("submit_conference")
 
             except Exception as ex:
                 print(ex)
@@ -1044,36 +938,39 @@ def submit_conference(request):
                     request,
                     "Please check the submitted information.",
                 )
-                return redirect(
-                    "submit_conference"
-                )
+                return redirect("submit_conference")
 
-            conferences = (
-                Conference.objects.order_by(
-                    "start_date"
-                )
-            )
+            conferences = Conference.objects.order_by("start_date")
 
             current_path = os.getcwd()
 
-            filepath = (
-                current_path
-                + f"/conference_calendar/input.csv"
-            )
+            load_dotenv()
+            filepath = current_path + f"/conference_calendar/input.csv"
 
-            save_new_conference_data(
-                conferences, filepath
-            )
+            relative_path_list = ["input.csv"]
+
+            project_name = "conference_calendar"
+            repo = "conference_calendar"
+            folder_name = ""
+            env_name = os.getenv("ENV_NAME")
+
+            save_new_conference_data(conferences, filepath)
 
             try:
-                repo = "conference_calendar"
-                path = "input.csv"
-                create_push_request(
-                    file_path=filepath,
-                    folder_name="",
-                    repo=repo,
-                    path=path,
-                )
+                if env_name == "prod":
+                    update_repo_and_push(
+                        folder_name, relative_path_list, project_name, repo
+                    )
+                else:
+                    print("Run quarto preview command to check the local changes·")
+                # repo = "conference_calendar"
+                # path = "input.csv"
+                # create_push_request(
+                #    file_path=filepath,
+                #    folder_name="",
+                #    repo=repo,
+                #    path=path,
+                # )
             except Exception as ex:
                 print(ex)
                 messages.error(
@@ -1081,9 +978,7 @@ def submit_conference(request):
                     "We are experiencing some problems when fetching when "
                     "communication with github. Please Try again later.",
                 )
-                return redirect(
-                    "submit_conference"
-                )
+                return redirect("submit_conference")
 
             context = {
                 "form": form,
@@ -1155,9 +1050,7 @@ def submit_session(request):
 
             except ValueError as value_error:
                 print(value_error)
-                messages.error(
-                    request, value_error
-                )
+                messages.error(request, value_error)
                 return redirect("submit_session")
 
             except Exception as ex:
@@ -1217,6 +1110,24 @@ def help_page(request):
 
 @login_required
 def user_profile(request, username):
+    """
+    View function for displaying a user's profile.
+
+    This function is decorated with @login_required to ensure that only authenticated users can access it.
+    It retrieves the user and author objects associated with the given username and renders a profile page
+    with the user's information.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        username (str): The username of the user whose profile is being viewed.
+
+    Returns:
+        HttpResponse: A response object that displays the user's profile page.
+
+    Raises:
+        User.DoesNotExist: If the specified user does not exist in the database.
+        Author.DoesNotExist: If the author associated with the user does not exist in the database.
+    """
     user = User.objects.get(username=username)
     author = Author.objects.get(member=user)
 
@@ -1231,35 +1142,43 @@ def user_profile(request, username):
 
 @login_required
 def edit_profile(request, pk):
+    """
+    View function for editing a user's profile.
+
+    This function is decorated with @login_required to ensure that only authenticated users can access it.
+    It allows a user to edit their profile information, including first name, last name, and short bio.
+    When the form is submitted, it updates the user and author objects in the database accordingly.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        pk (int): The primary key of the user whose profile is being edited.
+
+    Returns:
+        HttpResponse: A response object that renders the profile editing page or redirects to the user's profile page upon successful update.
+
+    Raises:
+        User.DoesNotExist: If the specified user does not exist in the database.
+        Author.DoesNotExist: If the author associated with the user does not exist in the database.
+    """
     user = User.objects.get(id=int(pk))
     form = UpdateUserForm(instance=user)
 
     author = Author.objects.get(member=user)
 
     if request.method == "POST":
-        form = UpdateUserForm(
-            request.POST, instance=user
-        )
+        form = UpdateUserForm(request.POST, instance=user)
         if form.is_valid():
             if form.cleaned_data["first_name"]:
                 User.objects.filter(pk=pk).update(
-                    first_name=form.cleaned_data[
-                        "first_name"
-                    ]
+                    first_name=form.cleaned_data["first_name"]
                 )
             if form.cleaned_data["last_name"]:
                 User.objects.filter(pk=pk).update(
-                    last_name=form.cleaned_data[
-                        "last_name"
-                    ]
+                    last_name=form.cleaned_data["last_name"]
                 )
             if form.cleaned_data["short_bio"]:
-                Author.objects.filter(
-                    pk=author.pk
-                ).update(
-                    bio=form.cleaned_data.get(
-                        "short_bio"
-                    )
+                Author.objects.filter(pk=author.pk).update(
+                    bio=form.cleaned_data.get("short_bio")
                 )
             return redirect(f"/profile/{pk}/")
         print("form not valid")
