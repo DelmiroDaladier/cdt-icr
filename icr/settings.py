@@ -166,7 +166,7 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/about"
 
 CSRF_TRUSTED_ORIGINS = ["https://cdt-icr.onrender.com"]
 
