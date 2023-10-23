@@ -1233,3 +1233,17 @@ def generate_researcher_profile(input_data: dict):
         fp.write("\n---")
 
     _generate_author_page_content(input_data, file_path)
+
+    load_dotenv()
+
+    env_name = os.getenv("ENV_NAME")
+
+    if env_name == "prod":
+
+        project_name = input_data.get('project_folder', '')
+        relative_path_list = [
+            f"researchers/{folder_name}/index.qmd"
+        ]
+        repo = 'icr'
+
+        update_repo_and_push(folder_name, relative_path_list, project_name, repo)
