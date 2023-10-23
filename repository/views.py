@@ -771,6 +771,7 @@ def signup(request):
                     print("create push request...")
 
                 current_site = get_current_site(request)
+                print(current_site)
                 mail_subject = "Activate your account."
                 message = render_to_string(
                     "registration/acc_active_email.html",
@@ -853,6 +854,12 @@ def activate(request, uidb64, token):
         User.DoesNotExist,
     ):
         user = None
+
+    print(f"user: {user}")
+    print(f"Uid: {uid}")
+    print(f"Token: {token}")
+    print(f"token: {account_activation_token.check_token(user, token)}")
+
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
