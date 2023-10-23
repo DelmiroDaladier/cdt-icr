@@ -855,10 +855,11 @@ def activate(request, uidb64, token):
     ):
         user = None
 
-    print(f"user: {user}")
+    print(f"User: {user}")
     print(f"Uid: {uid}")
     print(f"Token: {token}")
-    print(f"token: {account_activation_token.check_token(user, token)}")
+    print(f"Token: {account_activation_token.check_token(user, token)}")
+    print(f"Condition: {user is not None and account_activation_token.check_token(user, token)}")
 
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
