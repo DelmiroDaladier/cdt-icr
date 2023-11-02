@@ -1098,7 +1098,6 @@ def help_page(request):
         ```
         path('help/', views.help_page, name='help_page'),
         ```
-    #noqa
     """
     context = {}
     return render(
