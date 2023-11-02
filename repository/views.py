@@ -962,14 +962,7 @@ def submit_conference(request):
                     )
                 else:
                     print("Run quarto preview command to check the local changes·")
-                # repo = "conference_calendar"
-                # path = "input.csv"
-                # create_push_request(
-                #    file_path=filepath,
-                #    folder_name="",
-                #    repo=repo,
-                #    path=path,
-                # )
+
             except Exception as ex:
                 print(ex)
                 messages.error(
