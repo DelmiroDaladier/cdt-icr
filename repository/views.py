@@ -63,6 +63,7 @@ from .utils import (
     save_new_conference_data,
     generate_researcher_profile,
     update_repo_and_push,
+    git_pull
 )
 from .tokens import account_activation_token
 
@@ -125,6 +126,7 @@ def homepage(request):
                 try:
                     content = generate_qmd_header(content, form_data)
                     folder_name = slugify(content.get("title", ""))
+                    git_pull('icr_frontend')
 
                     current_path = os.getcwd()
 
@@ -588,6 +590,8 @@ def arxiv_post(request):
 
                         folder_name = slugify(content.get("title", ""))
 
+                        git_pull('icr_frontend')
+
                         current_path = os.getcwd()
 
                         current_path = (
@@ -634,7 +638,7 @@ def arxiv_post(request):
                         ]
 
                         project_name = "icr_frontend"
-                        print(f"env name: {env_name}")
+
                         if env_name == "prod":
                             update_repo_and_push(
                                 folder_name, relative_path_list, project_name, repo

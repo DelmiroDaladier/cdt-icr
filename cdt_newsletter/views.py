@@ -334,9 +334,9 @@ class NewsletterPreview(FormPreview):
             if folder_name == "cdt_weekly_newsletter":
                 folder_name = f"{folder_name}-{today_str}"
 
-            relative_path_list = [f"newsletter_issues/{folder_name}/index.qmd"]
-            project_name = "newsletter_frontend"
-            repo = "newsletter_frontend"
+            relative_path_list = [f"newsletter/{folder_name}/index.qmd"]
+            project_name = "icr_frontend"
+            repo = "icr"
 
             create_newsletter_file_and_push(
                 folder_name,

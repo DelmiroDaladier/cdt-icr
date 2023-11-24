@@ -3,6 +3,7 @@ import re
 import json
 import yaml
 import requests
+import subprocess
 from dateutil.parser import parse
 from collections import defaultdict
 from urllib3.util.retry import Retry
@@ -700,6 +701,17 @@ def _commit_changes(
         headers=header,
     )
 
+def git_pull(repo_path):
+    try:
+        os.chdir(repo_path)
+        
+        subprocess.run(['git', 'pull', 'origin', 'main'], check=True)
+        
+        print("Git pull successfull.")
+    except subprocess.CalledProcessError as e:
+        print(f"Erro when performing git pull: {e}")
+    finally:
+        os.chdir('..')
 
 def update_repo_and_push(
     folder_name: str, relative_path_list: list, project_name: str, repo: str
@@ -1239,6 +1251,8 @@ def generate_researcher_profile(input_data: dict):
     env_name = os.getenv("ENV_NAME")
 
     if env_name == "prod":
+
+        git_pull('icr_frontend')    
 
         project_name = input_data.get('project_folder', '')
         relative_path_list = [
