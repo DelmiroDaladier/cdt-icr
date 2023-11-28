@@ -7,7 +7,7 @@ from .models import Newsletter
 
 from bs4 import BeautifulSoup
 
-from repository.utils import update_repo_and_push
+from repository.utils import update_repo_and_push, git_pull
 
 
 def create_qmd_file(filepath: str):
@@ -200,6 +200,7 @@ def create_newsletter_file_and_push(
         None.
     """
     load_dotenv()
+    git_pull('icr_frontend')
     file_list = [os.getcwd() + f"/{project_name}/{path}" for path in relative_path_list]
 
     content = {
@@ -229,5 +230,5 @@ def create_newsletter_file_and_push(
         update_repo_and_push(folder_name, relative_path_list, project_name, repo)
     else:
         print(
-            "Please run the command quarto preview in the newsletter_frontend folder."
+            "Please run the command quarto preview in the icr_frontend folder."
         )

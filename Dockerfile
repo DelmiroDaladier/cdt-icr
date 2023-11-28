@@ -19,11 +19,7 @@ RUN pip install -r requirements.txt
 
 RUN python -m spacy download en_core_web_sm
 
-RUN git clone https://github.com/DelmiroDaladier/newsletter_frontend.git
-
 RUN git clone https://github.com/DelmiroDaladier/icr.git icr_frontend
-
-RUN git clone https://github.com/DelmiroDaladier/conference_calendar.git 
 
 EXPOSE 8000  
 

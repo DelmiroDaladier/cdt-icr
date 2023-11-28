@@ -11,12 +11,11 @@ from .models import BlogPost
 from dotenv import load_dotenv
 from repository.models import Author, ResearchArea
 from repository.forms import ResearchAreaForm
-from repository.utils import update_repo_and_push
+from repository.utils import update_repo_and_push, git_pull
 from .forms import BlogPostForm
 from .utils import (
     generate_qmd_header,
     generate_page_content,
-    create_push_request,
 )
 
 
@@ -61,6 +60,7 @@ def blog_homepage(request):
             content = generate_qmd_header(content, form_data)
 
             folder_name = slugify(content.get("title", ""))
+            git_pull('icr_frontend')
 
             current_path = os.getcwd()
 

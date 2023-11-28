@@ -649,6 +649,7 @@ def arxiv_post(request):
                             )
 
                     except Exception as ex:
+                        print(ex)
                         messages.error(
                             request,
                             "We are experiencing some problems "
@@ -948,12 +949,13 @@ def submit_conference(request):
             current_path = os.getcwd()
 
             load_dotenv()
-            filepath = current_path + f"/conference_calendar/input.csv"
+            git_pull('icr_frontend')
+            filepath = current_path + f"/icr_frontend/input_events.csv"
 
             relative_path_list = ["input.csv"]
 
-            project_name = "conference_calendar"
-            repo = "conference_calendar"
+            project_name = "icr_frontend"
+            repo = "icr"
             folder_name = ""
             env_name = os.getenv("ENV_NAME")
 
@@ -978,7 +980,7 @@ def submit_conference(request):
 
             context = {
                 "form": form,
-                "repo": "conference_calendar",
+                "repo": "icr_frontend",
             }
 
             return render(
