@@ -4,6 +4,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django import views as django_views
 
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+
 from blog.views import blog_homepage
 from cdt_newsletter.views import (
     review_newsletter,
@@ -35,8 +39,8 @@ from repository.views import (
     submit_session,
 )
 
-
 urlpatterns = [
+    path('accounts/', include('allauth.urls')),
     path("admin/", admin.site.urls),
     path("", homepage, name="homepage"),
     path("about/", about, name="about"),
