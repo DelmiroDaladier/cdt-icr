@@ -1,6 +1,8 @@
 <!doctype html>
 <html>
 {% load static %}
+{% load i18n %}
+{% load allauth account socialaccount %}
 <head>
     <title>IAI Hub</title>
     
@@ -269,7 +271,7 @@
                         </li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={% url 'homepage' %}">Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ signup_url }}">Register</a></li>
                     {% endif %}
                 </ul>
             </div>

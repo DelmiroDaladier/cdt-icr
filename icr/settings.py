@@ -41,6 +41,13 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -56,6 +63,12 @@ INSTALLED_APPS = [
     "crispy_forms",
     "modal_forms",
     "formtools",
+    "django.contrib.sites",
+    "rest_framework.authtoken",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github"
 ]
 
 MIDDLEWARE = [
@@ -67,6 +80,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware"
 ]
 
 ROOT_URLCONF = "icr.urls"
@@ -76,7 +90,10 @@ SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(SETTINGS_PATH, "templates")],
+        "DIRS": [
+            os.path.join(BASE_DIR, 'templates', 'allauth'),
+            os.path.join(SETTINGS_PATH, 'templates'),
+            ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -84,6 +101,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -176,3 +194,13 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "daladiersampaio@gmail.com"  # Enter your email
 EMAIL_HOST_PASSWORD = "lvwadclvplrrsdwk"  # Enter the password to the email
+
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {
+        'APP': {
+            'client_id': '6282064b2f0c3b5fffe6',
+            'secret': 'dfae0df7b928c5a7af6f0e69979d688f8251d156',
+            'key': ''
+        }
+    }
+}
