@@ -52,6 +52,7 @@ from .forms import (
     NewUserForm,
     ConferenceForm,
     SessionForm,
+    CustomSignupForm
 )
 from .utils import (
     generate_qmd_header,
@@ -68,7 +69,6 @@ from .utils import (
 from .tokens import account_activation_token
 
 from django.db import IntegrityError
-
 
 @login_required
 def homepage(request):

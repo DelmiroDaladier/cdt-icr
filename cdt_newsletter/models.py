@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import models
+from tinymce import models as tinymce_models
 
 # Create your models here.
 
@@ -32,7 +33,7 @@ class Newsletter(models.Model):
 class Announcement(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=250, null=True)
-    text = models.TextField(max_length=500)
+    text = tinymce_models.HTMLField()
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     published = models.BooleanField(default=False)

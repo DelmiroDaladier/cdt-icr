@@ -92,6 +92,7 @@ urlpatterns = [
         django_views.i18n.JavaScriptCatalog.as_view(),
         name="jsi18n",
     ),
+    path('tinymce/', include('tinymce.urls'))
 ]
 
 urlpatterns += [

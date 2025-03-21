@@ -20,6 +20,9 @@
             </script>
           </div>
         </div>
+        {% if announcement.date %}
+            <p class="card-text"><strong>Date:</strong> {{ announcement.date }}</p>
+        {% endif %}
         <p class="card-text ">{{ announcement.text | safe }}</p>
         <br>
         

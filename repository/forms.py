@@ -1,6 +1,7 @@
 from django import forms
 from django.db.models import Q
 from django.contrib.admin import widgets
+from allauth.socialaccount.forms import SignupForm
 from django.contrib.auth.models import (
     User,
 )
@@ -17,6 +18,25 @@ from .models import (
     Session,
 )
 
+
+class CustomSignupForm(SignupForm):
+
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control"}),
+    )
+
+    password = forms.CharField(
+        required=True,
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )
+
+
+    def save(self, request):
+
+        user = super(CustomSignupForm, self).save(request)
+
+        return user
 
 class DateInput(forms.DateInput):
     input_type = "date"

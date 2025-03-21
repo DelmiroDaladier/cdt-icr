@@ -24,3 +24,5 @@ python-docx==0.8.11
 selenium==4.11.2
 pycodestyle==2.11.0
 six==1.16.0
+lightning==2.0.1
+django-tinymce==4.1.0

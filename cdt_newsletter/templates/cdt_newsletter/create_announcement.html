@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+    {{ form.media }}
     <div class="container">
         <h1>Create Announcement</h1>
         <form id="" method="post" action="{% url 'create_announcement' %}" >

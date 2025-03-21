@@ -1,6 +1,7 @@
 import os
 import datetime
 import mimetypes
+from itertools import chain
 
 from docx import Document
 from htmldocx import HtmlToDocx
@@ -398,9 +399,14 @@ def announcements(request):
     Raises:
         None.
     """
-    objects = Announcement.objects.all()
 
-    context = {"announcements": objects}
+    all_announcements = Announcement.objects.all()
+    events = Event.objects.all()  # Filtra apenas os eventos
+    announcements = all_announcements.exclude(pk__in=events.values_list("pk", flat=True))
+
+    context = {
+        "announcements": announcements,
+        "events": events}
 
     return render(
         request,
@@ -428,14 +434,14 @@ def announcement_detail(request, pk):
     """
     announcement = Announcement.objects.get(pk=pk)
 
+    event = Event.objects.filter(pk=pk).first()
+
+    if event:
+        announcement = event
+
     context = {"announcement": announcement}
 
-    return render(
-        request,
-        "cdt_newsletter/announcement_detail.html",
-        context,
-    )
-
+    return render(request, "cdt_newsletter/announcement_detail.html", context)
 
 @login_required
 def edit_announcement(request, pk):

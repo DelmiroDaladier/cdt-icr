@@ -8,16 +8,53 @@
           </div>
           <div class="flex flex-wrap -m-4 p-2" style="width: 1000px;">
             <h3>Announcements</h3>
-            {% for announcement in announcements %}  
-            <div class="card xl:w-1/4 md:w-1/2 p-4">
-              <div class="bg-gray-100 p-6 rounded-lg">
-                <img class="h-40 rounded w-full object-cover object-center mb-6" src="" alt="">
-                <a href="{% url 'announcement_detail' announcement.id %}" h2 class="rounded-lg transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-pink-300 duration-300 text-lg text-gray-700 font-medium title-font mb-4">
-                  {{ announcement.title }}</a>
-              </div>
-            </div>
+            {% for announcement in announcements %}
+                {% if not announcement.published %}
+                  <div class="card xl:w-1/4 md:w-1/2 p-4">
+                    <div class="bg-gray-100 p-6 rounded-lg">
+                      <img class="h-40 rounded w-full object-cover object-center mb-6" src="" alt="">
+                      <a href="{% url 'announcement_detail' announcement.id %}" h2 class="rounded-lg transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-pink-300 duration-300 text-lg text-gray-700 font-medium title-font mb-4">
+                        {{ announcement.title }}</a>
+                    </div>
+                  </div>
+                {% endif %}
            {% endfor %}
-         
+          <h3>Events</h3>
+            {% for event in events %}
+              {% if not event.published %}
+                  <div class="card xl:w-1/4 md:w-1/2 p-4">
+                    <div class="bg-gray-100 p-6 rounded-lg">
+                      <img class="h-40 rounded w-full object-cover object-center mb-6" src="" alt="">
+                      <a href="{% url 'announcement_detail' event.id %}" h2 class="rounded-lg transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-pink-300 duration-300 text-lg text-gray-700 font-medium title-font mb-4">
+                        {{ event.title }}</a>
+                    </div>
+                  </div>
+              {% endif %}
+            {% endfor %}
+            <h3>Previous Announcements</h3>
+            {% for announcement in announcements %}
+                {% if announcement.published %}
+                  <div class="card xl:w-1/4 md:w-1/2 p-4">
+                    <div class="bg-gray-100 p-6 rounded-lg">
+                      <img class="h-40 rounded w-full object-cover object-center mb-6" src="" alt="">
+                      <a href="{% url 'announcement_detail' announcement.id %}" h2 class="rounded-lg transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-pink-300 duration-300 text-lg text-gray-700 font-medium title-font mb-4">
+                        {{ announcement.title }}</a>
+                    </div>
+                  </div>
+                {% endif %}
+           {% endfor %}  
+           <h3>Previous Events</h3>
+        {% for event in events %}
+          {% if event.published %}
+              <div class="card xl:w-1/4 md:w-1/2 p-4">
+                <div class="bg-gray-100 p-6 rounded-lg">
+                  <img class="h-40 rounded w-full object-cover object-center mb-6" src="" alt="">
+                  <a href="{% url 'announcement_detail' event.id %}" h2 class="rounded-lg transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-pink-300 duration-300 text-lg text-gray-700 font-medium title-font mb-4">
+                    {{ event.title }}</a>
+                </div>
+              </div>
+          {% endif %}
+       {% endfor %}        
           </div>
     </section>
 </div>

@@ -11,7 +11,9 @@ from .models import (
     Newsletter,
     Announcement,
 )
-
+from tinymce.widgets import TinyMCE
+from tinymce import models as tinymce_models
+from tinymce.models import HTMLField
 
 class Subscriptionform(forms.ModelForm):
     email = forms.EmailField()
@@ -64,8 +66,8 @@ class DateInput(forms.DateInput):
 class AnnouncementForm(forms.ModelForm):
     title = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
 
-    text = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control"}))
-
+    text = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    
     date = forms.DateField(
         required=False,
         widget=DateInput(attrs={"class": "form-control"}),

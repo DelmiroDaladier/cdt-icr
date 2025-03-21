@@ -23,6 +23,10 @@ MESSAGE_TAGS = {
     messages.ERROR: "alert-danger",
 }
 
+SOCIALACCOUNT_FORMS = {'signup': 'repository.forms.CustomSignupForm'}
+
+SOCIALACCOUNT_AUTO_SIGNUP = False
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -68,7 +72,8 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "allauth.socialaccount.providers.github"
+    "allauth.socialaccount.providers.github",
+    "tinymce",
 ]
 
 MIDDLEWARE = [
