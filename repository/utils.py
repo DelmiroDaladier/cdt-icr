@@ -490,7 +490,9 @@ def _get_sha_last_commit(user: str, auth_token: str, repo: str):
         sha_last_commit_url,
         headers=header,
     )
-
+    print("******")
+    print(sha_last_commit_url)
+    print(response)
     sha_last_commit = response.json()["commit"]["sha"]
 
     return sha_last_commit
@@ -737,7 +739,7 @@ def update_repo_and_push(
         KeyError: If the response JSON does not contain the expected structure.
     """
     load_dotenv()
-
+    print(relative_path_list)
     file_list = [os.getcwd() + f"/{project_name}/{path}" for path in relative_path_list]
 
     user = os.getenv("GH_USER")

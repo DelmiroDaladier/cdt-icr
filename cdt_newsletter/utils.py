@@ -200,8 +200,9 @@ def create_newsletter_file_and_push(
         None.
     """
     load_dotenv()
-    git_pull('icr_frontend')
-    file_list = [os.getcwd() + f"/{project_name}/{path}" for path in relative_path_list]
+    git_pull('newsletter_frontend')
+    print(relative_path_list)
+    file_list = [os.getcwd() + f"/{project_name}/newsletter_issues/{path}" for path in relative_path_list]
 
     content = {
         "title": f"Newsletter Issue - {today_str}",
@@ -210,11 +211,12 @@ def create_newsletter_file_and_push(
     }
 
     for file in file_list:
+        print(f"File:{file}")
         folder_path = (
             os.getcwd()
             + f"/{project_name}/newsletter_issues/{folder_name.replace(' ', '_')}"
         )
-
+        print(f"Folder path:{folder_path}")
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -225,6 +227,8 @@ def create_newsletter_file_and_push(
             fp.write(newsletter_body)
 
     env_name = os.getenv("ENV_NAME")
+
+    relative_path_list = ['newsletter_issues/'+path for path in relative_path_list]
 
     if env_name == "prod":
         update_repo_and_push(folder_name, relative_path_list, project_name, repo)
