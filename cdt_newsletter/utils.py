@@ -201,7 +201,8 @@ def create_newsletter_file_and_push(
     """
     load_dotenv()
     git_pull('newsletter_frontend')
-    print(relative_path_list)
+    print(f'Relative path list: {relative_path_list}')
+    relative_path_list = [item.replace('/index', '') for item in relative_path_list]
     file_list = [os.getcwd() + f"/{project_name}/newsletter_issues/{path}" for path in relative_path_list]
 
     content = {
@@ -225,10 +226,20 @@ def create_newsletter_file_and_push(
             yaml.dump(content, fp)
             fp.write("\n---\n")
             fp.write(newsletter_body)
+    
+    index_path = os.getcwd() + f"/{project_name}/index.qmd"
+    index_relative_path = "index.qmd"
+
+    with open(index_path , "w+") as fp:
+            fp.write("---\n")
+            yaml.dump(content, fp)
+            fp.write("\n---\n")
+            fp.write(newsletter_body)
 
     env_name = os.getenv("ENV_NAME")
 
     relative_path_list = ['newsletter_issues/'+path for path in relative_path_list]
+    relative_path_list.append(index_relative_path)
 
     if env_name == "prod":
         update_repo_and_push(folder_name, relative_path_list, project_name, repo)

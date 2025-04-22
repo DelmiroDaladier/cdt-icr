@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+    {{ form.media }}
     <div class="container">
         <h1>Create Newsletter</h1>
         <form id="newPostForm" method="post" action="{% url 'newsletter_preview' %}" >

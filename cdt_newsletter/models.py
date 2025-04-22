@@ -15,7 +15,7 @@ class Newsletter(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100, null=True)
     tldr = models.TextField(max_length=200)
-    text = models.TextField()
+    text = tinymce_models.HTMLField()
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     sent = models.BooleanField(default=False)

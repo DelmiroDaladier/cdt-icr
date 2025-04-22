@@ -39,7 +39,7 @@ class Newsletterform(forms.ModelForm):
     text = forms.CharField(
         help_text="The text that will appear at the top of the newsletter.",
         required=False,
-        widget=forms.Textarea(attrs={"class": "form-control"}),
+        widget=TinyMCE(attrs={'cols': 128, 'rows': 10}),
     )
 
     announcements = forms.ModelMultipleChoiceField(
