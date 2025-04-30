@@ -1,12 +1,10 @@
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib import admin
-from django.urls import path, include
-from django import views as django_views
+from django.urls import path, include, re_path
+from django.views.i18n import JavaScriptCatalog
 
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from dj_rest_auth.registration.views import SocialLoginView
 
 from blog.views import blog_homepage
 from cdt_newsletter.views import (
@@ -87,9 +85,9 @@ urlpatterns = [
         name="delete_announcement",
     ),
     path("help", help_page, name="help"),
-    url(
+    re_path(
         r"^jsi18n/$",
-        django_views.i18n.JavaScriptCatalog.as_view(),
+        JavaScriptCatalog.as_view(),
         name="jsi18n",
     ),
     path('tinymce/', include('tinymce.urls'))

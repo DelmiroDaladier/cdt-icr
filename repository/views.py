@@ -13,7 +13,7 @@ from django.template.loader import (
 )
 from django.utils.encoding import (
     force_bytes,
-    force_text,
+    force_str,
 )
 from django.contrib.sites.shortcuts import (
     get_current_site,
@@ -846,7 +846,7 @@ def activate(request, uidb64, token):
         None.
     """
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
 
     except (

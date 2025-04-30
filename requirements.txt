@@ -1,5 +1,5 @@
-asgiref==3.5.2
-Django==3.2.12
+asgiref>=3.8.1,<4.0.0
+Django>=4.2.16,<5.0.0
 pytz==2022.6
 sqlparse==0.4.3
 django-crispy-forms==1.14.0
@@ -8,7 +8,7 @@ django-widget-tweaks==1.4.12
 django-embed-video==1.4.8
 django-addanother==2.2.2
 Markdown==3.4.1
-PyYAML==5.3.1 
+PyYAML
 python-dotenv==0.21.0  
 beautifulsoup4==4.11.1
 spacy==3.5.0
@@ -26,3 +26,6 @@ pycodestyle==2.11.0
 six==1.16.0
 lightning==2.0.1
 django-tinymce==4.1.0
+djangorestframework
+django-allauth==65.7.0
+numpy==2.0.0
