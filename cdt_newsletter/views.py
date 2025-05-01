@@ -119,6 +119,7 @@ def create_newsletter(request):
                     "Oops! Something went wrong."
                     "Please check your input and try again.",
                 )
+                print(f"Exeption: {ex}")
 
             return render(
                 request,
@@ -335,9 +336,9 @@ class NewsletterPreview(FormPreview):
             if folder_name == "cdt_weekly_newsletter":
                 folder_name = f"{folder_name}-{today_str}"
 
-            relative_path_list = [f"{folder_name}/index.qmd"]
-            project_name = "newsletter_frontend"
-            repo = "newsletter_frontend"
+            relative_path_list = [f"{folder_name}.qmd"]
+            project_name = "PrO-AI"
+            repo = "PrO-AI"
 
             create_newsletter_file_and_push(
                 folder_name,

@@ -199,8 +199,12 @@ def create_newsletter_file_and_push(
     Raises:
         None.
     """
-    load_dotenv()
-    git_pull('newsletter_frontend')
+    load_dotenv(override=True)
+    git_pull('PrO-AI')
+
+    print(f'Folder name: {folder_name}')
+    print(f"Project Name: {project_name}")
+    print(f"Repo: {repo}")
     print(f'Relative path list: {relative_path_list}')
     relative_path_list = [item.replace('/index', '') for item in relative_path_list]
     file_list = [os.getcwd() + f"/{project_name}/newsletter_issues/{path}" for path in relative_path_list]
@@ -227,8 +231,8 @@ def create_newsletter_file_and_push(
             fp.write("\n---\n")
             fp.write(newsletter_body)
     
-    index_path = os.getcwd() + f"/{project_name}/index.qmd"
-    index_relative_path = "index.qmd"
+    index_path = os.getcwd() + f"/{project_name}/newsletter.qmd"
+    index_relative_path = "newsletter.qmd"
 
     with open(index_path , "w+") as fp:
             fp.write("---\n")
