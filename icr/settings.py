@@ -42,7 +42,7 @@ SECRET_KEY = (
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["137.222.125.111", "172.26.10.158", "pro-ai-hub.bristol.ac.uk"]
 
 
 SITE_ID = 1

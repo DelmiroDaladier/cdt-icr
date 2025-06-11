@@ -28,4 +28,4 @@ lightning==2.0.1
 django-tinymce==4.1.0
 djangorestframework
 django-allauth==65.7.0
-numpy==2.0.0
+numpy==1.24.4
