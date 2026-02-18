@@ -13,8 +13,8 @@ class Subscription(models.Model):
 
 class Newsletter(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=100, null=True)
-    tldr = models.TextField(max_length=200)
+    title = models.CharField(max_length=1000, null=True)
+    tldr = models.TextField(max_length=2000)
     text = tinymce_models.HTMLField()
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
@@ -32,7 +32,7 @@ class Newsletter(models.Model):
 
 class Announcement(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=250, null=True)
+    title = models.CharField(max_length=2500, null=True)
     text = tinymce_models.HTMLField()
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)

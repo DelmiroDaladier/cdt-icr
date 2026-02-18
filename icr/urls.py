@@ -90,7 +90,8 @@ urlpatterns = [
         JavaScriptCatalog.as_view(),
         name="jsi18n",
     ),
-    path('tinymce/', include('tinymce.urls'))
+    path('tinymce/', include('tinymce.urls')),
+    #path('saml2/', include('djangosaml2.urls')),
 ]
 
 urlpatterns += [

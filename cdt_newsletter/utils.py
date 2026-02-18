@@ -2,6 +2,7 @@ import os
 import yaml
 from datetime import datetime
 from dotenv import load_dotenv
+from django.contrib import messages
 
 from .models import Newsletter
 
@@ -9,6 +10,9 @@ from bs4 import BeautifulSoup
 
 from repository.utils import update_repo_and_push, git_pull
 
+import logging
+
+logger = logging.getLogger('cdt_newsletter')
 
 def create_qmd_file(filepath: str):
     """
@@ -202,10 +206,12 @@ def create_newsletter_file_and_push(
     load_dotenv(override=True)
     git_pull('PrO-AI')
 
-    print(f'Folder name: {folder_name}')
-    print(f"Project Name: {project_name}")
-    print(f"Repo: {repo}")
-    print(f'Relative path list: {relative_path_list}')
+    
+    logger.debug(f'Folder name: {folder_name}')
+    logger.debug(f"Project Name: {project_name}")
+    logger.debug(f"Repo: {repo}")
+    logger.debug(f'Relative path list: {relative_path_list}')
+
     relative_path_list = [item.replace('/index', '') for item in relative_path_list]
     file_list = [os.getcwd() + f"/{project_name}/newsletter_issues/{path}" for path in relative_path_list]
 
@@ -213,41 +219,67 @@ def create_newsletter_file_and_push(
         "title": f"Newsletter Issue - {today_str}",
         "execute": {"echo": False},
         "format": {"html": {"df-print": "paged", "toc": True}},
-    }
+    }   
 
     for file in file_list:
-        print(f"File:{file}")
+        logger.debug(f"File:{file}")
         folder_path = (
             os.getcwd()
             + f"/{project_name}/newsletter_issues/{folder_name.replace(' ', '_')}"
         )
-        print(f"Folder path:{folder_path}")
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        logger.debug(f"Folder path:{folder_path}")
+        try: 
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+        except Exception as ex:
+            logger.error(ex)
+            messages.error(
+                f"Error creating {folder_path}",
+            )
 
-        with open(file, "w+") as fp:
-            fp.write("---\n")
-            yaml.dump(content, fp)
-            fp.write("\n---\n")
-            fp.write(newsletter_body)
-    
+        try:
+            with open(file, "w+") as fp:
+                fp.write("---\n")
+                yaml.dump(content, fp)
+                fp.write("\n---\n")
+                fp.write(newsletter_body)
+        except Exception as ex:
+            logger.error(ex)
+            messsages.error(
+                f"Error writing the newsletter body on the repo."
+            )
+
     index_path = os.getcwd() + f"/{project_name}/newsletter.qmd"
     index_relative_path = "newsletter.qmd"
 
-    with open(index_path , "w+") as fp:
-            fp.write("---\n")
-            yaml.dump(content, fp)
-            fp.write("\n---\n")
-            fp.write(newsletter_body)
+    try:
+        with open(index_path , "w+") as fp:
+                fp.write("---\n")
+                yaml.dump(content, fp)
+                fp.write("\n---\n")
+                fp.write(newsletter_body)
+    except Exception as ex:
+        logger.error(ex)
+        messages.error(
+            f"Error writing the newsletter body on the index path."
+        )
 
-    env_name = os.getenv("ENV_NAME")
+    try:
+        env_name = os.getenv("ENV_NAME")
 
-    relative_path_list = ['newsletter_issues/'+path for path in relative_path_list]
-    relative_path_list.append(index_relative_path)
+        relative_path_list = ['newsletter_issues/'+path for path in relative_path_list]
+        relative_path_list.append(index_relative_path)
 
-    if env_name == "prod":
-        update_repo_and_push(folder_name, relative_path_list, project_name, repo)
-    else:
-        print(
-            "Please run the command quarto preview in the icr_frontend folder."
+        logger.debug(f"Environment:{env_name}")
+
+        if env_name == "prod":
+            update_repo_and_push(folder_name, relative_path_list, project_name, repo)
+        else:
+            logger.debug(
+                "Please run the command quarto preview in the icr_frontend folder."
+            )
+    except Exception as ex:
+        logger.error(ex)
+        messages.error(
+            f"Error pushing changes to github."
         )

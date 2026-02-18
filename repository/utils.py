@@ -21,6 +21,11 @@ from spacy import displacy
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
+import logging
+
+logger = logging.getLogger('repository')
+
+GIT_BIN = "/usr/bin/git"
 
 def generate_qmd_header(content: dict, form_data: dict):
     """Generate a Quick Markup Description header based on form data.
@@ -485,17 +490,21 @@ def _get_sha_last_commit(user: str, auth_token: str, repo: str):
     """
     header = {"Authorization": "Bearer " + auth_token}
 
-    sha_last_commit_url = f"https://api.github.com/repos/{user}/{repo}/branches/main"
+    sha_last_commit_url = f"https://api.github.com/repos/PracticeOrientedAICDT/{repo}/branches/main"
     response = requests.get(
         sha_last_commit_url,
         headers=header,
     )
-    print("******")
-    print(sha_last_commit_url)
-    print(response)
-    sha_last_commit = response.json()["commit"]["sha"]
+    logger.debug("******")
+    logger.debug(f"SHA last commit: {sha_last_commit_url}")
+    logger.debug(f"Response: {response}")
+    logger.debug(f"Response: {response.json()['commit']}")
+    response_json = response.json()
+    commit = response_json.get('commit')
+    sha = commit.get('sha')
+    logger.debug(f"sha: {sha}")
 
-    return sha_last_commit
+    return sha
 
 
 def _get_sha_base_tree(user: str, repo: str, auth_token: str, sha_last_commit: str):
@@ -521,9 +530,11 @@ def _get_sha_base_tree(user: str, repo: str, auth_token: str, sha_last_commit: s
     header = {"Authorization": "Bearer " + auth_token}
 
     url = (
-        f"https://api.github.com/repos/" f"{user}/{repo}/git/commits/{sha_last_commit}"
+        f"https://api.github.com/repos/" f"PracticeOrientedAICDT/PrO-AI/git/commits/{sha_last_commit}"
     )
     response = requests.get(url, headers=header)
+
+    logger.debug(f"Tree response: {response.json()}")
 
     sha_base_tree = response.json()["sha"]
 
@@ -565,7 +576,7 @@ def _read_files_and_create_blob(user: str, repo: str, auth_token: str, files: li
                 "Authorization": "Bearer " + auth_token,
             }
 
-            url = f"https://api.github.com/repos/{user}/{repo}/git/blobs"
+            url = f"https://api.github.com/repos/PracticeOrientedAICDT/PrO-AI/git/blobs"
             response = requests.post(
                 url,
                 json.dumps(data),
@@ -627,7 +638,7 @@ def _post_sha_blob_list(
         }
         data["tree"].append(blob_obj)
 
-    url = f"https://api.github.com/repos/{user}/{repo}/git/trees"
+    url = f"https://api.github.com/repos/PracticeOrientedAICDT/PrO-AI/git/trees"
     response = requests.post(
         url,
         json.dumps(data),
@@ -683,7 +694,7 @@ def _commit_changes(
         "tree": new_tree_sha,
     }
 
-    url = f"https://api.github.com/repos/" f"{user}/{repo}/git/commits"
+    url = f"https://api.github.com/repos/" f"PracticeOrientedAICDT/PrO-AI/git/commits"
     response = requests.post(
         url,
         json.dumps(data),
@@ -696,7 +707,7 @@ def _commit_changes(
         "sha": new_commit_sha,
     }
 
-    url = f"https://api.github.com/repos" f"/{user}/{repo}/git/refs/heads/main"
+    url = f"https://api.github.com/repos" f"/PracticeOrientedAICDT/PrO-AI/git/refs/heads/main"
     response = requests.post(
         url,
         json.dumps(data),
@@ -705,15 +716,14 @@ def _commit_changes(
 
 def git_pull(repo_path):
     try:
-        os.chdir(repo_path)
-        
-        subprocess.run(['git', 'pull', 'origin', 'main'], check=True)
-        
-        print("Git pull successfull.")
-    except subprocess.CalledProcessError as e:
-        print(f"Erro when performing git pull: {e}")
-    finally:
-        os.chdir('..')
+        subprocess.run(
+            [GIT_BIN, "pull", "origin", "main"],
+            cwd=repo_path,
+            check=True
+        )
+        logger.info("Git pull successful.")
+    except subprocess.CalledProcessError:
+        logger.exception("Error performing git pull")
 
 def update_repo_and_push(
     folder_name: str, relative_path_list: list, project_name: str, repo: str
@@ -746,11 +756,15 @@ def update_repo_and_push(
     auth_token = os.getenv("GH_TOKEN")
 
     sha_last_commit = _get_sha_last_commit(user, auth_token, repo)
+    logger.debug(f"Sha last commit: {sha_last_commit}")
     sha_base_tree = _get_sha_base_tree(user, repo, auth_token, sha_last_commit)
+    logger.debug(f"Sha base tree: {sha_last_commit}")
     blob_sha_list = _read_files_and_create_blob(user, repo, auth_token, file_list)
+    logger.debug(f"blob_sha_list: {blob_sha_list}")
     new_tree_sha = _post_sha_blob_list(
         user, repo, auth_token, sha_base_tree, blob_sha_list, relative_path_list
     )
+    logger.debug(f"new_tree_sha: {new_tree_sha}")
     _commit_changes(user, repo, auth_token, folder_name, sha_last_commit, new_tree_sha)
 
 

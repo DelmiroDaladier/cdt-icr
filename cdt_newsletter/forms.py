@@ -15,6 +15,9 @@ from tinymce.widgets import TinyMCE
 from tinymce import models as tinymce_models
 from tinymce.models import HTMLField
 
+from html import unescape
+from django.utils.html import strip_tags
+
 class Subscriptionform(forms.ModelForm):
     email = forms.EmailField()
 
@@ -44,19 +47,29 @@ class Newsletterform(forms.ModelForm):
 
     announcements = forms.ModelMultipleChoiceField(
         help_text="Click in the box to access the Announcement List.",
-        queryset=Announcement.objects.filter(published=False),
+        queryset=Announcement.objects.none(),
         widget=forms.SelectMultiple(
             attrs={
                 "class": "form-control",
-                "id": "announcements-multi-select",
-                "multiple": "multiple",
+                "id": "id_announcements",
             }
         ),
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['announcements'].queryset = Announcement.objects.filter(
+            published=False
+        )
+
+        self.fields['announcements'].label_from_instance = (
+            lambda obj: unescape(strip_tags(obj.title)).strip()
+        )
+
     class Meta:
         model = Newsletter
-        fields = ["title", "tldr", "text"]
+        fields = ['title', 'text', 'announcements']
 
 
 class DateInput(forms.DateInput):
@@ -64,7 +77,13 @@ class DateInput(forms.DateInput):
 
 
 class AnnouncementForm(forms.ModelForm):
-    title = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
+    title = forms.CharField(
+        widget=TinyMCE(attrs={'cols': 80, 'rows': 10, "height": 200}, 
+        mce_attrs={
+            'height': 200,
+            'toolbar':  "undo redo | formatselect | "
+            "bold italic underline forecolor backcolor | "
+            }))
 
     text = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     

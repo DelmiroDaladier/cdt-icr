@@ -23,8 +23,10 @@
                     {{ form.announcements|as_crispy_field }}
                 </div>
                 <script>
-                    $(document).ready(function() {
-                        $('#announcements-multi-select').select2();
+                    $(document).ready(function () {
+                        $('#id_announcements').select2({
+                            width: '100%'
+                        });
                     });
                 </script>
             </div>

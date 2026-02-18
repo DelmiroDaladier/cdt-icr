@@ -39,7 +39,11 @@ from .utils import (
 from django.contrib.auth.decorators import (
     login_required,
 )
+from django.conf import settings
 
+import logging
+
+logger = logging.getLogger('cdt_newsletter')
 
 @login_required
 def review_newsletter(request):
@@ -108,7 +112,8 @@ def create_newsletter(request):
             new_parser = HtmlToDocx()
 
             new_parser.add_html_to_document(newsletter_body, document)
-            document.save("newsletter.doc")
+            output_path = os.path.join(settings.MEDIA_ROOT, "newsletter.doc")
+            document.save(output_path)
 
             try:
                 form.save()
@@ -119,7 +124,7 @@ def create_newsletter(request):
                     "Oops! Something went wrong."
                     "Please check your input and try again.",
                 )
-                print(f"Exeption: {ex}")
+                looger.error(f"Exeption: {ex}")
 
             return render(
                 request,
@@ -219,7 +224,7 @@ def create_announcement(request):
                     context,
                 )
             except Exception as ex:
-                print(ex)
+                logger.error(ex)
                 messages.error(
                     request,
                     "Oops! Something went wrong."
@@ -267,19 +272,20 @@ class NewsletterPreview(FormPreview):
     preview_template = "cdt_newsletter/newsletter_visualization.html"
 
     def get_context(self, request, form):
+
+        context = super().get_context(request, form)
+
+        context["invalid_form"] = not form.is_valid()
+
         if form.is_valid():
-            render_data = {
+            context["render_data"] = {
                 "title": form.cleaned_data["title"],
                 "text": form.cleaned_data["text"],
                 "announcements": form.cleaned_data["announcements"],
                 "events": Event.objects.all().order_by("date"),
             }
-            return {
-                "render_data": render_data,
-                "form": form,
-                "stage_field": self.unused_name("stage"),
-                "state": self.state,
-            }
+
+        return context
 
     def process_preview(self, request, form, context):
         today = datetime.datetime.today()
@@ -321,14 +327,18 @@ class NewsletterPreview(FormPreview):
         try:
             Newsletter.objects.create(**newsletter)
         except Exception as ex:
-            print(ex)
+            logger.error(ex)
+            logger.error("Fail creating the newsletter entry. Please check the submitted information.")
             messages.error(
                 request,
-                "Please check the submitted information.",
+                "Fail creating the newsletter entry. Please check the submitted information.",
             )
             return redirect("create_newsletter")
 
         try:
+            logger.error("Path:")
+            logger.error(os.environ.get("PATH"))
+
             folder_name = cleaned_data["title"]
             folder_name = folder_name.lower()
             folder_name = folder_name.replace(" ", "_")
@@ -340,6 +350,7 @@ class NewsletterPreview(FormPreview):
             project_name = "PrO-AI"
             repo = "PrO-AI"
 
+            
             create_newsletter_file_and_push(
                 folder_name,
                 relative_path_list,
@@ -350,10 +361,11 @@ class NewsletterPreview(FormPreview):
             )
 
         except Exception as ex:
-            print(ex)
+            logger.error(ex)
+            logger.error("Failed Pushing to github. Please check the submitted information.")
             messages.error(
                 request,
-                "Please check the submitted information.",
+                "Failed Pushing to github. Please check the submitted information.",
             )
             return redirect("create_newsletter")
 
