@@ -9,7 +9,10 @@
         <h2>{{ announcement.title|safe }}</h2>
         <div class="d-flex flex-row ml-10" style="text-align:left">
           <div id="updateAnnouncement" class="form-group mr-5 p-1" >
-            <a class="btn btn-primary btn-sm pull-right"  data-bs-toggle="modal" data-bs-target="#updateAnnouncementModal" >Edit Announcement</a>
+            <a href="{% url 'edit_announcement' announcement.id %}" 
+              class="btn btn-primary btn-sm pull-right">
+              Edit Announcement
+            </a>
           </div>
           <div id="deleteAnnouncement" class="form-group mr-5 p-1">  
             <a class="confirm-delete btn btn-danger btn-sm pull-right"  href="{% url 'delete_announcement' announcement.id%}" >Delete Announcement</a>
