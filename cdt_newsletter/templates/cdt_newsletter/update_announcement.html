@@ -14,7 +14,7 @@
 
                 <div class="card-body">
 
-                    <form method="post">
+                    <form method="post" action="{% url 'edit_announcement' pk=form.instance.pk %}">
                         {% csrf_token %}
 
                         {{ form.media }}

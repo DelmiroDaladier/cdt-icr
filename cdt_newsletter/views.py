@@ -482,7 +482,10 @@ def edit_announcement(request, pk):
 
         if form.is_valid():
             form.save()
-            return redirect(f"/announcements/{pk}/")
+            print("Salvou")
+            return redirect(f"/announcement/{pk}")
+        else: 
+            print("Erros:", form.errors)
 
     context = {"form": form}
 
