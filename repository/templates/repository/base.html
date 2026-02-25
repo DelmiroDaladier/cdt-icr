@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load allauth account socialaccount %}
 <head>
-    <title>IAI Hub</title>
+    <title>PrO-AI Hub</title>
     
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -243,9 +243,17 @@
     
     
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'homepage' %}">IAI Hub</a>
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'homepage' %}">
+                <img src="{% static 'images/UoB_RGB_24.svg' %}"
+                    style="height:40px; width:auto;" 
+                    class="navbar-logo me-3">
+
+                <img src="{% static 'images/logo_nobg.png' %}"
+                    style="height:65px; width:auto;" 
+                    class="navbar-logo-secondary me-2">
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
